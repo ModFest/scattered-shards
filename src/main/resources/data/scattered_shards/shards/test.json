@@ -1,0 +1,11 @@
+{
+  "info": {
+    "name": "Test Shard",
+    "lore": "It's a test",
+    "hint": "You can't obtain it"
+  },
+  "type": "visitor",
+  "icon": {
+    "texture": "bruh.png"
+  }
+}

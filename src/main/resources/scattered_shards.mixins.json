@@ -1,13 +1,12 @@
 {
-	"required": true,
-	"minVersion": "0.8",
-	"package": "net.modfest.scatteredshards.mixin",
-	"compatibilityLevel": "JAVA_17",
-	"mixins": [],
-	"client": [
-      "net.modfest.scatteredshards.mixin.TitleScreenMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.modfest.scatteredshards.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AdvancementDisplayAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
