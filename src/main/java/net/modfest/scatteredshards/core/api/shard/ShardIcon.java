@@ -21,7 +21,7 @@ public interface ShardIcon {
 		}
 		else if (JsonHelper.hasJsonObject(obj, "stack")) {
 			JsonObject stackObj = JsonHelper.getObject(obj, "stack");
-			ItemStack stack = AdvancementDisplayAccessor.iconFromJson(stackObj);
+			ItemStack stack = AdvancementDisplayAccessor.scattered_shards$iconFromJson(stackObj);
 			return new ShardIconImpls.StackBacked(stack);
 		}
 		throw new JsonSyntaxException("shard icon must be either a 'texture' path or a 'stack' object");

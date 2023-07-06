@@ -1,0 +1,34 @@
+{
+  "visitor": {
+    "info": {
+      "name": "Booth Visitor",
+      "lore": "Thanks for visiting my booth",
+      "hint": "Visit the booth :P"
+    },
+    "icon": {
+      "texture": "bruh.png"
+    }
+  },
+  "challenge": {
+    "info": {
+      "name": "Conqueror",
+      "lore": "Lots of jumping required",
+      "hint": "Reach the top of the parkour"
+    },
+    "icon": {
+      "stack": {
+        "item": "minecraft:diamond_boots"
+      }
+    }
+  },
+  "secret": {
+    "info": {
+      "name": "Here I lie",
+      "lore": "The terrible truth",
+      "hint": "Find the secret underground dungeon"
+    },
+    "icon": {
+      "texture": "dungeon.png"
+    }
+  }
+}

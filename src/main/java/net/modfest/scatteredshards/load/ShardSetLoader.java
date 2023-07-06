@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.core.api.shard.ShardData;
+import net.modfest.scatteredshards.core.api.shard.ShardSet;
 import org.jetbrains.annotations.NotNull;
 import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
 import org.quiltmc.qsl.resource.loader.api.reloader.IdentifiableResourceReloader;
@@ -18,14 +18,14 @@ import org.quiltmc.qsl.resource.loader.api.reloader.IdentifiableResourceReloader
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShardDataLoader extends JsonDataLoader implements IdentifiableResourceReloader {
+public class ShardSetLoader extends JsonDataLoader implements IdentifiableResourceReloader {
 
-	public static final String TYPE = "shards";
+	public static final String TYPE = "shard_sets";
 	public static final Identifier ID = ScatteredShards.id(TYPE);
 
-	public static Map<Identifier, ShardData> data = new HashMap<>();
+	public static final Map<Identifier, ShardSet> LOADED_SHARD_SETS = new HashMap<>();
 
-	public ShardDataLoader() {
+	public ShardSetLoader() {
 		super(new Gson(), TYPE);
 	}
 
@@ -36,22 +36,22 @@ public class ShardDataLoader extends JsonDataLoader implements IdentifiableResou
 
 	@Override
 	protected void apply(Map<Identifier, JsonElement> cache, ResourceManager manager, Profiler profiler) {
-		data.clear();
+		LOADED_SHARD_SETS.clear();
 		int successes = 0;
 		for (var pair : cache.entrySet()) {
 			try {
-				JsonObject obj = JsonHelper.asObject(pair.getValue(), "shard data");
-				data.put(pair.getKey(), ShardData.fromJson(obj));
+				JsonObject obj = JsonHelper.asObject(pair.getValue(), "shard set");
+				LOADED_SHARD_SETS.put(pair.getKey(), ShardSet.fromJson(pair.getKey().getNamespace(), obj));
 				successes++;
 			}
 			catch (Exception e) {
-				ScatteredShards.LOGGER.error("Failed to load shard data '" + pair.getKey() + "':", e);
+				ScatteredShards.LOGGER.error("Failed to load shard set '" + pair.getKey() + "':", e);
 			}
 		}
-		ScatteredShards.LOGGER.info("Loaded " + successes + " shard data object" + (successes == 1 ? "" : "s"));
+		ScatteredShards.LOGGER.info("Loaded " + successes + " shard set" + (successes == 1 ? "" : "s"));
 	}
 
 	public static void register() {
-		ResourceLoader.get(ResourceType.SERVER_DATA).registerReloader(new ShardDataLoader());
+		ResourceLoader.get(ResourceType.SERVER_DATA).registerReloader(new ShardSetLoader());
 	}
 }

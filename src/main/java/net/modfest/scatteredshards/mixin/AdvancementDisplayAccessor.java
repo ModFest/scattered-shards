@@ -7,10 +7,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(AdvancementDisplay.class)
-public class AdvancementDisplayAccessor {
+public interface AdvancementDisplayAccessor {
 
 	@Invoker("iconFromJson")
-	public static ItemStack iconFromJson(JsonObject object) {
+	static ItemStack scattered_shards$iconFromJson(JsonObject object) {
 		throw new UnsupportedOperationException();
 	}
 }

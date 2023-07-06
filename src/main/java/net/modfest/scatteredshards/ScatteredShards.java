@@ -2,7 +2,7 @@ package net.modfest.scatteredshards;
 
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.command.ShardCommand;
-import net.modfest.scatteredshards.load.ShardDataLoader;
+import net.modfest.scatteredshards.load.ShardSetLoader;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 import org.slf4j.Logger;
@@ -20,8 +20,7 @@ public class ScatteredShards implements ModInitializer {
 
 	@Override
 	public void onInitialize(ModContainer mod) {
-		//LOGGER.info("Hello Quilt world from {}!", mod.metadata().name());
-		ShardDataLoader.register();
+		ShardSetLoader.register();
 		ShardCommand.register();
 	}
 }
