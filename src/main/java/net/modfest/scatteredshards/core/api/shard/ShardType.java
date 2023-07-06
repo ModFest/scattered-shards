@@ -18,8 +18,8 @@ public enum ShardType {
 	private final Identifier backing = getTexture("backing");
 	private final Identifier front = getTexture("front");
 
-	public Identifier getShardId(String namespace) {
-		return new Identifier(namespace, id);
+	public Identifier getShardId(Identifier setId) {
+		return new Identifier(setId.getNamespace(), setId.getPath() + "_" + id);
 	}
 
 	private Identifier getTexture(String type) {

@@ -41,7 +41,7 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 		for (var pair : cache.entrySet()) {
 			try {
 				JsonObject obj = JsonHelper.asObject(pair.getValue(), "shard set");
-				LOADED_SHARD_SETS.put(pair.getKey(), ShardSet.fromJson(pair.getKey().getNamespace(), obj));
+				LOADED_SHARD_SETS.put(pair.getKey(), ShardSet.fromJson(pair.getKey(), obj));
 				successes++;
 			}
 			catch (Exception e) {
