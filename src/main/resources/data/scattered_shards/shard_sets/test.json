@@ -1,34 +1,25 @@
 {
-  "visitor": {
-    "info": {
-      "name": "Booth Visitor",
-      "lore": "Thanks for visiting my booth",
-      "hint": "Visit the booth :P"
-    },
+  "bruh_mod:visitor": {
+    "shard_type": "scattered_shards:visitor",
+    "name": "Booth Visitor",
+    "lore": "Thanks for visiting my booth",
+    "hint": "Visit the booth :P",
+    "icon": "bruh_mod:shard/bruh.png"
+  },
+  "bruh_mod:challenge": {
+    "shard_type": "scattered_shards:challenge",
+    "name": "Conqueror",
+    "lore": "Lots of jumping required",
+    "hint": "Reach the top of the parkour",
     "icon": {
-      "texture": "bruh.png"
+        "id": "minecraft:diamond_boots"
     }
   },
-  "challenge": {
-    "info": {
-      "name": "Conqueror",
-      "lore": "Lots of jumping required",
-      "hint": "Reach the top of the parkour"
-    },
-    "icon": {
-      "stack": {
-        "item": "minecraft:diamond_boots"
-      }
-    }
-  },
-  "secret": {
-    "info": {
-      "name": "Here I lie",
-      "lore": "The terrible truth",
-      "hint": "Find the secret underground dungeon"
-    },
-    "icon": {
-      "texture": "dungeon.png"
-    }
+  "bruh_mod:secret": {
+    "shard_type": "scattered_shards:secret",
+    "name": "Here I lie",
+    "lore": "The terrible truth",
+    "hint": "Find the secret underground dungeon",
+    "icon": "bruh_mod:shard/dungeon.png"
   }
 }
