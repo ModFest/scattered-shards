@@ -39,7 +39,6 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 
 	@Override
 	protected void apply(Map<Identifier, JsonElement> cache, ResourceManager manager, Profiler profiler) {
-		ScatteredShardsAPIImpl.onReload();
 		BY_ID.clear();
 		BY_SHARD_SET.clear();
 		int successes = 0;
@@ -58,6 +57,7 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 			}
 		}
 		ScatteredShards.LOGGER.info("Loaded " + successes + " shard" + (successes == 1 ? "" : "s"));
+		ScatteredShardsAPIImpl.update();
 	}
 
 	public static void register() {

@@ -13,31 +13,29 @@ public class ScatteredShardsAPIImpl {
 
 	private static final Multimap<Identifier, Shard> REGISTERED_SHARD_SETS = MultimapBuilder.hashKeys().arrayListValues(3).build();
 	private static final BiMap<Identifier, Shard> REGISTERED_SHARDS = HashBiMap.create();
-	private static Multimap<Identifier, Shard> shardSetCache = null;
-	private static BiMap<Identifier, Shard> shardCache = null;
+	public static Multimap<Identifier, Shard> shardSets = null;
+	public static BiMap<Identifier, Shard> shardData = null;
 
-	public static Multimap<Identifier, Shard> getOrCreateShardSets() {
-		if (shardSetCache == null) {
-			shardSetCache = MultimapBuilder.hashKeys().arrayListValues(3).build();
-			shardSetCache.putAll(ShardSetLoader.BY_SHARD_SET);
-			shardSetCache.putAll(REGISTERED_SHARD_SETS);
-		}
-		
-		return shardSetCache;
+	static {
+		update();
 	}
 
-	public static BiMap<Identifier, Shard> getOrCreateShardData() {
-		if (shardCache == null) {
-			shardCache = HashBiMap.create();
-			shardCache.putAll(ShardSetLoader.BY_ID);
-			shardCache.putAll(REGISTERED_SHARDS);
-		}
-		
-		return shardCache;
+	private static Multimap<Identifier, Shard> createShardSets() {
+		Multimap<Identifier, Shard> multimap = MultimapBuilder.hashKeys().arrayListValues(3).build();
+		multimap.putAll(ShardSetLoader.BY_SHARD_SET);
+		multimap.putAll(REGISTERED_SHARD_SETS);
+		return multimap;
 	}
 
-	public static void onReload() {
-		shardSetCache = null;
-		shardCache = null;
+	private static BiMap<Identifier, Shard> createShardData() {
+		BiMap<Identifier, Shard> map = HashBiMap.create();
+		map.putAll(ShardSetLoader.BY_ID);
+		map.putAll(REGISTERED_SHARDS);
+		return map;
+	}
+
+	public static void update() {
+		shardSets = createShardSets();
+		shardData = createShardData();
 	}
 }
