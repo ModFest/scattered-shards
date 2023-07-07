@@ -10,6 +10,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.core.api.shard.ShardSet;
 import org.jetbrains.annotations.NotNull;
 import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
@@ -36,6 +37,7 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 
 	@Override
 	protected void apply(Map<Identifier, JsonElement> cache, ResourceManager manager, Profiler profiler) {
+		ScatteredShardsAPIImpl.onReload();
 		LOADED_SHARD_SETS.clear();
 		int successes = 0;
 		for (var pair : cache.entrySet()) {

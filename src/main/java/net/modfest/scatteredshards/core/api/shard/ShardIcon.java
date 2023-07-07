@@ -2,6 +2,7 @@ package net.modfest.scatteredshards.core.api.shard;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
@@ -12,7 +13,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
 public interface ShardIcon {
 
 	@ClientOnly
-	void render();
+	void render(GuiGraphics graphics, int x, int y);
 
 	static ShardIcon fromJson(JsonObject obj) {
 		if (JsonHelper.hasString(obj, "texture")) {
