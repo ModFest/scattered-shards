@@ -21,7 +21,8 @@
 		},
 		"intermediate_mappings": "net.fabricmc:intermediary",
 		"entrypoints": {
-			"init": "net.modfest.scatteredshards.ScatteredShards"
+			"init": "net.modfest.scatteredshards.ScatteredShards",
+			"client_init": "net.modfest.scatteredshards.client.ScatteredShardsClient"
 		},
 		"depends": [
 			{

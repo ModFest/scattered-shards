@@ -9,12 +9,15 @@ import net.minecraft.resource.JsonDataLoader;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.core.api.shard.Shard;
+import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 import org.jetbrains.annotations.NotNull;
 import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
+import org.quiltmc.qsl.resource.loader.api.ResourceLoaderEvents;
 import org.quiltmc.qsl.resource.loader.api.reloader.IdentifiableResourceReloader;
 
 import java.util.HashMap;
@@ -24,7 +27,7 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 
 	public static final String TYPE = "shard_sets";
 	public static final Identifier ID = ScatteredShards.id(TYPE);
-	
+
 	public static final Map<Identifier, Shard> BY_ID = new HashMap<>();
 	public static final Multimap<Identifier, Shard> BY_SHARD_SET = MultimapBuilder.hashKeys().arrayListValues().build();
 
@@ -62,5 +65,12 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 
 	public static void register() {
 		ResourceLoader.get(ResourceType.SERVER_DATA).registerReloader(new ShardSetLoader());
+		ResourceLoaderEvents.END_DATA_PACK_RELOAD.register(context -> {
+			try (var server = context.server()) {
+				if (server != null) {
+					ScatteredShardsNetworking.s2cReloadShards(server.getPlayerManager().getPlayerList());
+				}
+			}
+		});
 	}
 }
