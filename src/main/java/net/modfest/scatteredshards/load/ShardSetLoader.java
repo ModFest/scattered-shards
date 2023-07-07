@@ -44,13 +44,16 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 		BY_SHARD_SET.clear();
 		int successes = 0;
 		for (var entry : cache.entrySet()) {
+			
+			
 			if (entry.getValue() instanceof JsonObject shardListObj) {
 				for(var shardEntry : shardListObj.entrySet()) {
 					if (shardEntry.getValue() instanceof JsonObject shardObj) {
+						System.out.println("Loading Shard: "+shardObj);
 						try {
 							Shard shard = Shard.fromJson(shardObj);
 							BY_ID.put(new Identifier(shardEntry.getKey()), shard);
-							BY_SHARD_SET.put(shard.shardType(), shard);
+							BY_SHARD_SET.put(entry.getKey(), shard);
 							successes++;
 						} catch (Exception ex) {
 							ScatteredShards.LOGGER.error("Failed to load shard set '" + entry.getKey() + "':", ex);

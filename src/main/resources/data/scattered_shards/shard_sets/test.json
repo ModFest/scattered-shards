@@ -12,7 +12,8 @@
     "lore": "Lots of jumping required",
     "hint": "Reach the top of the parkour",
     "icon": {
-        "id": "minecraft:diamond_boots"
+        "id": "minecraft:diamond_boots",
+        "Count": 1
     }
   },
   "bruh_mod:secret": {

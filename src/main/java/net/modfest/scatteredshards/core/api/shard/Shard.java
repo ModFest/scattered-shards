@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.core.api.shard;
 
+import org.quiltmc.qsl.registry.api.event.RegistryMonitor;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -7,9 +9,11 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
@@ -21,7 +25,6 @@ public class Shard {
 	private static final Identifier MISSING_TEXTURE_ID = new Identifier("");
 	
 	protected Identifier shardType;
-	protected Text info = Text.literal("");
 	protected Text name = Text.literal("");
 	protected Text lore = Text.literal("");
 	protected Text hint = Text.literal("");
@@ -30,12 +33,11 @@ public class Shard {
 	public Shard() {}
 	
 	private Shard(NbtCompound nbt) {
-		shardType = new Identifier(nbt.getString("shardType"));
-		info = Text.Serializer.fromJson(nbt.getString("info"));
-		name = Text.Serializer.fromJson(nbt.getString("name"));
-		lore = Text.Serializer.fromJson(nbt.getString("lore"));
-		hint = Text.Serializer.fromJson(nbt.getString("hint"));
-		NbtElement iconElem = nbt.get("icon");
+		shardType = new Identifier(nbt.getString("ShardType"));
+		name = Text.Serializer.fromJson(nbt.getString("Name"));
+		lore = Text.Serializer.fromJson(nbt.getString("Lore"));
+		hint = Text.Serializer.fromJson(nbt.getString("Hint"));
+		NbtElement iconElem = nbt.get("Icon");
 		if (iconElem instanceof NbtString str) {
 			icon = Either.right(new Identifier(str.asString()));
 		} else if (iconElem instanceof NbtCompound compound) {
@@ -47,10 +49,6 @@ public class Shard {
 	
 	public Identifier shardType() {
 		return shardType;
-	}
-	
-	public Text info() {
-		return info;
 	}
 	
 	public Text name() {
@@ -71,11 +69,6 @@ public class Shard {
 	
 	public Shard setShardType(Identifier id) {
 		this.shardType = id;
-		return this;
-	}
-	
-	public Shard setInfo(Text value) {
-		this.info = value;
 		return this;
 	}
 	
@@ -109,17 +102,16 @@ public class Shard {
 	}
 	
 	public NbtCompound writeNbt(NbtCompound nbt) {
-		nbt.putString("shardType", shardType.toString());
-		nbt.putString("info", Text.Serializer.toJson(info));
-		nbt.putString("name", Text.Serializer.toJson(name));
-		nbt.putString("lore", Text.Serializer.toJson(lore));
-		nbt.putString("hint", Text.Serializer.toJson(hint));
+		nbt.putString("ShardType", shardType.toString());
+		nbt.putString("Name", Text.Serializer.toJson(name));
+		nbt.putString("Lore", Text.Serializer.toJson(lore));
+		nbt.putString("Hint", Text.Serializer.toJson(hint));
 		
 		icon.ifLeft((stack) -> {
-			nbt.put("icon", stack.writeNbt(new NbtCompound()));
+			nbt.put("Icon", stack.writeNbt(new NbtCompound()));
 		});
 		icon.ifRight((texture) -> {
-			nbt.putString("icon", texture.toString());
+			nbt.putString("Icon", texture.toString());
 		});
 		
 		return nbt;
@@ -129,7 +121,6 @@ public class Shard {
 		JsonObject result = new JsonObject();
 		
 		result.add("shard_type", new JsonPrimitive(shardType.toString()));
-		result.add("info", new JsonPrimitive(Text.Serializer.toJson(info)));
 		result.add("name", new JsonPrimitive(Text.Serializer.toJson(name)));
 		result.add("lore", new JsonPrimitive(Text.Serializer.toJson(lore)));
 		result.add("hint", new JsonPrimitive(Text.Serializer.toJson(hint)));
@@ -151,19 +142,46 @@ public class Shard {
 	public static Shard fromJson(JsonObject obj) {
 		Shard result = new Shard();
 		result.shardType = new Identifier(JsonHelper.getString(obj, "shard_type"));
-		result.info = Text.Serializer.fromJson(JsonHelper.getString(obj, "info"));
-		result.name = Text.Serializer.fromJson(JsonHelper.getString(obj, "name"));
-		result.lore = Text.Serializer.fromJson(JsonHelper.getString(obj, "lore"));
-		result.hint = Text.Serializer.fromJson(JsonHelper.getString(obj, "hint"));
+		result.name = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "name"));
+		result.lore = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "lore"));
+		result.hint = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "hint"));
 		
 		JsonElement iconElem = obj.get("icon");
 		if (iconElem instanceof JsonPrimitive primitive) {
 			result.icon = Either.right(new Identifier(primitive.getAsString()));
 		} else if (iconElem instanceof JsonObject itemObj) {
-			ItemStack item = ItemStack.CODEC.decode(JsonOps.INSTANCE, itemObj).getOrThrow(false, (err) -> ScatteredShards.LOGGER.warn("Couldn't deserialize an ItemStack")).getFirst();
+			ItemStack item = loadItemStack(itemObj);
+			//ItemStack item = ItemStack.CODEC.decode(JsonOps.INSTANCE, itemObj).getOrThrow(false, (err) -> ScatteredShards.LOGGER.warn("Couldn't deserialize an ItemStack")).getFirst();
 			result.icon = Either.left(item);
 		}
 		
 		return result;
+	}
+	
+	@Override
+	public String toString() {
+		return toJson().toString();
+	}
+	
+	private static ItemStack loadItemStack(JsonElement elem) {
+		if (elem instanceof JsonObject obj) {
+			Identifier itemId = new Identifier(obj.get("id").getAsString());
+			int count = 1;
+			if (obj.has("Count")) {
+				count = obj.get("Count").getAsInt();
+			}
+			ItemStack stack = new ItemStack(Registries.ITEM.get(itemId), count);
+			
+			if (obj.has("tag")) {
+				NbtCompound tag = NbtCompound.CODEC.decode(JsonOps.INSTANCE, obj.get("tag"))
+					.getOrThrow(false, (err) -> ScatteredShards.LOGGER.warn("Couldn't deserialize an ItemStack tag."))
+					.getFirst();
+				stack.setNbt(tag);
+			}
+			
+			return stack;
+		} else {
+			return new ItemStack(Items.AIR);
+		}
 	}
 }
