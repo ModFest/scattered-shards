@@ -2,6 +2,7 @@ package net.modfest.scatteredshards.networking;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -35,7 +36,7 @@ public class ScatteredShardsNetworking {
 		return buf;
 	}
 
-	private static void readMapUpdate(PacketByteBuf buf, Consumer<Multimap<Identifier, Shard>> bySetCallback, Consumer<Map<Identifier, Shard>> byIdCallback) {
+	private static Multimap<Identifier, Shard> readBySet(PacketByteBuf buf) {
 		Multimap<Identifier, Shard> bySet = MultimapBuilder.hashKeys().arrayListValues(3).build();
 		var setMap = buf.readMap(PacketByteBuf::readIdentifier, setBuf -> {
 			return setBuf.readCollection(ArrayList::new, Shard::read);
@@ -43,9 +44,21 @@ public class ScatteredShardsNetworking {
 		for (var entry : setMap.entrySet()) {
 			bySet.putAll(entry.getKey(), entry.getValue());
 		}
-		Map<Identifier, Shard> byId = buf.readMap(PacketByteBuf::readIdentifier, Shard::read);
-		bySetCallback.accept(bySet);
-		byIdCallback.accept(byId);
+		return bySet;
+	}
+
+	private static Map<Identifier, Shard> readById(PacketByteBuf buf) {
+		return buf.readMap(PacketByteBuf::readIdentifier, Shard::read);
+	}
+
+	@ClientOnly
+	private static void readMapUpdate(MinecraftClient client, PacketByteBuf buf, Consumer<Multimap<Identifier, Shard>> bySetCallback, Consumer<Map<Identifier, Shard>> byIdCallback) {
+		final var bySet = readBySet(buf);
+		final var byId = readById(buf);
+		client.execute(() -> {
+			bySetCallback.accept(bySet);
+			byIdCallback.accept(byId);
+		});
 	}
 
 	public static void s2cReloadShards(Collection<ServerPlayerEntity> players) {
@@ -61,12 +74,10 @@ public class ScatteredShardsNetworking {
 	@ClientOnly
 	public static void registerClient() {
 		ClientPlayNetworking.registerGlobalReceiver(RELOAD_SHARDS, (client, handler, buf, responseSender) -> {
-			readMapUpdate(buf, ShardSetLoader.BY_SHARD_SET::putAll, ShardSetLoader.BY_ID::putAll);
-			System.out.println(ShardSetLoader.BY_SHARD_SET);
+			readMapUpdate(client, buf, ShardSetLoader.BY_SHARD_SET::putAll, ShardSetLoader.BY_ID::putAll);
 		});
 		ClientPlayNetworking.registerGlobalReceiver(UPDATE_SHARDS, (client, handler, buf, responseSender) -> {
-			readMapUpdate(buf, ScatteredShardsAPIImpl.shardSets::putAll, ScatteredShardsAPIImpl.shardData::putAll);
-			System.out.println(ScatteredShardsAPIImpl.shardSets);
+			readMapUpdate(client, buf, ScatteredShardsAPIImpl.shardSets::putAll, ScatteredShardsAPIImpl.shardData::putAll);
 		});
 	}
 

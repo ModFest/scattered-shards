@@ -66,10 +66,8 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 	public static void register() {
 		ResourceLoader.get(ResourceType.SERVER_DATA).registerReloader(new ShardSetLoader());
 		ResourceLoaderEvents.END_DATA_PACK_RELOAD.register(context -> {
-			try (var server = context.server()) {
-				if (server != null) {
-					ScatteredShardsNetworking.s2cReloadShards(server.getPlayerManager().getPlayerList());
-				}
+			if (context.server() != null) {
+				ScatteredShardsNetworking.s2cReloadShards(context.server().getPlayerManager().getPlayerList());
 			}
 		});
 	}
