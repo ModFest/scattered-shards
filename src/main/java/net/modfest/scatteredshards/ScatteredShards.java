@@ -1,7 +1,6 @@
 package net.modfest.scatteredshards;
 
 import net.minecraft.util.Identifier;
-import net.modfest.scatteredshards.command.ShardCommand;
 import net.modfest.scatteredshards.load.ShardSetLoader;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 import org.quiltmc.loader.api.ModContainer;
@@ -22,7 +21,6 @@ public class ScatteredShards implements ModInitializer {
 	@Override
 	public void onInitialize(ModContainer mod) {
 		ShardSetLoader.register();
-		ShardCommand.register();
 		ScatteredShardsNetworking.register();
 	}
 }
