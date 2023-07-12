@@ -22,6 +22,10 @@ import java.util.stream.Stream;
 
 public class Shard {
 
+	public static final Identifier VISITOR_TYPE = ScatteredShards.id("visitor");
+	public static final Identifier CHALLENGE_TYPE = ScatteredShards.id("challenge");
+	public static final Identifier SECRET_TYPE = ScatteredShards.id("secret");
+
 	/**
 	 * @see net.minecraft.client.texture.TextureManager#MISSING_IDENTIFIER
 	 */
@@ -33,6 +37,9 @@ public class Shard {
 	protected Text hint;
 	protected Either<ItemStack, Identifier> icon;
 
+	protected final Identifier backingTexture;
+	protected final Identifier frontTexture;
+
 	public Shard(Identifier shardType, Text name, Text lore, Text hint, Either<ItemStack, Identifier> icon) {
 		Stream.of(shardType, name, lore, hint, icon).forEach(Objects::requireNonNull);
 		this.shardType = shardType;
@@ -40,6 +47,12 @@ public class Shard {
 		this.lore = lore;
 		this.hint = hint;
 		this.icon = icon;
+		backingTexture = getTexture("backing");
+		frontTexture = getTexture("front");
+	}
+
+	public static Shard empty() {
+		return new Shard(VISITOR_TYPE, Text.empty(), Text.empty(), Text.empty(), MISSING_ICON);
 	}
 
 	public Identifier shardType() {
@@ -60,6 +73,14 @@ public class Shard {
 
 	public Either<ItemStack, Identifier> icon() {
 		return icon;
+	}
+
+	public Identifier backingTexture() {
+		return backingTexture;
+	}
+
+	public Identifier frontTexture() {
+		return frontTexture;
 	}
 
 	public Shard setShardType(Identifier id) {
@@ -90,6 +111,10 @@ public class Shard {
 	public Shard setIcon(Identifier textureValue) {
 		this.icon = Either.right(textureValue);
 		return this;
+	}
+
+	private Identifier getTexture(String type) {
+		return shardType.withPath("textures/gui/shards/" + shardType.getPath() + "_" + type + ".png");
 	}
 
 	private static Either<ItemStack, Identifier> iconFromNbt(NbtElement nbt) {
