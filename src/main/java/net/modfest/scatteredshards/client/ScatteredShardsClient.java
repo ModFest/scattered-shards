@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.client;
 
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.client.command.ShardCommand;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 import org.quiltmc.loader.api.ModContainer;
@@ -11,5 +13,8 @@ public class ScatteredShardsClient implements ClientModInitializer {
 	public void onInitializeClient(ModContainer mod) {
 		ShardCommand.register();
 		ScatteredShardsNetworking.registerClient();
+		
+		
+		BlockEntityRendererFactories.register(ScatteredShards.SHARD_BLOCKENTITY, ShardBlockEntityRenderer::new);
 	}
 }
