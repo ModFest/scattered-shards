@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
+import net.modfest.scatteredshards.client.ScatteredShardsClient;
 import net.modfest.scatteredshards.core.api.shard.Shard;
 import net.modfest.scatteredshards.core.api.shard.ShardType;
 import net.modfest.scatteredshards.load.ShardSetLoader;
@@ -23,12 +24,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class ScatteredShardsNetworking {
 
 	private static final Identifier RELOAD_DATA = ScatteredShards.id("reload_data");
 	private static final Identifier UPDATE_DATA = ScatteredShards.id("update_data");
+	private static final Identifier COLLECT_SHARD = ScatteredShards.id("collect_shard");
 
 	private static PacketByteBuf createDataUpdate(Map<Identifier, ShardType> shardTypes, Multimap<Identifier, Shard> shardSets, Map<Identifier, Shard> shardData) {
 		PacketByteBuf buf = PacketByteBufs.create();
@@ -81,6 +82,12 @@ public class ScatteredShardsNetworking {
 		ServerPlayNetworking.send(players, UPDATE_DATA, buf);
 	}
 
+	public static void s2cCollectShard(ServerPlayerEntity player, Identifier shardId) {
+		PacketByteBuf buf = PacketByteBufs.create();
+		buf.writeString(shardId.toString());
+		ServerPlayNetworking.send(player, COLLECT_SHARD, buf);
+	}
+
 	@ClientOnly
 	public static void registerClient() {
 		ClientPlayNetworking.registerGlobalReceiver(RELOAD_DATA, (client, handler, buf, responseSender) -> {
@@ -88,6 +95,13 @@ public class ScatteredShardsNetworking {
 		});
 		ClientPlayNetworking.registerGlobalReceiver(UPDATE_DATA, (client, handler, buf, responseSender) -> {
 			updateData(client, buf, ScatteredShardsAPIImpl.shardTypes, ScatteredShardsAPIImpl.shardSets, ScatteredShardsAPIImpl.shardData);
+		});
+		ClientPlayNetworking.registerGlobalReceiver(COLLECT_SHARD, (client, handler, buf, responseSender) -> {
+			final Identifier shardId = new Identifier(buf.readString());
+
+			client.execute(() -> {
+				ScatteredShardsClient.triggerShardCollectAnimation(shardId);
+			});
 		});
 	}
 
