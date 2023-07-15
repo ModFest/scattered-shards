@@ -5,14 +5,16 @@ import io.github.cottonmc.cotton.gui.widget.*;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.core.api.shard.Shard;
-import net.modfest.scatteredshards.mixin.EnchantingPhrasesAccess;
 
 import java.util.function.Supplier;
 
 public class WShardPanel extends WPlainPanel {
+
+	public static final Style HINT_STYLE = Style.EMPTY.withFont(new Identifier("minecraft:alt"));
 
 	private static class WStackIcon extends WItem {
 
@@ -67,7 +69,7 @@ public class WShardPanel extends WPlainPanel {
 
 	private WLabel createHintLabel(Supplier<Text> hint, int color) {
 		return createLabel(() -> {
-			return hint.get().copy().fillStyle(EnchantingPhrasesAccess.scattered_shards$getStyle());
+			return hint.get().copy().fillStyle(HINT_STYLE);
 		}, color);
 	}
 
