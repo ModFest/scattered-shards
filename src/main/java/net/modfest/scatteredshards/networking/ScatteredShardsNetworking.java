@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
+import net.modfest.scatteredshards.client.ScatteredShardsClient;
 import net.modfest.scatteredshards.core.api.shard.Shard;
 import net.modfest.scatteredshards.load.ShardSetLoader;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
@@ -26,6 +27,7 @@ public class ScatteredShardsNetworking {
 
 	private static final Identifier RELOAD_SHARDS = ScatteredShards.id("reload_shards");
 	private static final Identifier UPDATE_SHARDS = ScatteredShards.id("update_shards");
+	private static final Identifier COLLECT_SHARD = ScatteredShards.id("collect_shard");
 
 	private static PacketByteBuf createMapUpdate(Multimap<Identifier, Shard> bySet, Map<Identifier, Shard> byId) {
 		PacketByteBuf buf = PacketByteBufs.create();
@@ -70,7 +72,13 @@ public class ScatteredShardsNetworking {
 		PacketByteBuf buf = createMapUpdate(ScatteredShardsAPIImpl.shardSets, ScatteredShardsAPIImpl.shardData);
 		ServerPlayNetworking.send(players, UPDATE_SHARDS, buf);
 	}
-
+	
+	public static void s2cCollectShard(ServerPlayerEntity player, Identifier shardId) {
+		PacketByteBuf buf = PacketByteBufs.create();
+		buf.writeString(shardId.toString());
+		ServerPlayNetworking.send(player, COLLECT_SHARD, buf);
+	}
+	
 	@ClientOnly
 	public static void registerClient() {
 		ClientPlayNetworking.registerGlobalReceiver(RELOAD_SHARDS, (client, handler, buf, responseSender) -> {
@@ -78,6 +86,13 @@ public class ScatteredShardsNetworking {
 		});
 		ClientPlayNetworking.registerGlobalReceiver(UPDATE_SHARDS, (client, handler, buf, responseSender) -> {
 			readMapUpdate(client, buf, ScatteredShardsAPIImpl.shardSets::putAll, ScatteredShardsAPIImpl.shardData::putAll);
+		});
+		ClientPlayNetworking.registerGlobalReceiver(COLLECT_SHARD, (client, handler, buf, responseSender) -> {
+			final Identifier shardId = new Identifier(buf.readString());
+			
+			client.execute(() -> {
+				ScatteredShardsClient.triggerShardCollectAnimation(shardId);
+			});
 		});
 	}
 

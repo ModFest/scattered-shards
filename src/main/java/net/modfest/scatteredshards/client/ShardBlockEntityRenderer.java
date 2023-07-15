@@ -7,28 +7,21 @@ import com.mojang.datafixers.util.Either;
 
 import org.joml.Quaternionf;
 import org.joml.AxisAngle4f;
-import org.joml.Vector4f;
 import org.joml.Vector3f;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.TexturedRenderLayers;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.core.ShardBlockEntity;
 import net.modfest.scatteredshards.core.api.shard.Shard;
-import net.modfest.scatteredshards.core.api.shard.ShardType;
 
 @ClientOnly
 public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity> {
@@ -41,14 +34,11 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 	@Override
 	public void render(ShardBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		//Turn the entity into an itemstack, then render that?
-		//entity.getShardId();
 		
 		Shard shard = entity.getShard();
 		if (shard == null) {
 			//Let's make one up!
-			//shard = new Shard(ScatteredShards.id("visitor"), Text.literal(""), Text.literal(""), Text.literal(""), Either.left(new ItemStack(Items.APPLE)));
-			shard = new Shard(ScatteredShards.id("visitor"), Text.literal(""), Text.literal(""), Text.literal(""), Either.right(new Identifier("scattered_shards","textures/item/shard_block.png")));
+			shard = Shard.MISSING_SHARD;
 		}
 		
 		//TODO: Get the texture IDs for the front and back of the card based on shard.shardType()
@@ -63,10 +53,9 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		Quaternionf tilt = new Quaternionf(new AxisAngle4f((float) (Math.PI/8), 0f, 0f, 1f));
 		
 		matrices.push();
-		//matrices.translate(-0.5, -0.5, -0.5);
+		
 		matrices.translate(0.5, 0.5, 0.5);
 		matrices.multiply(rot);
-		
 		matrices.multiply(tilt);
 		
 		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(backTexture));

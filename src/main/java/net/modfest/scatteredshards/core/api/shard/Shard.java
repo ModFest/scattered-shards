@@ -26,6 +26,7 @@ public class Shard {
 	 * @see net.minecraft.client.texture.TextureManager#MISSING_IDENTIFIER
 	 */
 	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier(""));
+	public static final Shard MISSING_SHARD = new Shard(ScatteredShards.id("missing"), Text.of("Missing"), Text.of(""), Text.of(""), MISSING_ICON);
 
 	protected Identifier shardType;
 	protected Text name;
