@@ -23,13 +23,11 @@ import java.util.stream.Stream;
 
 public class Shard {
 
-
-
 	/**
 	 * @see net.minecraft.client.texture.TextureManager#MISSING_IDENTIFIER
 	 */
 	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier(""));
-	public static final Shard MISSING_SHARD = new Shard(ScatteredShards.id("missing"), Text.of("Missing"), Text.of(""), Text.of(""), MISSING_ICON);
+	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING, Text.of("Missing"), Text.of(""), Text.of(""), MISSING_ICON);
 
 	protected ShardType shardType;
 	protected Text name;
@@ -44,10 +42,6 @@ public class Shard {
 		this.lore = lore;
 		this.hint = hint;
 		this.icon = icon;
-	}
-
-	public static Shard empty() {
-		return new Shard(ShardType.VISITOR, Text.empty(), Text.empty(), Text.empty(), MISSING_ICON);
 	}
 
 	public ShardType shardType() {

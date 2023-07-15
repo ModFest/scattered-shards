@@ -26,7 +26,7 @@ import static org.quiltmc.qsl.command.api.client.ClientCommandManager.literal;
 public class ShardCommand {
 
 	public static final DynamicCommandExceptionType INVALID_ID = new DynamicCommandExceptionType(
-			id -> Text.translatable("error.scattered_shards.invalid_set_id")
+			id -> Text.translatable("error.scattered_shards.invalid_set_id", id)
 	);
 
 	public static int view(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {

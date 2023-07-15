@@ -13,6 +13,7 @@ public record ShardType(int textColor) {
 	public static final ShardType VISITOR = new ShardType(0x6DE851);
 	public static final ShardType CHALLENGE = new ShardType(0x5174E8);
 	public static final ShardType SECRET = new ShardType(0xEB4034);
+	public static final ShardType MISSING = new ShardType(0xFFFFFF);
 
 	/*public static final RegistryKey<Registry<ShardType>> REGISTRY_KEY = RegistryKey.ofRegistry(ScatteredShards.id("shard_type"));
 
@@ -69,5 +70,6 @@ public record ShardType(int textColor) {
 		ScatteredShardsAPI.registerShardType(ScatteredShards.id("visitor"), VISITOR);
 		ScatteredShardsAPI.registerShardType(ScatteredShards.id("challenge"), CHALLENGE);
 		ScatteredShardsAPI.registerShardType(ScatteredShards.id("secret"), SECRET);
+		ScatteredShardsAPI.registerShardType(ScatteredShards.id("missing"), MISSING);
 	}
 }

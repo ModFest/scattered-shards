@@ -86,9 +86,6 @@ public class WShardPanel extends WPlainPanel {
 
 		WLabel typeDescription = createLabel(() -> shard.shardType().getDescription(), shard.shardType().textColor());
 		add(typeDescription, 14, 100);
-
-		WLabel lore = createLabel(() -> null, null);
-
 		add(createHintLabel(shard::hint, 0xFFFFFF), 14, 120);
 	}
 }
