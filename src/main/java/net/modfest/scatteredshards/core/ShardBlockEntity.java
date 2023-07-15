@@ -10,7 +10,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.core.api.shard.Shard;
 
@@ -24,7 +23,7 @@ public class ShardBlockEntity extends BlockEntity {
 	protected Shard shard;
 	
 	public ShardBlockEntity(BlockPos pos, BlockState state) {
-		super(ScatteredShards.SHARD_BLOCKENTITY, pos, state);
+		super(ScatteredShardsContent.SHARD_BLOCKENTITY, pos, state);
 		
 	}
 	

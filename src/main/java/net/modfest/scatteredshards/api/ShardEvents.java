@@ -9,7 +9,7 @@ import net.modfest.scatteredshards.core.api.shard.Shard;
 public class ShardEvents {
 	
 	public static final Event<Collect> COLLECT = Event.create(Collect.class, (handlers) -> (player, shardId, shard) -> {
-		for(Collect handler : handlers) {
+		for (Collect handler : handlers) {
 			handler.handle(player, shardId, shard);
 		}
 	});

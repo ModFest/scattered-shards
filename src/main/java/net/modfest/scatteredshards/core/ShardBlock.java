@@ -14,15 +14,15 @@ import net.minecraft.world.BlockView;
 
 public class ShardBlock extends Block implements BlockEntityProvider {
 	public static final VoxelShape SHAPE = VoxelShapes.cuboid(4/16f, 3/16f, 4/16f, 12/16f, 13/16f, 12/16f);
+	private static final Block.Settings SETTINGS = Block.Settings.create()
+			.dropsNothing()
+			.noCollision()
+			.nonOpaque()
+			.luminance(state -> 3)
+			.mapColor(MapColor.EMERALD);
 	
 	public ShardBlock() {
-		super(Block.Settings.create()
-				.dropsNothing()
-				.noCollision()
-				.nonOpaque()
-				.luminance(state -> 3)
-				.mapColor(MapColor.EMERALD)
-				);
+		super(SETTINGS);
 	}
 	
 	@Override
