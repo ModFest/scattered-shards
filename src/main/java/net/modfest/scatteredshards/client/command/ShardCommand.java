@@ -26,7 +26,7 @@ import static org.quiltmc.qsl.command.api.client.ClientCommandManager.literal;
 public class ShardCommand {
 
 	public static final DynamicCommandExceptionType INVALID_ID = new DynamicCommandExceptionType(
-			id -> Text.translatable("scattered_shards.error.invalid_set_id")
+			id -> Text.translatable("error.scattered_shards.invalid_set_id")
 	);
 
 	public static int view(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
@@ -41,8 +41,8 @@ public class ShardCommand {
 	public static int creator(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
 		var client = context.getSource().getClient();
 		var shard = new Shard(
-				Shard.SECRET_TYPE,
 				Text.literal("Bruh"),
+				ShardType.SECRET,
 				Text.literal("What is this text for?"),
 				Text.literal("gfjfjjrj"),
 				//Either.right(ScatteredShards.id("icon.png"))
