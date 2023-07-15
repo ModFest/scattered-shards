@@ -15,14 +15,6 @@ public record ShardType(int textColor) {
 	public static final ShardType SECRET = new ShardType(0xEB4034);
 	public static final ShardType MISSING = new ShardType(0xFFFFFF);
 
-	/*public static final RegistryKey<Registry<ShardType>> REGISTRY_KEY = RegistryKey.ofRegistry(ScatteredShards.id("shard_type"));
-
-	public static final Codec<ShardType> CODEC = RecordCodecBuilder.create(instance -> {
-		return instance.group(
-				Codec.INT.fieldOf("text_color").forGetter(ShardType::textColor)
-		).apply(instance, ShardType::new);
-	});*/
-
 	public Identifier getId() {
 		return ScatteredShardsAPI.getShardTypes().inverse().get(this);
 	}
@@ -31,11 +23,6 @@ public record ShardType(int textColor) {
 		Identifier id = getId();
 		return id.withPath("textures/gui/shards/" + id.getPath() + "_" + name + ".png");
 	}
-
-	/*public static ShardType fromJson(JsonElement element) {
-		String str = JsonHelper.asString(element, "shard type");
-		return EnumUtils.getEnumIgnoreCase(ShardType.class, str);
-	}*/
 
 	public Identifier getBackingTexture() {
 		return getTexture("backing");
@@ -60,11 +47,6 @@ public record ShardType(int textColor) {
 	public static ShardType fromJson(JsonObject obj) {
 		return new ShardType(JsonHelper.getInt(obj, "text_color"));
 	}
-
-	/*public static void register() {
-		DynamicMetaRegistry.registerSynced(REGISTRY_KEY, CODEC);
-		DynamicRegistryManager.fromRegistryOfRegistries(Registries.REGISTRY).get(REGISTRY_KEY).
-	}*/
 
 	public static void register() {
 		ScatteredShardsAPI.registerShardType(ScatteredShards.id("visitor"), VISITOR);

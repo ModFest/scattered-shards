@@ -53,8 +53,4 @@ public class ScatteredShardsAPIImpl {
 		shardSets = createShardSets();
 		shardData = createShardData();
 	}
-
-	/*public static ShardType getShardType(Identifier id) {
-		DynamicRegistryManager.fromRegistryOfRegistries(Registries.REGISTRY).get(ShardType.REGISTRY_KEY).get(id);
-	}*/
 }
