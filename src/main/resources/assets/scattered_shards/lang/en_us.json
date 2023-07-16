@@ -1,0 +1,6 @@
+{
+  "error.scattered_shards.invalid_set_id": "Shard set '%s' does not exist",
+  "shard_type.scattered_shards.visitor.description": "Visitor Shard",
+  "shard_type.scattered_shards.challenge.description": "Challenge Shard",
+  "shard_type.scattered_shards.secret.description": "Secret Shard"
+}

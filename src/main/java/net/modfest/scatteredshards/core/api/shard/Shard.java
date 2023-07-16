@@ -16,6 +16,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -26,16 +27,16 @@ public class Shard {
 	 * @see net.minecraft.client.texture.TextureManager#MISSING_IDENTIFIER
 	 */
 	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier(""));
-	public static final Shard MISSING_SHARD = new Shard(ScatteredShards.id("missing"), Text.of("Missing"), Text.of(""), Text.of(""), MISSING_ICON);
+	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING, Text.of("Missing"), Text.of(""), Text.of(""), MISSING_ICON);
 
-	protected Identifier shardType;
+	protected ShardType shardType;
 	protected Text name;
 	protected Text lore;
 	protected Text hint;
 	protected Either<ItemStack, Identifier> icon;
 
-	public Shard(Identifier shardType, Text name, Text lore, Text hint, Either<ItemStack, Identifier> icon) {
-		Stream.of(shardType, name, lore, hint, icon).forEach(Objects::requireNonNull);
+	public Shard(ShardType shardType, Text name, Text lore, Text hint, Either<ItemStack, Identifier> icon) {
+		Stream.of(name, lore, hint, icon).forEach(Objects::requireNonNull);
 		this.shardType = shardType;
 		this.name = name;
 		this.lore = lore;
@@ -43,7 +44,7 @@ public class Shard {
 		this.icon = icon;
 	}
 
-	public Identifier shardType() {
+	public ShardType shardType() {
 		return shardType;
 	}
 
@@ -63,8 +64,8 @@ public class Shard {
 		return icon;
 	}
 
-	public Shard setShardType(Identifier id) {
-		this.shardType = id;
+	public Shard setShardType(ShardType shardType) {
+		this.shardType = shardType;
 		return this;
 	}
 
@@ -104,7 +105,7 @@ public class Shard {
 	}
 
 	public static Shard fromNbt(NbtCompound nbt) {
-		Identifier shardType = new Identifier(nbt.getString("ShardType"));
+		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(new Identifier(nbt.getString("ShardType")));
 		Text name = Text.Serializer.fromJson(nbt.getString("Name"));
 		Text lore = Text.Serializer.fromJson(nbt.getString("Lore"));
 		Text hint = Text.Serializer.fromJson(nbt.getString("Hint"));
@@ -113,7 +114,7 @@ public class Shard {
 	}
 
 	public NbtCompound writeNbt(NbtCompound nbt) {
-		nbt.putString("ShardType", shardType.toString());
+		nbt.putString("ShardType", shardType.getId().toString());
 		nbt.putString("Name", Text.Serializer.toJson(name));
 		nbt.putString("Lore", Text.Serializer.toJson(lore));
 		nbt.putString("Hint", Text.Serializer.toJson(hint));
@@ -131,7 +132,7 @@ public class Shard {
 	public JsonObject toJson() {
 		JsonObject result = new JsonObject();
 
-		result.add("shard_type", new JsonPrimitive(shardType.toString()));
+		result.add("shard_type", new JsonPrimitive(shardType.getId().toString()));
 		result.add("name", new JsonPrimitive(Text.Serializer.toJson(name)));
 		result.add("lore", new JsonPrimitive(Text.Serializer.toJson(lore)));
 		result.add("hint", new JsonPrimitive(Text.Serializer.toJson(hint)));
@@ -151,7 +152,7 @@ public class Shard {
 	}
 
 	public void write(PacketByteBuf buf) {
-		buf.writeIdentifier(shardType);
+		buf.writeIdentifier(shardType.getId());
 		buf.writeString(Text.Serializer.toJson(name));
 		buf.writeString(Text.Serializer.toJson(lore));
 		buf.writeString(Text.Serializer.toJson(hint));
@@ -159,7 +160,7 @@ public class Shard {
 	}
 
 	public static Shard read(PacketByteBuf buf) {
-		Identifier shardType = buf.readIdentifier();
+		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(buf.readIdentifier());
 		Text name = Text.Serializer.fromJson(buf.readString());
 		Text lore = Text.Serializer.fromJson(buf.readString());
 		Text hint = Text.Serializer.fromJson(buf.readString());
@@ -179,7 +180,7 @@ public class Shard {
 	}
 
 	public static Shard fromJson(JsonObject obj) {
-		Identifier shardType = new Identifier(JsonHelper.getString(obj, "shard_type"));
+		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(new Identifier(JsonHelper.getString(obj, "shard_type")));
 		Text name = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "name"));
 		Text lore = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "lore"));
 		Text hint = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "hint"));

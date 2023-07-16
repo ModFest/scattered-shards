@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class ShardSetLoader extends JsonDataLoader implements IdentifiableResourceReloader {
 
-	public static final String TYPE = "shard_sets";
+	public static final String TYPE = "shard_set";
 	public static final Identifier ID = ScatteredShards.id(TYPE);
 
 	public static final Map<Identifier, Shard> BY_ID = new HashMap<>();
@@ -60,15 +60,12 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 			}
 		}
 		ScatteredShards.LOGGER.info("Loaded " + successes + " shard" + (successes == 1 ? "" : "s"));
-		ScatteredShardsAPIImpl.update();
+		ScatteredShardsAPIImpl.updateShards();
 	}
 
 	public static void register() {
-		ResourceLoader.get(ResourceType.SERVER_DATA).registerReloader(new ShardSetLoader());
-		ResourceLoaderEvents.END_DATA_PACK_RELOAD.register(context -> {
-			if (context.server() != null) {
-				ScatteredShardsNetworking.s2cReloadShards(context.server().getPlayerManager().getPlayerList());
-			}
-		});
+		var serverData = ResourceLoader.get(ResourceType.SERVER_DATA);
+		serverData.addReloaderOrdering(ShardTypeLoader.ID, ShardSetLoader.ID);
+		serverData.registerReloader(new ShardSetLoader());
 	}
 }
