@@ -13,8 +13,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
-import net.modfest.scatteredshards.core.api.shard.Shard;
-import net.modfest.scatteredshards.core.api.shard.ShardType;
+import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import org.quiltmc.qsl.command.api.client.ClientCommandRegistrationCallback;
 import org.quiltmc.qsl.command.api.client.QuiltClientCommandSource;
 

@@ -5,8 +5,8 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import net.minecraft.util.Identifier;
-import net.modfest.scatteredshards.core.api.shard.Shard;
-import net.modfest.scatteredshards.core.api.shard.ShardType;
+import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.load.ShardSetLoader;
 import net.modfest.scatteredshards.load.ShardTypeLoader;
 

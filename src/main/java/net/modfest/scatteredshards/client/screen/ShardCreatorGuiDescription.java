@@ -4,7 +4,7 @@ import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
-import net.modfest.scatteredshards.core.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.Shard;
 
 public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 

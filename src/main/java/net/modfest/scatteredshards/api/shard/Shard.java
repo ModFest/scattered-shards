@@ -1,4 +1,4 @@
-package net.modfest.scatteredshards.core.api.shard;
+package net.modfest.scatteredshards.api.shard;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

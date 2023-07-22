@@ -7,8 +7,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
-import net.modfest.scatteredshards.core.api.shard.Shard;
-import net.modfest.scatteredshards.core.api.shard.ShardType;
+import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class ScatteredShardsAPI {

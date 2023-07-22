@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.modfest.scatteredshards.core.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.Shard;
 
 import java.util.function.Supplier;
 

@@ -13,11 +13,9 @@ import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
-import net.modfest.scatteredshards.core.api.shard.Shard;
-import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
+import net.modfest.scatteredshards.api.shard.Shard;
 import org.jetbrains.annotations.NotNull;
 import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoaderEvents;
 import org.quiltmc.qsl.resource.loader.api.reloader.IdentifiableResourceReloader;
 
 import java.util.HashMap;

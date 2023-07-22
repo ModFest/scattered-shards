@@ -1,4 +1,4 @@
-package net.modfest.scatteredshards.core;
+package net.modfest.scatteredshards.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -20,21 +20,21 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 			.nonOpaque()
 			.luminance(state -> 3)
 			.mapColor(MapColor.EMERALD);
-	
+
 	public ShardBlock() {
 		super(SETTINGS);
 	}
-	
+
 	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new ShardBlockEntity(pos, state);
 	}
-	
+
 	@Override
 	public BlockRenderType getRenderType(BlockState state) {
 		return BlockRenderType.INVISIBLE;
 	}
-	
+
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return SHAPE;
