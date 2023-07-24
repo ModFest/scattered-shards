@@ -42,7 +42,7 @@ public class ShardCommand {
 		var client = context.getSource().getClient();
 		var shard = new Shard(
 				ShardType.SECRET,
-				Text.literal("My Custom Card"),
+				Text.literal("My Shard"),
 				Text.literal("What is this text for?"),
 				Text.literal("What is this secret?"),
 				//Either.right(ScatteredShards.id("icon.png"))
