@@ -11,10 +11,12 @@ import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
+import org.quiltmc.loader.api.QuiltLoader;
 import org.quiltmc.qsl.command.api.client.ClientCommandRegistrationCallback;
 import org.quiltmc.qsl.command.api.client.QuiltClientCommandSource;
 
@@ -45,7 +47,7 @@ public class ShardCommand {
 				Text.literal("My Shard"),
 				Text.literal("What is this text for?"),
 				Text.literal("What is this secret?"),
-				//Either.right(ScatteredShards.id("icon.png"))
+				Shard.getSourceForMod(QuiltLoader.getModContainer(ScatteredShards.ID).get()),
 				Either.left(Items.DIAMOND_SWORD.getDefaultStack())
 		);
 		client.send(() -> client.setScreen(new ShardCreatorGuiDescription.Screen(shard)));
