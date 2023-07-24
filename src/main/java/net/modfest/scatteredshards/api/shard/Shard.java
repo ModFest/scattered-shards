@@ -17,6 +17,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import org.quiltmc.loader.api.ModContainer;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -27,20 +28,22 @@ public class Shard {
 	 * @see net.minecraft.client.texture.TextureManager#MISSING_IDENTIFIER
 	 */
 	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier(""));
-	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING, Text.of("Missing"), Text.of(""), Text.of(""), MISSING_ICON);
+	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING, Text.of("Missing"), Text.of(""), Text.of(""), Text.of("None"), MISSING_ICON);
 
 	protected ShardType shardType;
 	protected Text name;
 	protected Text lore;
 	protected Text hint;
+	protected final Text source;
 	protected Either<ItemStack, Identifier> icon;
 
-	public Shard(ShardType shardType, Text name, Text lore, Text hint, Either<ItemStack, Identifier> icon) {
-		Stream.of(name, lore, hint, icon).forEach(Objects::requireNonNull);
+	public Shard(ShardType shardType, Text name, Text lore, Text hint, Text source, Either<ItemStack, Identifier> icon) {
+		Stream.of(name, lore, hint, source, icon).forEach(Objects::requireNonNull);
 		this.shardType = shardType;
 		this.name = name;
 		this.lore = lore;
 		this.hint = hint;
+		this.source = source;
 		this.icon = icon;
 	}
 
@@ -58,6 +61,10 @@ public class Shard {
 
 	public Text hint() {
 		return hint;
+	}
+
+	public Text source() {
+		return source;
 	}
 
 	public Either<ItemStack, Identifier> icon() {
@@ -109,8 +116,9 @@ public class Shard {
 		Text name = Text.Serializer.fromJson(nbt.getString("Name"));
 		Text lore = Text.Serializer.fromJson(nbt.getString("Lore"));
 		Text hint = Text.Serializer.fromJson(nbt.getString("Hint"));
+		Text source = Text.Serializer.fromJson(nbt.getString("Source"));
 		var icon = iconFromNbt(nbt.get("Icon"));
-		return new Shard(shardType, name, lore, hint, icon);
+		return new Shard(shardType, name, lore, hint, source, icon);
 	}
 
 	public NbtCompound writeNbt(NbtCompound nbt) {
@@ -118,6 +126,7 @@ public class Shard {
 		nbt.putString("Name", Text.Serializer.toJson(name));
 		nbt.putString("Lore", Text.Serializer.toJson(lore));
 		nbt.putString("Hint", Text.Serializer.toJson(hint));
+		nbt.putString("Source", Text.Serializer.toJson(source));
 
 		icon.ifLeft((stack) -> {
 			nbt.put("Icon", stack.writeNbt(new NbtCompound()));
@@ -136,6 +145,7 @@ public class Shard {
 		result.add("name", new JsonPrimitive(Text.Serializer.toJson(name)));
 		result.add("lore", new JsonPrimitive(Text.Serializer.toJson(lore)));
 		result.add("hint", new JsonPrimitive(Text.Serializer.toJson(hint)));
+		result.add("source", new JsonPrimitive(Text.Serializer.toJson(source)));
 
 		icon.ifLeft((stack) -> {
 			JsonElement stackTree = ItemStack.CODEC.encode(stack, JsonOps.INSTANCE, new JsonObject())
@@ -156,6 +166,7 @@ public class Shard {
 		buf.writeString(Text.Serializer.toJson(name));
 		buf.writeString(Text.Serializer.toJson(lore));
 		buf.writeString(Text.Serializer.toJson(hint));
+		buf.writeString(Text.Serializer.toJson(source));
 		buf.writeEither(icon, PacketByteBuf::writeItemStack, PacketByteBuf::writeIdentifier);
 	}
 
@@ -164,28 +175,28 @@ public class Shard {
 		Text name = Text.Serializer.fromJson(buf.readString());
 		Text lore = Text.Serializer.fromJson(buf.readString());
 		Text hint = Text.Serializer.fromJson(buf.readString());
+		Text source = Text.Serializer.fromJson(buf.readString());
 		var icon = buf.readEither(PacketByteBuf::readItemStack, PacketByteBuf::readIdentifier);
-		return new Shard(shardType, name, lore, hint, icon);
+		return new Shard(shardType, name, lore, hint, source, icon);
 	}
 
 	public static Either<ItemStack, Identifier> iconFromJson(JsonElement element) {
 		if (element instanceof JsonPrimitive primitive) {
 			return Either.right(new Identifier(primitive.getAsString()));
 		} else if (element instanceof JsonObject itemObj) {
-			//ItemStack item = ItemStack.CODEC.decode(JsonOps.INSTANCE, itemObj).getOrThrow(false, (err) -> ScatteredShards.LOGGER.warn("Couldn't deserialize an ItemStack")).getFirst();
 			return Either.left(loadItemStack(itemObj));
 		} else {
 			return MISSING_ICON;
 		}
 	}
 
-	public static Shard fromJson(JsonObject obj) {
+	public static Shard fromJson(JsonObject obj, Text source) {
 		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(new Identifier(JsonHelper.getString(obj, "shard_type")));
 		Text name = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "name"));
 		Text lore = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "lore"));
 		Text hint = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "hint"));
 		var icon = iconFromJson(obj.get("icon"));
-		return new Shard(shardType, name, lore, hint, icon);
+		return new Shard(shardType, name, lore, hint, source, icon);
 	}
 
 	@Override
@@ -213,5 +224,13 @@ public class Shard {
 		} else {
 			return new ItemStack(Items.AIR);
 		}
+	}
+
+	public static Text getSourceForNamespace(String namespace) {
+		return Text.translatable("shard_pack." + namespace + ".name");
+	}
+
+	public static Text getSourceForMod(ModContainer mod) {
+		return Text.literal(mod.metadata().name());
 	}
 }

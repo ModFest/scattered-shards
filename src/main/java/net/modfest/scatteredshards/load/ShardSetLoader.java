@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.resource.JsonDataLoader;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
@@ -45,10 +46,11 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 		int successes = 0;
 		for (var entry : cache.entrySet()) {
 			try {
+				Text source = Shard.getSourceForNamespace(entry.getKey().getNamespace());
 				JsonObject shardListObj = JsonHelper.asObject(entry.getValue(), "shard list object");
 				for (var shardEntry : shardListObj.entrySet()) {
 					JsonObject shardObj = JsonHelper.asObject(shardEntry.getValue(), "shard object");
-					Shard shard = Shard.fromJson(shardObj);
+					Shard shard = Shard.fromJson(shardObj, source);
 					BY_ID.put(new Identifier(shardEntry.getKey()), shard);
 					BY_SHARD_SET.put(entry.getKey(), shard);
 					successes++;
