@@ -72,8 +72,8 @@ public class WShardPanel extends WPlainPanel {
 		WLabel typeDescription = createLabel(() -> shard.shardType().getDescription(), shard.shardType().textColor(), 0.9f);
 		add(typeDescription, 14, 16);
 
-		WLabel source = createLabel(() -> Text.literal("Test Mod").styled(style -> style.withItalic(true)), 0xFFFFFF, 0.9f);
-		add(source, 14, 25);
+		WLabel source = createLabel(shard::source, 0xFFFFFF, 0.9f);
+		add(source, 15, 25);
 
 		add(createHintLabel(shard::hint, 0xFFFFFF, 0.8f), 15, 120);
 	}
