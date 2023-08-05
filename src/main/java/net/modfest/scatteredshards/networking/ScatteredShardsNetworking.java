@@ -9,6 +9,7 @@ import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.client.ScatteredShardsClient;
+import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.load.ShardSetLoader;
@@ -101,6 +102,7 @@ public class ScatteredShardsNetworking {
 
 			client.execute(() -> {
 				ScatteredShardsClient.triggerShardCollectAnimation(shardId);
+				ScatteredShardsComponents.COLLECTION.get(client.player).addShard(shardId);
 			});
 		});
 	}

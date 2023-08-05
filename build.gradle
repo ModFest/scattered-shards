@@ -54,6 +54,8 @@ dependencies {
 	include libs.ccaBase
 	modImplementation libs.ccaEntity
 	include libs.ccaEntity
+	modImplementation libs.ccaWorld
+	include libs.ccaWorld
 	modImplementation libs.ccaLevel
 	include libs.ccaLevel
 }

@@ -16,6 +16,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 /**
  * Component on players which holds their shard collection.
@@ -45,7 +46,9 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 	
 	public void addShard(Identifier shardId) {
 		collection.add(shardId);
-		ScatteredShardsComponents.COLLECTION.sync(provider); //TODO: Send a smaller packet just containing the shard obtained
+		if (provider instanceof ServerPlayerEntity serverPlayer) {
+			ScatteredShardsNetworking.s2cCollectShard(serverPlayer, shardId);
+		}
 	}
 	
 	public void removeShard(Identifier shardId) {
@@ -72,8 +75,8 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 	}
 
 	@Override
-		public boolean shouldSyncWith(ServerPlayerEntity player) {
-			return (player.equals(provider));
-		}
+	public boolean shouldSyncWith(ServerPlayerEntity player) {
+		return (player.equals(provider));
+	}
 
 }

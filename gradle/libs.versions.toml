@@ -20,6 +20,7 @@ quilted_fabric_api_deprecated = { module = "org.quiltmc.quilted-fabric-api:quilt
 libgui = { module = "io.github.cottonmc:LibGui", version.ref = "libgui" }
 ccaBase = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-base", version.ref = "cca" }
 ccaEntity = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-entity", version.ref = "cca" }
+ccaWorld = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-world", version.ref = "cca" }
 ccaLevel = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-level", version.ref = "cca" }
 
 # If you have multiple similar dependencies, you can declare a dependency bundle and reference it on the build script with "libs.bundles.example".

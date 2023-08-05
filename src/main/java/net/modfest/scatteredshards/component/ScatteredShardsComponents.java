@@ -23,7 +23,7 @@ public class ScatteredShardsComponents implements EntityComponentInitializer, Le
 		registry.register(
 				ScatteredShardsComponents.LIBRARY,
 				ShardLibraryComponent.class,
-				it -> new ShardLibraryComponent(it)
+				ShardLibraryComponent::new
 				);
 	}
 
@@ -31,7 +31,7 @@ public class ScatteredShardsComponents implements EntityComponentInitializer, Le
 	public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
 		registry.registerForPlayers(
 				ScatteredShardsComponents.COLLECTION,
-				it -> new ShardCollectionComponent(it),
+				ShardCollectionComponent::new,
 				RespawnCopyStrategy.ALWAYS_COPY
 				);
 	}
