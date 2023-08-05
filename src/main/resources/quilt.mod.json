@@ -39,5 +39,9 @@
 			}
 		]
 	},
+	"cardinal-components": [
+		"scattered_shards:collection",
+		"scattered_shards:library"
+	],
 	"mixin": "scattered_shards.mixins.json"
 }

@@ -7,6 +7,7 @@ quilt_loader = "0.19.1"
 quilted_fabric_api = "7.0.3+0.83.1-1.20.1"
 
 libgui = "8.0.1+1.20"
+cca = "5.2.2"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -17,6 +18,9 @@ quilted_fabric_api = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-a
 quilted_fabric_api_deprecated = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api-deprecated", version.ref = "quilted_fabric_api" }
 
 libgui = { module = "io.github.cottonmc:LibGui", version.ref = "libgui" }
+ccaBase = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-base", version.ref = "cca" }
+ccaEntity = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-entity", version.ref = "cca" }
+ccaLevel = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-level", version.ref = "cca" }
 
 # If you have multiple similar dependencies, you can declare a dependency bundle and reference it on the build script with "libs.bundles.example".
 [bundles]

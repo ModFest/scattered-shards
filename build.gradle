@@ -12,8 +12,19 @@ repositories {
 		maven {
 			name = "CottonMC"
 			url = "https://server.bbkr.space/artifactory/libs-release"
+			content {
+				includeGroup "io.github.cottonmc"
+			}
+		}
+		maven {
+			name = 'Ladysnake Mods'
+			url = 'https://maven.ladysnake.org/releases'
+			content {
+				includeGroup "dev.onyxstudios.cardinal-components-api"
+			}
 		}
 	}
+	
 }
 
 // All the dependencies are declared at gradle/libs.version.toml and referenced with "libs.<id>"
@@ -37,6 +48,14 @@ dependencies {
 
 	modImplementation libs.libgui
 	include libs.libgui
+	
+	//Include all the CCA components we'll need
+	modImplementation libs.ccaBase
+	include libs.ccaBase
+	modImplementation libs.ccaEntity
+	include libs.ccaEntity
+	modImplementation libs.ccaLevel
+	include libs.ccaLevel
 }
 
 processResources {
