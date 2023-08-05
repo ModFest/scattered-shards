@@ -3,7 +3,6 @@ package net.modfest.scatteredshards.component;
 import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.DedicatedServerOnly;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -13,8 +12,6 @@ import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import dev.onyxstudios.cca.api.v3.level.LevelComponents;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.MinecraftDedicatedServer;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.world.World;
@@ -29,6 +26,7 @@ import net.modfest.scatteredshards.api.shard.Shard;
 public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 	public static final String LIBRARY_KEY = "Library";
 	
+	@SuppressWarnings("unused")
 	private WorldProperties provider;
 	private BiMap<Identifier, Shard> data = HashBiMap.create();
 	
