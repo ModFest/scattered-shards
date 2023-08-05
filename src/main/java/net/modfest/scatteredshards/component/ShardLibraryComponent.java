@@ -36,6 +36,11 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		this.provider = provider;
 	}
 	
+	public boolean contains(Identifier id) {
+		return data.containsKey(id) || ScatteredShardsAPI.getShardData().containsKey(id);
+		
+	}
+	
 	/**
 	 * Searches for a shard in both the component and in data. Mutable component shards will "shadow" immutable data
 	 * shards with the same shard Id, allowing even data-provided shards to be edited with modifyShard. If no shard of

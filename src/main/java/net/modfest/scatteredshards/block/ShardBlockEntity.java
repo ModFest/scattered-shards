@@ -13,6 +13,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 
 public class ShardBlockEntity extends BlockEntity {
 	public static final String SHARD_NBT_KEY = "Shard";
@@ -35,13 +36,16 @@ public class ShardBlockEntity extends BlockEntity {
 
 	@Nullable
 	public Shard getShard() {
+		if (shard == null && world != null) {
+			shard = ScatteredShardsComponents.getShardLibrary(world).getShard(shardId);
+		}
 		return shard;
 	}
 
 	public void setShardId(Identifier id) {
 		Objects.requireNonNull(id);
 		this.shardId = id;
-		this.shard = ScatteredShardsAPI.getShardData().get(id);
+		this.shard = null;
 	}
 
 	@Override

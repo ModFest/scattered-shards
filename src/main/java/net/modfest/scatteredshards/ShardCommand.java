@@ -31,7 +31,7 @@ public class ShardCommand {
 		Shard shard = library.getShard(id);
 		if (shard == Shard.MISSING_SHARD) {
 			ctx.getSource().sendError(Text.literal("Unknown shard: "+id.toString()));
-			return 0;
+			return -1;
 		} else {
 			if (ctx.getSource().getEntity() instanceof ServerPlayerEntity player) {
 				ctx.getSource().sendFeedback(()->Text.literal("Collecting shard '"+id+"'"), false);
@@ -40,6 +40,20 @@ public class ShardCommand {
 			}
 			
 			return Command.SINGLE_SUCCESS;
+		}
+	}
+	
+	public static int uncollect(CommandContext<ServerCommandSource> ctx) {
+		Identifier id = ctx.getArgument("shard_id", Identifier.class);
+		
+		if (ctx.getSource().getEntity() instanceof ServerPlayerEntity player) {
+			ctx.getSource().sendFeedback(()->Text.literal("Un-Collecting shard '"+id+"'"), false);
+			
+			ScatteredShardsComponents.getShardCollection(player).removeShard(id);
+			return Command.SINGLE_SUCCESS;
+		} else {
+			ctx.getSource().sendError(Text.literal("Non-players can't uncollect shards."));
+			return -1;
 		}
 	}
 	
@@ -77,7 +91,14 @@ public class ShardCommand {
 			collectCommand.addChild(collectIdArgument);
 			shardRoot.addChild(collectCommand);
 			
-			
+			//Usage: /shard uncollect <shard_id>
+			var uncollectCommand = literal("uncollect");
+			var uncollectIdArgument = identifierArgument("shard_id")
+					.suggests(ShardCommand::suggestShardIds)
+					.executes(ShardCommand::uncollect)
+					.build();
+			uncollectCommand.addChild(uncollectIdArgument);
+			shardRoot.addChild(uncollectCommand);
 			
 		});
 	}

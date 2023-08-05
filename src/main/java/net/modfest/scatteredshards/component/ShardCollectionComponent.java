@@ -31,6 +31,10 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 		this.provider = provider;
 	}
 	
+	public boolean contains(Identifier shardId) {
+		return collection.contains(shardId);
+	}
+	
 	public Stream<Identifier> streamIds() {
 		return collection.stream();
 	}
