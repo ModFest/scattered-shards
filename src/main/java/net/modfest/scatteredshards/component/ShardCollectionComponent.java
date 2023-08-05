@@ -6,10 +6,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import dev.onyxstudios.cca.api.v3.component.Component;
+import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
@@ -17,10 +20,15 @@ import net.modfest.scatteredshards.api.shard.Shard;
 /**
  * Component on players which holds their shard collection.
  */
-public class ShardCollectionComponent implements Component, Iterable<Identifier> {
+public class ShardCollectionComponent implements Component, Iterable<Identifier>, AutoSyncedComponent {
 	public static final String COLLECTION_KEY = "Collection";
 	
-	protected Set<Identifier> collection = new HashSet<>();
+	protected final PlayerEntity provider;
+	protected final Set<Identifier> collection = new HashSet<>();
+	
+	public ShardCollectionComponent(PlayerEntity provider) {
+		this.provider = provider;
+	}
 	
 	public Stream<Identifier> streamIds() {
 		return collection.stream();
@@ -33,6 +41,16 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 	@Override
 	public Iterator<Identifier> iterator() {
 		return collection.iterator();
+	}
+	
+	public void addShard(Identifier shardId) {
+		collection.add(shardId);
+		ScatteredShardsComponents.COLLECTION.sync(provider); //TODO: Send a smaller packet just containing the shard obtained
+	}
+	
+	public void removeShard(Identifier shardId) {
+		collection.remove(shardId);
+		ScatteredShardsComponents.COLLECTION.sync(provider); //TODO: Send a smaller packet just containing the shard removed
 	}
 	
 	@Override
@@ -53,6 +71,9 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 		tag.put(COLLECTION_KEY, list);
 	}
 
-	
+	@Override
+		public boolean shouldSyncWith(ServerPlayerEntity player) {
+			return (player.equals(provider));
+		}
 
 }
