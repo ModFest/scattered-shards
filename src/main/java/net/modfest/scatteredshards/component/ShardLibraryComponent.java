@@ -34,6 +34,11 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		this.provider = provider;
 	}
 	
+	/**
+	 * Searches for a shard in both the component and in data. Mutable component shards will "shadow" immutable data
+	 * shards with the same shard Id, allowing even data-provided shards to be edited with modifyShard. If no shard of
+	 * any type exists with this Id, {@link Shard#MISSING_SHARD MISSING_SHARD} is provided.
+	 */
 	public Shard getShard(Identifier id) {
 		Shard result = data.get(id);
 		if (result != null) return result;
@@ -41,6 +46,10 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		return (result != null) ? result : Shard.MISSING_SHARD;
 	}
 	
+	/**
+	 * Gets the Id of the Shard provided. If the same shard has different Id's in the component and data, its component
+	 * Id will be returned. Returns null if no shard exists with that Id.
+	 */
 	public @Nullable Identifier getId(Shard shard) {
 		Identifier result = data.inverse().get(shard);
 		if (result != null) return result;
@@ -49,7 +58,8 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 	}
 	
 	/**
-	 * Probably don't alter cards on the client!
+	 * Adds, alters, or replaces a shard on the server, resyncing the shard with all connected players. Accessing this
+	 * from the client may cause a desync.
 	 */
 	public void modifyShard(Identifier shardId, Shard newData, World world) {
 		data.put(shardId, newData);
