@@ -22,7 +22,8 @@
 		"intermediate_mappings": "net.fabricmc:intermediary",
 		"entrypoints": {
 			"init": "net.modfest.scatteredshards.ScatteredShards",
-			"client_init": "net.modfest.scatteredshards.client.ScatteredShardsClient"
+			"client_init": "net.modfest.scatteredshards.client.ScatteredShardsClient",
+			"cardinal-components": "net.modfest.scatteredshards.component.ScatteredShardsComponents"
 		},
 		"depends": [
 			{
@@ -39,5 +40,9 @@
 			}
 		]
 	},
+	"cardinal-components": [
+		"scattered_shards:collection",
+		"scattered_shards:library"
+	],
 	"mixin": "scattered_shards.mixins.json"
 }
