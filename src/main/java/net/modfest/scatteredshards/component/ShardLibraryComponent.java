@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.component;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +68,12 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		MinecraftServer server = world.getServer();
 		if (server == null) return;
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected containing the shard added/modified
+	}
+	
+	public Collection<Identifier> getShardIds() {
+		HashSet<Identifier> all = new HashSet<>(data.keySet());
+		all.addAll(ScatteredShardsAPI.getShardData().keySet());
+		return all;
 	}
 	
 	@Override

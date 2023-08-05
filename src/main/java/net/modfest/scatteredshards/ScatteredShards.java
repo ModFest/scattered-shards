@@ -25,6 +25,7 @@ public class ScatteredShards implements ModInitializer {
 		ShardType.register();
 		ShardTypeLoader.register();
 		ShardSetLoader.register();
+		ShardCommand.register();
 		ScatteredShardsNetworking.register();
 		ScatteredShardsContent.register();
 	}
