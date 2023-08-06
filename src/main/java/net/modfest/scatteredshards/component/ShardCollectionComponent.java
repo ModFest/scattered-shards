@@ -2,6 +2,10 @@ package net.modfest.scatteredshards.component;
 
 import java.util.Set;
 import java.util.stream.Stream;
+
+import org.apache.commons.compress.harmony.unpack200.bytecode.forms.ThisFieldRefForm;
+import org.apache.logging.log4j.util.ProviderActivator;
+
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -15,6 +19,7 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardEvents;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
@@ -31,12 +36,21 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 		this.provider = provider;
 	}
 	
-	public Stream<Identifier> streamIds() {
+	public boolean contains(Identifier shardId) {
+		return collection.contains(shardId);
+	}
+	
+	public Stream<Identifier> stream() {
 		return collection.stream();
 	}
 	
-	public Stream<Shard> stream() {
-		return collection.stream().map(it -> ScatteredShardsAPI.getShardData().getOrDefault(it, Shard.MISSING_SHARD));
+	public int size() {
+		return collection.size();
+	}
+	
+	public void clear() {
+		collection.clear();
+		ScatteredShardsComponents.COLLECTION.sync(provider);
 	}
 	
 	@Override
@@ -47,6 +61,11 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 	public void addShard(Identifier shardId) {
 		collection.add(shardId);
 		if (provider instanceof ServerPlayerEntity serverPlayer) {
+			//Fire event
+			Shard shard = ScatteredShardsComponents.getShardLibrary(provider.getWorld()).getShard(shardId);
+			ShardEvents.COLLECT.invoker().handle(serverPlayer, shardId,shard);
+			
+			//Sync to client so they get the toast
 			ScatteredShardsNetworking.s2cCollectShard(serverPlayer, shardId);
 		}
 	}

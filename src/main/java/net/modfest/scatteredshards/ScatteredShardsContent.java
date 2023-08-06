@@ -22,7 +22,7 @@ public class ScatteredShardsContent {
 	public static final Item SHARD_BLOCK_ITEM = new BlockItem(SHARD_BLOCK, new Item.Settings());
 	public static final BlockEntityType<ShardBlockEntity> SHARD_BLOCKENTITY =
 			QuiltBlockEntityTypeBuilder.create(ShardBlockEntity::new, SHARD_BLOCK).build();
-
+	
 	public static void register() {
 		Registry.register(Registries.BLOCK, SHARD_BLOCK_ID, SHARD_BLOCK);
 		Registry.register(Registries.ITEM, SHARD_BLOCK_ID, SHARD_BLOCK_ITEM);

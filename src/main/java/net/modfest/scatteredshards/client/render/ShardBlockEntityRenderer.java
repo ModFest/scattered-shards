@@ -50,11 +50,23 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		matrices.multiply(tilt);
 
 		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(shard.shardType().getBackingTexture()));
-
-		Vector3f dl = new Vector3f(-4/16f, -6/16f, 0f);
-		Vector3f dr = new Vector3f( 4/16f, -6/16f, 0f);
-		Vector3f ul = new Vector3f(-4/16f,  6/16f, 0f);
-		Vector3f ur = new Vector3f( 4/16f,  6/16f, 0f);
+		
+		/*
+		 * A note about scale here:
+		 * 0.75m or 24/32 == 32px on the card face.
+		 * The card is 24 x 32, meaning it's 0.75 x as wide as it is tall.
+		 * 0.75 x 0.75 == 0.5625 or 18/32 is the card's proper width
+		 */
+		float cardHeight = 24/32f;
+		float cardWidth = 18/32f;
+		
+		float halfHeight = cardHeight / 2f;
+		float halfWidth = cardWidth / 2f;
+		
+		Vector3f dl = new Vector3f(-halfWidth, -halfHeight, 0f);
+		Vector3f dr = new Vector3f( halfWidth, -halfHeight, 0f);
+		Vector3f ul = new Vector3f(-halfWidth,  halfHeight, 0f);
+		Vector3f ur = new Vector3f( halfWidth,  halfHeight, 0f);
 
 		Vector3f normal = new Vector3f(0, 0, -1);
 
@@ -133,11 +145,28 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			.light(light)
 			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
-
+		
+		/*
+		 * Another note about scale:
+		 * because there are a different number of texels in each dimension, we need a separate pixel ratio for width
+		 * and height:
+		 * 
+		 * For width, 1.0 equates to 24px, so the ratio is 1/24f
+		 * For height, 1.0 equates to 32px, so the ratio is 1/32f
+		 * 
+		 * To translate this into distance units, we multiply by the size of the card in meters in that dimensions.
+		 * 
+		 * Once that's done, with our {4, 4, 4, 12} insets, we arrive at a perfect 16px x 16px square
+		 * (in card-image pixels) for the card-icon texture
+		 * 
+		 */
+		float xpx = 1/24f * cardWidth;
+		float ypx = 1/32f * cardHeight;
 
 		shard.icon().ifLeft( stack -> {
-			matrices.scale(0.3f, 0.3f, 0.3f);
-			matrices.translate(0, 0, -0.252f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			matrices.translate(0, 4*ypx, -0.01f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			matrices.scale(0.5f, 0.5f, 0.01f /*0.6f*/);
+			
 
 			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
 		});
@@ -145,7 +174,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		shard.icon().ifRight( texId -> {
 			VertexConsumer v = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(texId));
 
-			v.vertex(matrices.peek().getModel(), dl.x + 0.1f, dl.y + 0.2f, dl.z - 0.002f)
+			v.vertex(matrices.peek().getModel(), dl.x + (4*xpx), dl.y + (12*ypx), dl.z - 0.002f)
 				.color(0xFF_FFFFFF)
 				.uv(1, 1)
 				.overlay(overlay)
@@ -153,7 +182,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
-			v.vertex(matrices.peek().getModel(), ul.x + 0.1f, ul.y - 0.2f, ul.z - 0.002f)
+			v.vertex(matrices.peek().getModel(), ul.x + (4*xpx), ul.y - (4*ypx), ul.z - 0.002f)
 				.color(0xFF_FFFFFF)
 				.uv(1, 0)
 				.overlay(overlay)
@@ -161,7 +190,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
-			v.vertex(matrices.peek().getModel(), ur.x - 0.1f, ur.y - 0.2f, ur.z - 0.002f)
+			v.vertex(matrices.peek().getModel(), ur.x - (4*xpx), ur.y - (4*ypx), ur.z - 0.002f)
 				.color(0xFF_FFFFFF)
 				.uv(0, 0)
 				.overlay(overlay)
@@ -169,7 +198,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
-			v.vertex(matrices.peek().getModel(), dr.x - 0.1f, dr.y + 0.2f, dr.z - 0.002f)
+			v.vertex(matrices.peek().getModel(), dr.x - (4*xpx), dr.y + (12*ypx), dr.z - 0.002f)
 				.color(0xFF_FFFFFF)
 				.uv(0, 1)
 				.overlay(overlay)

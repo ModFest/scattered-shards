@@ -1,9 +1,12 @@
 package net.modfest.scatteredshards.client;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.toast.Toast;
+
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
-import net.modfest.scatteredshards.client.command.ShardCommand;
+import net.modfest.scatteredshards.client.command.ClientShardCommand;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
@@ -14,7 +17,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient(ModContainer mod) {
-		ShardCommand.register();
+		ClientShardCommand.register();
 		ScatteredShardsNetworking.registerClient();
 		ScatteredShardsContent.registerClient();
 	}
@@ -27,7 +30,8 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		}
 
 		ScatteredShards.LOGGER.info("Collected shard '" + shardId.toString() + "'!");
-
+		Toast toast = new ShardToast(shard);
+		MinecraftClient.getInstance().getToastManager().add(toast);
 		//TODO: Activate the HUD overlay
 	}
 }

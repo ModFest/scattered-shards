@@ -23,11 +23,8 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Shard {
-
-	/**
-	 * @see net.minecraft.client.texture.TextureManager#MISSING_IDENTIFIER
-	 */
-	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier(""));
+	
+	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier("scattered_shards:textures/gui/shards/missing_icon.png"));
 	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING, Text.of("Missing"), Text.of(""), Text.of(""), Text.of("None"), MISSING_ICON);
 
 	protected ShardType shardType;
@@ -113,10 +110,10 @@ public class Shard {
 
 	public static Shard fromNbt(NbtCompound nbt) {
 		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(new Identifier(nbt.getString("ShardType")));
-		Text name = Text.Serializer.fromJson(nbt.getString("Name"));
-		Text lore = Text.Serializer.fromJson(nbt.getString("Lore"));
-		Text hint = Text.Serializer.fromJson(nbt.getString("Hint"));
-		Text source = Text.Serializer.fromJson(nbt.getString("Source"));
+		Text name = loadText(nbt.getString("Name"));
+		Text lore = loadText(nbt.getString("Lore"));
+		Text hint = loadText(nbt.getString("Hint"));
+		Text source = loadText(nbt.getString("Source"));
 		var icon = iconFromNbt(nbt.get("Icon"));
 		return new Shard(shardType, name, lore, hint, source, icon);
 	}
@@ -172,10 +169,10 @@ public class Shard {
 
 	public static Shard read(PacketByteBuf buf) {
 		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(buf.readIdentifier());
-		Text name = Text.Serializer.fromJson(buf.readString());
-		Text lore = Text.Serializer.fromJson(buf.readString());
-		Text hint = Text.Serializer.fromJson(buf.readString());
-		Text source = Text.Serializer.fromJson(buf.readString());
+		Text name = loadText(buf.readString());
+		Text lore = loadText(buf.readString());
+		Text hint = loadText(buf.readString());
+		Text source = loadText(buf.readString());
 		var icon = buf.readEither(PacketByteBuf::readItemStack, PacketByteBuf::readIdentifier);
 		return new Shard(shardType, name, lore, hint, source, icon);
 	}
@@ -192,9 +189,9 @@ public class Shard {
 
 	public static Shard fromJson(JsonObject obj, Text source) {
 		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(new Identifier(JsonHelper.getString(obj, "shard_type")));
-		Text name = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "name"));
-		Text lore = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "lore"));
-		Text hint = Text.Serializer.fromLenientJson(JsonHelper.getString(obj, "hint"));
+		Text name = loadText(JsonHelper.getString(obj, "name"));
+		Text lore = loadText(JsonHelper.getString(obj, "lore"));
+		Text hint = loadText(JsonHelper.getString(obj, "hint"));
 		var icon = iconFromJson(obj.get("icon"));
 		return new Shard(shardType, name, lore, hint, source, icon);
 	}
@@ -232,5 +229,13 @@ public class Shard {
 
 	public static Text getSourceForMod(ModContainer mod) {
 		return Text.literal(mod.metadata().name());
+	}
+	
+	private static Text loadText(String s) {
+		if (s.startsWith("{")) {
+			return Text.Serializer.fromLenientJson(s);
+		} else {
+			return Text.literal(s);
+		}
 	}
 }

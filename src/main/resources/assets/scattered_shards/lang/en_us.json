@@ -2,5 +2,11 @@
   "error.scattered_shards.invalid_set_id": "Shard set '%s' does not exist",
   "shard_type.scattered_shards.visitor.description": "Visitor Shard",
   "shard_type.scattered_shards.challenge.description": "Challenge Shard",
-  "shard_type.scattered_shards.secret.description": "Secret Shard"
+  "shard_type.scattered_shards.secret.description": "Secret Shard",
+  "scattered_shards.toast.collect": "Shard Collected!",
+  "argument.scattered_shards.shard.invalid": "Unknown shard '%s'",
+  "commands.scattered_shards.shard.collect": "Collected shard '%s'",
+  "commands.scattered_shards.shard.uncollect": "Un-Collected shard '%s'",
+  "commands.scattered_shards.shard.uncollect.all": "Un-Collected %s shards",
+  "commands.scattered_shards.nuke": "Deleted %s shards from the library"
 }

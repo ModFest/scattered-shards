@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.component;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +36,23 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		this.provider = provider;
 	}
 	
+	public boolean contains(Identifier id) {
+		return data.containsKey(id) || ScatteredShardsAPI.getShardData().containsKey(id);
+		
+	}
+	
+	/**
+	 * Returns the number of **mutable** shards only, not including datapack shards.
+	 */
+	public int size() {
+		return data.size();
+	}
+	
+	public void clear(World world) {
+		data.clear();
+		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, world.getServer());
+	}
+	
 	/**
 	 * Searches for a shard in both the component and in data. Mutable component shards will "shadow" immutable data
 	 * shards with the same shard Id, allowing even data-provided shards to be edited with modifyShard. If no shard of
@@ -66,6 +85,12 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		MinecraftServer server = world.getServer();
 		if (server == null) return;
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected containing the shard added/modified
+	}
+	
+	public Collection<Identifier> getShardIds() {
+		HashSet<Identifier> all = new HashSet<>(data.keySet());
+		all.addAll(ScatteredShardsAPI.getShardData().keySet());
+		return all;
 	}
 	
 	@Override

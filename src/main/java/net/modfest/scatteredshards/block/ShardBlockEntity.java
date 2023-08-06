@@ -9,10 +9,13 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 
 public class ShardBlockEntity extends BlockEntity {
 	public static final String SHARD_NBT_KEY = "Shard";
@@ -35,13 +38,19 @@ public class ShardBlockEntity extends BlockEntity {
 
 	@Nullable
 	public Shard getShard() {
+		if (shard == null && world != null) {
+			if (shardId == null) {
+				return Shard.MISSING_SHARD;
+			}
+			shard = ScatteredShardsComponents.getShardLibrary(world).getShard(shardId);
+		}
 		return shard;
 	}
 
 	public void setShardId(Identifier id) {
 		Objects.requireNonNull(id);
 		this.shardId = id;
-		this.shard = ScatteredShardsAPI.getShardData().get(id);
+		this.shard = null;
 	}
 
 	@Override
@@ -56,5 +65,15 @@ public class ShardBlockEntity extends BlockEntity {
 		if (nbt.contains(SHARD_NBT_KEY, NbtElement.STRING_TYPE)) {
 			setShardId(new Identifier(nbt.getString(SHARD_NBT_KEY)));
 		}
+	}
+	
+	@Override
+	public NbtCompound toSyncedNbt() {
+		return this.toNbt();
+	}
+	
+	@Override
+	public Packet<ClientPlayPacketListener> toUpdatePacket() {
+		return BlockEntityUpdateS2CPacket.of(this);
 	}
 }
