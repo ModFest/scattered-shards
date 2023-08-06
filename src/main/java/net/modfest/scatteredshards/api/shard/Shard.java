@@ -25,9 +25,10 @@ import java.util.stream.Stream;
 public class Shard {
 
 	/**
+	 * Unfortunately, MISSING_IDENTIFIER still pops an error, so we're using an actual image
 	 * @see net.minecraft.client.texture.TextureManager#MISSING_IDENTIFIER
 	 */
-	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier(""));
+	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier("scattered_shards:textures/gui/shards/missing_icon.png"));
 	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING, Text.of("Missing"), Text.of(""), Text.of(""), Text.of("None"), MISSING_ICON);
 
 	protected ShardType shardType;

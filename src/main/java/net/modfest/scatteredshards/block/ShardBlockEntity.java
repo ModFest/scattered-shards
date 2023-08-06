@@ -2,6 +2,7 @@ package net.modfest.scatteredshards.block;
 
 import java.util.Objects;
 
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,12 +12,12 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 
 public class ShardBlockEntity extends BlockEntity {
 	public static final String SHARD_NBT_KEY = "Shard";
+	private boolean debugPrinted = false;
 
 	@Nullable
 	protected Identifier shardId;
@@ -37,7 +38,15 @@ public class ShardBlockEntity extends BlockEntity {
 	@Nullable
 	public Shard getShard() {
 		if (shard == null && world != null) {
+			
 			shard = ScatteredShardsComponents.getShardLibrary(world).getShard(shardId);
+			
+			if (!debugPrinted) {
+				ScatteredShards.LOGGER.info(shard.toString());
+				debugPrinted = true;
+			}
+			
+			
 		}
 		return shard;
 	}
