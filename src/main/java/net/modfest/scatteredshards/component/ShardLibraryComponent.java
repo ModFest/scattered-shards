@@ -41,6 +41,13 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		
 	}
 	
+	/**
+	 * Returns the number of **mutable** shards only, not including datapack shards.
+	 */
+	public int size() {
+		return data.size();
+	}
+	
 	public void clear(World world) {
 		data.clear();
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, world.getServer());

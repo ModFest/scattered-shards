@@ -8,10 +8,12 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
+import net.minecraft.command.CommandException;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -24,64 +26,44 @@ import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
 public class ShardCommand {
 	
-	public static int collect(CommandContext<ServerCommandSource> ctx) {
+	public static int collect(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		Identifier id = ctx.getArgument("shard_id", Identifier.class);
 		
 		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
 		
 		Shard shard = library.getShard(id);
-		if (shard == Shard.MISSING_SHARD) {
-			ctx.getSource().sendError(Text.literal("Unknown shard: "+id.toString()));
-			return -1;
-		} else {
-			if (ctx.getSource().getEntity() instanceof ServerPlayerEntity player) {
-				ctx.getSource().sendFeedback(()->Text.literal("Collecting shard '"+id+"'"), false);
-				
-				ScatteredShardsComponents.getShardCollection(player).addShard(id);
-			}
-			
-			return Command.SINGLE_SUCCESS;
-		}
-	}
-	
-	public static int uncollect(CommandContext<ServerCommandSource> ctx) {
-		Identifier id = ctx.getArgument("shard_id", Identifier.class);
+		if (shard == Shard.MISSING_SHARD) throw new CommandException(Text.translatable("argument.scattered_shards.shard.invalid", id));
 		
-		if (ctx.getSource().getEntity() instanceof ServerPlayerEntity player) {
-			ctx.getSource().sendFeedback(()->Text.literal("Un-Collecting shard '"+id+"'"), false);
-			
-			ScatteredShardsComponents.getShardCollection(player).removeShard(id);
-			return Command.SINGLE_SUCCESS;
-		} else {
-			ctx.getSource().sendError(Text.literal("Non-players can't uncollect shards."));
-			return -1;
-		}
+		ScatteredShardsComponents.getShardCollection(ctx.getSource().getPlayer()).addShard(id);
+		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.collect", id), false);
+		
+		return Command.SINGLE_SUCCESS;
 	}
 	
-	public static int uncollectAll(CommandContext<ServerCommandSource> ctx) {
-		if (ctx.getSource().getEntity() instanceof ServerPlayerEntity player) {
-			ShardCollectionComponent collection = ScatteredShardsComponents.getShardCollection(player);
-			int shardsToDelete = collection.size();
-			collection.clear();
-			ctx.getSource().sendFeedback(()->Text.literal("Un-Collected "+shardsToDelete+" shards."), false);
+	public static int uncollect(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+		Identifier id = ctx.getArgument("shard_id", Identifier.class);
+		ScatteredShardsComponents.getShardCollection(ctx.getSource().getPlayer()).removeShard(id);
+		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect", id), false);
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	public static int uncollectAll(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+		ShardCollectionComponent collection = ScatteredShardsComponents.getShardCollection(ctx.getSource().getPlayer());
+		int shardsToDelete = collection.size();
+		collection.clear();
+		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect.all", shardsToDelete), false);
 
-			return shardsToDelete;
-		} else {
-			ctx.getSource().sendError(Text.literal("Non-players can't uncollect shards."));
-			return -1;
-		}
+		return shardsToDelete;
 	}
 	
-	public static int nuke(CommandContext<ServerCommandSource> ctx) {
-		if (ctx.getSource().getEntity() instanceof ServerPlayerEntity player) {
-			ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(player.getWorld());
-			library.clear(player.getWorld());
-			
-			return Command.SINGLE_SUCCESS;
-		} else {
-			ctx.getSource().sendError(Text.literal("Non-players can't nuke the library."));
-			return -1;
-		}
+	public static int nuke(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx.getSource().getWorld());
+		int toNuke = library.size();
+		library.clear(ctx.getSource().getWorld());
+		
+		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.nuke", toNuke), true);
+		
+		return toNuke;
 	}
 	
 	public static CompletableFuture<Suggestions> suggestShardIds(CommandContext<ServerCommandSource> source, SuggestionsBuilder builder) {

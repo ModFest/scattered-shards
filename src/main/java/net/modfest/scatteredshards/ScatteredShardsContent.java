@@ -37,7 +37,7 @@ public class ScatteredShardsContent {
 	public static void registerClient() {
 		BlockEntityRendererFactories.register(ScatteredShardsContent.SHARD_BLOCKENTITY, ShardBlockEntityRenderer::new);
 		
-		Registry.register(Registries.SOUND_EVENT, ScatteredShards.id("collect_visitor"), COLLECT_VISITOR);
-		Registry.register(Registries.SOUND_EVENT, ScatteredShards.id("collect_challenge"), COLLECT_CHALLENGE);
+		Registry.register(Registries.SOUND_EVENT, COLLECT_VISITOR.getId(), COLLECT_VISITOR);
+		Registry.register(Registries.SOUND_EVENT, COLLECT_CHALLENGE.getId(), COLLECT_CHALLENGE);
 	}
 }
