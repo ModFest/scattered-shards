@@ -2,8 +2,6 @@ package net.modfest.scatteredshards.api.shard;
 
 import java.util.Optional;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.google.gson.JsonObject;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
@@ -17,7 +15,6 @@ import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 
 public record ShardType(int textColor, Optional<SoundEvent> collectSound) {
-	private static final Identifier NULL_SOUND = new Identifier("");
 
 	public static final SoundEvent COLLECT_VISITOR_SOUND = SoundEvent.createVariableRangeEvent(ScatteredShards.id("collect_visitor"));
 	public static final SoundEvent COLLECT_CHALLENGE_SOUND = SoundEvent.createVariableRangeEvent(ScatteredShards.id("collect_challenge"));
@@ -50,16 +47,15 @@ public record ShardType(int textColor, Optional<SoundEvent> collectSound) {
 
 	public void write(PacketByteBuf buf) {
 		buf.writeInt(textColor);
-		Identifier sound = collectSound.map(it -> it.getId()).orElse(NULL_SOUND);
-		buf.writeIdentifier(sound);
+		buf.writeOptional(collectSound, (b, t) -> b.writeIdentifier(t.getId()));
 	}
 
 	public static ShardType read(PacketByteBuf buf) {
-		int color = buf.readInt();
-		Identifier soundId = buf.readIdentifier();
-		Optional<SoundEvent> sound = (soundId.equals(NULL_SOUND)) ? Optional.empty() : Optional.of(Registries.SOUND_EVENT.get(soundId));
-		
-		return new ShardType(color, sound);
+		return new ShardType(
+				buf.readInt(),
+				buf.readOptional(it -> it.readIdentifier())
+					.map(Registries.SOUND_EVENT::get)
+					);
 	}
 
 	public static ShardType fromJson(JsonObject obj) {
