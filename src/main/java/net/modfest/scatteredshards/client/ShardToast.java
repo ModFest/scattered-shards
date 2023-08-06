@@ -1,6 +1,7 @@
 package net.modfest.scatteredshards.client;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import net.minecraft.client.font.TextRenderer;
@@ -35,40 +36,34 @@ public class ShardToast implements Toast {
 		graphics.drawTexture(TEXTURE, 0, 0, 0, 0, this.getWidth(), this.getHeight());
 		TextRenderer textRenderer = manager.getGame().textRenderer;
 		
-		if (shard != null) {
-			List<OrderedText> lines = manager.getGame().textRenderer.wrapLines(shard.name(), 125); // 160 is the total toast width so this is reasonable
-			if (lines.size() == 1) {
-				graphics.drawText(textRenderer, COLLECTED_TEXT, 30, 7, YELLOW, false);
-				graphics.drawText(textRenderer, shard.name(), 30, 18, shard.shardType().textColor(), false);
-			} else {
-				int y = this.getHeight() / 2 - lines.size() * 9 / 2;
-
-				for(OrderedText orderedText : lines) {
-					graphics.drawText(manager.getGame().textRenderer, orderedText, 30, y, shard.shardType().textColor(), false);
-					y += 9;
-				}
-			}
-
-			if (!this.soundPlayed && startTime > 0L) {
-				this.soundPlayed = true;
-				SoundEvent collectSound = null;
-				if (shard.shardType() == ShardType.VISITOR) collectSound = ScatteredShardsContent.COLLECT_VISITOR;
-				if (shard.shardType() == ShardType.CHALLENGE) collectSound = ScatteredShardsContent.COLLECT_CHALLENGE;
-				if (shard.shardType() == ShardType.SECRET) collectSound = SoundEvents.UI_TOAST_CHALLENGE_COMPLETE;
-				
-				if (collectSound != null) manager.getGame().getSoundManager().play(PositionedSoundInstance.master(collectSound, 1.0F, 0.8F));
-			}
-			
-			shard.icon().ifLeft(it -> {
-				graphics.drawItemWithoutEntity(it, 8, 8);
-			});
-			
-			shard.icon().ifRight(it -> {
-				ScreenDrawing.texturedRect(graphics, 8, 8, 16, 16, it, 0xFF_FFFFFF);
-			});
-			return (double)startTime >= 5000.0 * manager.method_48221() ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
+		if (shard == null) return Toast.Visibility.HIDE;
+		
+		List<OrderedText> lines = manager.getGame().textRenderer.wrapLines(shard.name(), 125); // 160 is the total toast width so this is reasonable
+		if (lines.size() == 1) {
+			graphics.drawText(textRenderer, COLLECTED_TEXT, 30, 7, YELLOW, false);
+			graphics.drawText(textRenderer, shard.name(), 30, 18, shard.shardType().textColor(), false);
 		} else {
-			return Toast.Visibility.HIDE;
+			int y = this.getHeight() / 2 - lines.size() * 9 / 2;
+
+			for(OrderedText orderedText : lines) {
+				graphics.drawText(manager.getGame().textRenderer, orderedText, 30, y, shard.shardType().textColor(), false);
+				y += 9;
+			}
 		}
+
+		if (!this.soundPlayed && startTime > 0L) {
+			this.soundPlayed = true;
+			Optional<SoundEvent> collectSound = shard.shardType().collectSound();
+			collectSound.ifPresent((it) -> manager.getGame().getSoundManager().play(PositionedSoundInstance.master(it, 1.0F, 0.8F)));
+		}
+		
+		shard.icon().ifLeft(it -> {
+			graphics.drawItemWithoutEntity(it, 8, 8);
+		});
+		
+		shard.icon().ifRight(it -> {
+			ScreenDrawing.texturedRect(graphics, 8, 8, 16, 16, it, 0xFF_FFFFFF);
+		});
+		return (double)startTime >= 5000.0 * manager.method_48221() ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
 	}
 }
