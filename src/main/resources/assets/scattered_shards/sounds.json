@@ -1,0 +1,13 @@
+{
+  "collect_visitor": {
+    "sounds": [
+      "scattered_shards:collect_visitor"
+    ]
+  },
+  "collect_challenge": {
+    "sounds": [
+      "scattered_shards:collect_challenge"
+    ]
+  }
+}
+

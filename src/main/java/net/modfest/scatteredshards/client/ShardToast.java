@@ -2,14 +2,17 @@ package net.modfest.scatteredshards.client;
 
 import java.util.List;
 
+import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 
@@ -48,11 +51,20 @@ public class ShardToast implements Toast {
 
 			if (!this.soundPlayed && startTime > 0L) {
 				this.soundPlayed = true;
-				if (shard.shardType() == ShardType.SECRET) manager.getGame().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 1.0F));
+				SoundEvent collectSound = null;
+				if (shard.shardType() == ShardType.VISITOR) collectSound = ScatteredShardsContent.COLLECT_VISITOR;
+				if (shard.shardType() == ShardType.CHALLENGE) collectSound = ScatteredShardsContent.COLLECT_CHALLENGE;
+				if (shard.shardType() == ShardType.SECRET) collectSound = SoundEvents.UI_TOAST_CHALLENGE_COMPLETE;
+				
+				if (collectSound != null) manager.getGame().getSoundManager().play(PositionedSoundInstance.master(collectSound, 1.0F, 0.8F));
 			}
 			
 			shard.icon().ifLeft(it -> {
 				graphics.drawItemWithoutEntity(it, 8, 8);
+			});
+			
+			shard.icon().ifRight(it -> {
+				ScreenDrawing.texturedRect(graphics, 8, 8, 16, 16, it, 0xFF_FFFFFF);
 			});
 			return (double)startTime >= 5000.0 * manager.method_48221() ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
 		} else {

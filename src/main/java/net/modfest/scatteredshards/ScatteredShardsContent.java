@@ -12,6 +12,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.client.render.ShardBlockEntityRenderer;
 
@@ -22,7 +23,10 @@ public class ScatteredShardsContent {
 	public static final Item SHARD_BLOCK_ITEM = new BlockItem(SHARD_BLOCK, new Item.Settings());
 	public static final BlockEntityType<ShardBlockEntity> SHARD_BLOCKENTITY =
 			QuiltBlockEntityTypeBuilder.create(ShardBlockEntity::new, SHARD_BLOCK).build();
-
+	
+	public static final SoundEvent COLLECT_VISITOR = SoundEvent.createVariableRangeEvent(ScatteredShards.id("collect_visitor"));
+	public static final SoundEvent COLLECT_CHALLENGE = SoundEvent.createVariableRangeEvent(ScatteredShards.id("collect_challenge"));
+	
 	public static void register() {
 		Registry.register(Registries.BLOCK, SHARD_BLOCK_ID, SHARD_BLOCK);
 		Registry.register(Registries.ITEM, SHARD_BLOCK_ID, SHARD_BLOCK_ITEM);
@@ -32,5 +36,8 @@ public class ScatteredShardsContent {
 	@ClientOnly
 	public static void registerClient() {
 		BlockEntityRendererFactories.register(ScatteredShardsContent.SHARD_BLOCKENTITY, ShardBlockEntityRenderer::new);
+		
+		Registry.register(Registries.SOUND_EVENT, ScatteredShards.id("collect_visitor"), COLLECT_VISITOR);
+		Registry.register(Registries.SOUND_EVENT, ScatteredShards.id("collect_challenge"), COLLECT_CHALLENGE);
 	}
 }
