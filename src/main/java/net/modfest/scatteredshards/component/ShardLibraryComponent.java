@@ -41,6 +41,11 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		
 	}
 	
+	public void clear(World world) {
+		data.clear();
+		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, world.getServer());
+	}
+	
 	/**
 	 * Searches for a shard in both the component and in data. Mutable component shards will "shadow" immutable data
 	 * shards with the same shard Id, allowing even data-provided shards to be edited with modifyShard. If no shard of

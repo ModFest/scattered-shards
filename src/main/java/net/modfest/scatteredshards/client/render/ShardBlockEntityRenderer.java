@@ -164,8 +164,9 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		float ypx = 1/32f * cardHeight;
 
 		shard.icon().ifLeft( stack -> {
-			matrices.scale(0.3f, 0.3f, 0.3f);
-			matrices.translate(0, 0, -0.252f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			matrices.translate(0, 4*ypx, -0.01f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			matrices.scale(0.5f, 0.5f, 0.01f /*0.6f*/);
+			
 
 			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
 		});

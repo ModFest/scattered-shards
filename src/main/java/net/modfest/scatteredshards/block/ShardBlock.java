@@ -1,7 +1,6 @@
 package net.modfest.scatteredshards.block;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;

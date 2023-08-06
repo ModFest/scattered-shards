@@ -1,10 +1,13 @@
 {
   "bruh_mod:visitor": {
     "shard_type": "scattered_shards:visitor",
-    "name": "Booth Visitor",
+    "name": "Booth Visitor Blah Blah Blah Blah",
     "lore": "Thanks for visiting my booth",
     "hint": "Visit the booth :P",
-    "icon": "bruh_mod:shard/bruh.png"
+    "icon": {
+        "id": "minecraft:iron_block",
+        "Count": 1
+    }
   },
   "bruh_mod:challenge": {
     "shard_type": "scattered_shards:challenge",

@@ -19,6 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.component.ScatteredShardsComponents;
+import net.modfest.scatteredshards.component.ShardCollectionComponent;
 import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
 public class ShardCommand {
@@ -57,6 +58,32 @@ public class ShardCommand {
 		}
 	}
 	
+	public static int uncollectAll(CommandContext<ServerCommandSource> ctx) {
+		if (ctx.getSource().getEntity() instanceof ServerPlayerEntity player) {
+			ShardCollectionComponent collection = ScatteredShardsComponents.getShardCollection(player);
+			int shardsToDelete = collection.size();
+			collection.clear();
+			ctx.getSource().sendFeedback(()->Text.literal("Un-Collected "+shardsToDelete+" shards."), false);
+
+			return shardsToDelete;
+		} else {
+			ctx.getSource().sendError(Text.literal("Non-players can't uncollect shards."));
+			return -1;
+		}
+	}
+	
+	public static int nuke(CommandContext<ServerCommandSource> ctx) {
+		if (ctx.getSource().getEntity() instanceof ServerPlayerEntity player) {
+			ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(player.getWorld());
+			library.clear(player.getWorld());
+			
+			return Command.SINGLE_SUCCESS;
+		} else {
+			ctx.getSource().sendError(Text.literal("Non-players can't nuke the library."));
+			return -1;
+		}
+	}
+	
 	public static CompletableFuture<Suggestions> suggestShardIds(CommandContext<ServerCommandSource> source, SuggestionsBuilder builder) {
 		for(Identifier id : ScatteredShardsComponents.getShardLibrary(source).getShardIds()) {
 			builder.suggest(id.toString());
@@ -68,7 +95,6 @@ public class ShardCommand {
 		return LiteralArgumentBuilder.<ServerCommandSource>literal(name).build();
 	}
 	
-	@SuppressWarnings("unused")
 	private static LiteralCommandNode<ServerCommandSource> literal(String name, Command<ServerCommandSource> command) {
 		return LiteralArgumentBuilder.<ServerCommandSource>literal(name).executes(command).build();
 	}
@@ -100,6 +126,13 @@ public class ShardCommand {
 			uncollectCommand.addChild(uncollectIdArgument);
 			shardRoot.addChild(uncollectCommand);
 			
+			//Usage: /shard uncollect all
+			var uncollectAllCommand = literal("all", ShardCommand::uncollectAll);
+			uncollectCommand.addChild(uncollectAllCommand);
+			
+			//Usage: /shard nuke
+			var nukeCommand = literal("nuke", ShardCommand::nuke);
+			shardRoot.addChild(nukeCommand);
 		});
 	}
 }
