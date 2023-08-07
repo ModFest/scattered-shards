@@ -5,6 +5,7 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import net.modfest.scatteredshards.api.shard.Shard;
@@ -29,6 +30,7 @@ public class WShardPanel extends WPlainPanel {
 	private final WDynamicLabel name = createLabel(Shard.MISSING_SHARD::name, WHITE, 1.14f);
 	private final WDynamicLabel typeDescription = createLabel(ShardType.MISSING::getDescription, ShardType.MISSING::textColor, 0.9f);
 	private final WDynamicLabel source = createLabel(Shard.MISSING_SHARD::source, WHITE, 0.9f);
+	private final WDynamicLabel lore = createLabel(Shard.MISSING_SHARD::lore, WHITE, 0.8f);
 	private final WDynamicLabel hint = createHintLabel(Shard.MISSING_SHARD::hint, WHITE, 0.8f);
 
 	private static WDynamicLabel createLabel(Supplier<Text> supplier, Supplier<Integer> color, float scale) {
@@ -73,14 +75,27 @@ public class WShardPanel extends WPlainPanel {
 		return this;
 	}
 
+	public WShardPanel setLore(Supplier<Text> text, Supplier<Integer> color) {
+		this.lore.setValues(() -> text.get().copy().formatted(Formatting.ITALIC), color);
+		return this;
+	}
+
+	public WShardPanel setHint(Supplier<Text> text, Supplier<Integer> color) {
+		this.hint.setValues(() -> text.get().copy().fillStyle(HINT_STYLE), color);
+		this.hint.setTooltip(text);
+		return this;
+	}
+
 	public WShardPanel setShard(Shard shard) {
 		this.shard = shard;
 
 		backing.setImage(() -> shard.shardType().getFrontTexture());
 		typeDescription.setValues(() -> shard.shardType().getDescription(), () -> shard.shardType().textColor());
 		icon.setIcon(shard::icon);
-		setName(shard::name, () -> 0xFFFFFF);
-		setSource(shard::source, () -> 0xFFFFFF);
+		setName(shard::name, WHITE);
+		setSource(shard::source, WHITE);
+		setLore(shard::lore, WHITE);
+		setHint(shard::hint, WHITE);
 
 		return this;
 	}
@@ -92,7 +107,8 @@ public class WShardPanel extends WPlainPanel {
 		add(name, 13, 0);
 		add(typeDescription, 14, 16);
 		add(source, 15, 25);
-		add(hint, 15, 120);
+		add(lore, 15, 113);
+		add(hint, 15, 135);
 	}
 
 	public WShardPanel(Shard shard) {
