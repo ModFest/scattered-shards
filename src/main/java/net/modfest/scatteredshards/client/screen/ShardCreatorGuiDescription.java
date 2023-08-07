@@ -25,7 +25,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		root.setSize(300, 200);
 		root.setInsets(Insets.ROOT_PANEL);
 
-		root.add(new WShardPanel(shard, true), 128, 12);
+		root.add(new WShardPanel(shard), 128, 12);
 		root.validate(this);
 	}
 }

@@ -18,6 +18,8 @@ import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
+import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
+import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import org.quiltmc.loader.api.QuiltLoader;
@@ -54,6 +56,16 @@ public class ClientShardCommand {
 		client.send(() -> client.setScreen(new ShardCreatorGuiDescription.Screen(shard)));
 		return Command.SINGLE_SUCCESS;
 	}
+	
+	public static int shards(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
+		var client = context.getSource().getClient();
+		var collection = ScatteredShardsComponents.getShardCollection(context.getSource().getPlayer());
+		var library = ScatteredShardsComponents.getShardLibrary(context.getSource().getWorld());
+		
+		client.send(() -> client.setScreen(new ShardTabletGuiDescription.Screen(collection, library)));
+		
+		return Command.SINGLE_SUCCESS;
+	}
 
 	public static CompletableFuture<Suggestions> suggestShardSets(CommandContext<QuiltClientCommandSource> context, SuggestionsBuilder builder) {
 		for (var id : ScatteredShardsAPI.getShardSets().keySet()) {
@@ -80,7 +92,7 @@ public class ClientShardCommand {
 			var shardcRoot = literal("shardc");
 			dispatcher.getRoot().addChild(shardcRoot);
 			
-			//Usage: shardc view <set_id>
+			//Usage: /shardc view <set_id>
 			var view = literal("view");
 			var setId = identifierArgument("set_id")
 					.suggests(ClientShardCommand::suggestShardSets)
@@ -88,9 +100,13 @@ public class ClientShardCommand {
 			view.addChild(setId.build());
 			shardcRoot.addChild(view);
 			
-			//Usage: shardc creator
+			//Usage: /shardc creator
 			var creator = literal("creator", ClientShardCommand::creator);
 			shardcRoot.addChild(creator);
+			
+			//Usage: /shards
+			var shardsCommand = literal("shards", ClientShardCommand::shards);
+			dispatcher.getRoot().addChild(shardsCommand);
 		});
 	}
 }

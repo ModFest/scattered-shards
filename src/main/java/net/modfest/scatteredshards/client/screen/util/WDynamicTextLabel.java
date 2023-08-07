@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 public class WDynamicTextLabel extends WDynamicTooltipLabel {
 
-	private final Supplier<Text> dynamicText;
+	private Supplier<Text> dynamicText;
 
 	public WDynamicTextLabel(Supplier<Text> text, int color, float scale) {
 		super(null, color, scale);
@@ -19,5 +19,16 @@ public class WDynamicTextLabel extends WDynamicTooltipLabel {
 	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		text = dynamicText.get();
 		super.paint(context, x, y, mouseX, mouseY);
+	}
+	
+	@Override
+	public WLabel setText(Text text) {
+		dynamicText = () -> text;
+		return this;
+	}
+	
+	public WLabel setText(Supplier<Text> text) {
+		dynamicText = text;
+		return this;
 	}
 }
