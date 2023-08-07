@@ -1,8 +1,5 @@
 package net.modfest.scatteredshards.client.screen;
 
-import com.mojang.datafixers.util.Either;
-
-import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WSprite;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
@@ -10,12 +7,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.util.WDynamicTextLabel;
 import net.modfest.scatteredshards.client.screen.util.WScalableWidgets;
 
 import java.util.function.Supplier;
+
+import com.mojang.datafixers.util.Either;
 
 public class WShardPanel extends WPlainPanel {
 
@@ -44,27 +44,54 @@ public class WShardPanel extends WPlainPanel {
 		label.setTooltip(hint);
 		return label;
 	}
+	
+	public WShardPanel setType(ShardType value) {
+		backing.setImage(value.getFrontTexture());
+		typeDescription.setText(value::getDescription);
+		return this;
+	}
+	
+	public WShardPanel setIcon(Either<ItemStack, Identifier> icon) {
+		this.icon.setIcon(icon);
+		return this;
+	}
+	
+	public WShardPanel setName(Supplier<Text> text) {
+		this.name.setText(text);
+		return this;
+	}
+	
+	public WShardPanel setSource(Supplier<Text> text) {
+		this.source.setText(text);
+		return this;
+	}
 
 	public WShardPanel setShard(Shard shard) {
 		this.shard = shard;
 		
-		backing.setImage(shard.shardType().getFrontTexture());
-		icon.setIcon(shard.icon());
-		name.setText(shard.name());
-		typeDescription.setText(shard.shardType()::getDescription);
-		source.setText(shard::source);
+		setType(shard.shardType());
+		setIcon(shard.icon());
+		setName(shard::name);
+		setSource(shard::source);
 		
 		return this;
 	}
 	
-	public WShardPanel(Shard shard, boolean dynamic) {
+	public WShardPanel() {
 		add(backing, 0, 40, 48, 64);
 		add(icon, 8, 48, 16, 16);
 		add(name, 13, 0);
 		add(typeDescription, 14, 16);
 		add(source, 15, 25);
 		add(hint, 15, 120);
-		
+	}
+	
+	public WShardPanel(Shard shard) {
+		this();
 		setShard(shard);
+	}
+	
+	public Shard getShard() {
+		return shard;
 	}
 }

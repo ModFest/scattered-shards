@@ -3,6 +3,7 @@
   "shard_type.scattered_shards.visitor.description": "Visitor Shard",
   "shard_type.scattered_shards.challenge.description": "Challenge Shard",
   "shard_type.scattered_shards.secret.description": "Secret Shard",
+  "shard_type.scattered_shards.missing.description": "Missing Shard",
   "scattered_shards.toast.collect": "Shard Collected!",
   "argument.scattered_shards.shard.invalid": "Unknown shard '%s'",
   "commands.scattered_shards.shard.collect": "Collected shard '%s'",

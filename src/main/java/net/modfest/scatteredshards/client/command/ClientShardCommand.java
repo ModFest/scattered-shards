@@ -19,6 +19,7 @@ import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
+import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import org.quiltmc.loader.api.QuiltLoader;
@@ -58,7 +59,10 @@ public class ClientShardCommand {
 	
 	public static int shards(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
 		var client = context.getSource().getClient();
-		client.send(() -> client.setScreen(new ShardTabletGuiDescription.Screen()));
+		var collection = ScatteredShardsComponents.getShardCollection(context.getSource().getPlayer());
+		var library = ScatteredShardsComponents.getShardLibrary(context.getSource().getWorld());
+		
+		client.send(() -> client.setScreen(new ShardTabletGuiDescription.Screen(collection, library)));
 		
 		return Command.SINGLE_SUCCESS;
 	}

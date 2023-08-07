@@ -1,10 +1,7 @@
 package net.modfest.scatteredshards.client.screen.util;
 
 import io.github.cottonmc.cotton.gui.widget.TooltipBuilder;
-import io.github.cottonmc.cotton.gui.widget.WLabel;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.text.Text;
-import net.modfest.scatteredshards.client.screen.WShardPanel;
 
 import java.util.function.Supplier;
 

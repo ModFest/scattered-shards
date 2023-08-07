@@ -39,7 +39,7 @@ public class WScalableWidgets {
 	
 	public static class ShardIcon extends WItem {
 		
-		protected Either<ItemStack, Identifier> icon;
+		protected Either<ItemStack, Identifier> icon = Either.left(ItemStack.EMPTY);
 		private final float scale;
 		
 		public ShardIcon(float scale) {
