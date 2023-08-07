@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.client.screen.util.WDynamicTextLabel;
+import net.modfest.scatteredshards.client.screen.util.WDynamicLabel;
 import net.modfest.scatteredshards.client.screen.util.WScalableWidgets;
 import net.modfest.scatteredshards.client.screen.util.WDynamicSprite;
 
@@ -19,41 +19,42 @@ import com.mojang.datafixers.util.Either;
 
 public class WShardPanel extends WPlainPanel {
 
+	public static final Supplier<Integer> WHITE = () -> 0xFFFFFF;
 	public static final Style HINT_STYLE = Style.EMPTY.withFont(new Identifier("minecraft:alt"));
 
 	private Shard shard;
-	
+
 	private final WDynamicSprite backing = new WDynamicSprite(ShardType.MISSING.getFrontTexture());
 	private final WScalableWidgets.ShardIcon icon = new WScalableWidgets.ShardIcon(2.0f);
-	private final WDynamicTextLabel name = createLabel(Shard.MISSING_SHARD::name, 0xFFFFFF, 1.14f);
-	private final WDynamicTextLabel typeDescription = createLabel(ShardType.MISSING::getDescription, ShardType.MISSING.textColor(), 0.9f);
-	private final WDynamicTextLabel source = createLabel(Shard.MISSING_SHARD::source, 0xFFFFFF, 0.9f);
-	private final WDynamicTextLabel hint = createHintLabel(Shard.MISSING_SHARD::hint, 0xFFFFFF, 0.8f);
+	private final WDynamicLabel name = createLabel(Shard.MISSING_SHARD::name, WHITE, 1.14f);
+	private final WDynamicLabel typeDescription = createLabel(ShardType.MISSING::getDescription, ShardType.MISSING::textColor, 0.9f);
+	private final WDynamicLabel source = createLabel(Shard.MISSING_SHARD::source, WHITE, 0.9f);
+	private final WDynamicLabel hint = createHintLabel(Shard.MISSING_SHARD::hint, WHITE, 0.8f);
 
-	private static WDynamicTextLabel createLabel(Supplier<Text> supplier, int color, float scale) {
-		var label = new WDynamicTextLabel(supplier, color, scale);
+	private static WDynamicLabel createLabel(Supplier<Text> supplier, Supplier<Integer> color, float scale) {
+		var label = new WDynamicLabel(supplier, color, scale);
 		label.setHorizontalAlignment(HorizontalAlignment.CENTER);
 		label.setShadow(true);
 		return label;
 	}
 
-	private WDynamicTextLabel createHintLabel(Supplier<Text> hint, int color, float scale) {
+	private WDynamicLabel createHintLabel(Supplier<Text> hint, Supplier<Integer> color, float scale) {
 		var label = createLabel(() -> {
 			return hint.get().copy().fillStyle(HINT_STYLE);
 		}, color, scale);
 		label.setTooltip(hint);
 		return label;
 	}
-	
+
 	/**
 	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
 	 */
 	public WShardPanel setType(ShardType value) {
-		backing.setImage(value.getFrontTexture());
-		typeDescription.setText(value::getDescription);
+		backing.setImage(value::getFrontTexture);
+		typeDescription.setValues(value::getDescription, value::textColor);
 		return this;
 	}
-	
+
 	/**
 	 * Sets the icon displayed to a static value. Note: Prevents shard icon from being updated if the configured shard is mutated!
 	 */
@@ -61,29 +62,29 @@ public class WShardPanel extends WPlainPanel {
 		this.icon.setIcon(icon);
 		return this;
 	}
-	
-	public WShardPanel setName(Supplier<Text> text) {
-		this.name.setText(text);
+
+	public WShardPanel setName(Supplier<Text> text, Supplier<Integer> color) {
+		this.name.setValues(text, color);
 		return this;
 	}
 
-	public WShardPanel setSource(Supplier<Text> text) {
-		this.source.setText(text);
+	public WShardPanel setSource(Supplier<Text> text, Supplier<Integer> color) {
+		this.source.setValues(text, color);
 		return this;
 	}
 
 	public WShardPanel setShard(Shard shard) {
 		this.shard = shard;
-		
+
 		backing.setImage(() -> shard.shardType().getFrontTexture());
-		typeDescription.setText(() -> shard.shardType().getDescription());
+		typeDescription.setValues(() -> shard.shardType().getDescription(), () -> shard.shardType().textColor());
 		icon.setIcon(shard::icon);
-		setName(shard::name);
-		setSource(shard::source);
-		
+		setName(shard::name, () -> 0xFFFFFF);
+		setSource(shard::source, () -> 0xFFFFFF);
+
 		return this;
 	}
-	
+
 	public WShardPanel() {
 		this.setSize(48, 128);
 		add(backing, 0, 40, 48, 64);
@@ -93,12 +94,12 @@ public class WShardPanel extends WPlainPanel {
 		add(source, 15, 25);
 		add(hint, 15, 120);
 	}
-	
+
 	public WShardPanel(Shard shard) {
 		this();
 		setShard(shard);
 	}
-	
+
 	public Shard getShard() {
 		return shard;
 	}
