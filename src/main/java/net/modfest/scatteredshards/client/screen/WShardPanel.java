@@ -1,7 +1,6 @@
 package net.modfest.scatteredshards.client.screen;
 
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
-import io.github.cottonmc.cotton.gui.widget.WSprite;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
@@ -12,6 +11,7 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.util.WDynamicTextLabel;
 import net.modfest.scatteredshards.client.screen.util.WScalableWidgets;
+import net.modfest.scatteredshards.client.screen.util.WDynamicSprite;
 
 import java.util.function.Supplier;
 
@@ -23,7 +23,7 @@ public class WShardPanel extends WPlainPanel {
 
 	private Shard shard;
 	
-	private final WSprite backing = new WSprite(ShardType.MISSING.getFrontTexture());
+	private final WDynamicSprite backing = new WDynamicSprite(ShardType.MISSING.getFrontTexture());
 	private final WScalableWidgets.ShardIcon icon = new WScalableWidgets.ShardIcon(2.0f);
 	private final WDynamicTextLabel name = createLabel(Shard.MISSING_SHARD::name, 0xFFFFFF, 1.14f);
 	private final WDynamicTextLabel typeDescription = createLabel(ShardType.MISSING::getDescription, ShardType.MISSING.textColor(), 0.9f);
@@ -45,12 +45,18 @@ public class WShardPanel extends WPlainPanel {
 		return label;
 	}
 	
+	/**
+	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
+	 */
 	public WShardPanel setType(ShardType value) {
 		backing.setImage(value.getFrontTexture());
 		typeDescription.setText(value::getDescription);
 		return this;
 	}
 	
+	/**
+	 * Sets the icon displayed to a static value. Note: Prevents shard icon from being updated if the configured shard is mutated!
+	 */
 	public WShardPanel setIcon(Either<ItemStack, Identifier> icon) {
 		this.icon.setIcon(icon);
 		return this;
@@ -60,7 +66,7 @@ public class WShardPanel extends WPlainPanel {
 		this.name.setText(text);
 		return this;
 	}
-	
+
 	public WShardPanel setSource(Supplier<Text> text) {
 		this.source.setText(text);
 		return this;
@@ -69,8 +75,9 @@ public class WShardPanel extends WPlainPanel {
 	public WShardPanel setShard(Shard shard) {
 		this.shard = shard;
 		
-		setType(shard.shardType());
-		setIcon(shard.icon());
+		backing.setImage(() -> shard.shardType().getFrontTexture());
+		typeDescription.setText(() -> shard.shardType().getDescription());
+		icon.setIcon(shard::icon);
 		setName(shard::name);
 		setSource(shard::source);
 		
@@ -78,6 +85,7 @@ public class WShardPanel extends WPlainPanel {
 	}
 	
 	public WShardPanel() {
+		this.setSize(48, 128);
 		add(backing, 0, 40, 48, 64);
 		add(icon, 8, 48, 16, 16);
 		add(name, 13, 0);

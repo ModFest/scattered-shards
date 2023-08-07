@@ -1,6 +1,7 @@
 package net.modfest.scatteredshards.client.screen.util;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.mojang.datafixers.util.Either;
 
@@ -39,7 +40,7 @@ public class WScalableWidgets {
 	
 	public static class ShardIcon extends WItem {
 		
-		protected Either<ItemStack, Identifier> icon = Either.left(ItemStack.EMPTY);
+		protected Supplier<Either<ItemStack, Identifier>> icon = () -> Either.left(ItemStack.EMPTY);
 		private final float scale;
 		
 		public ShardIcon(float scale) {
@@ -48,28 +49,33 @@ public class WScalableWidgets {
 		}
 		
 		public ShardIcon setIcon(Either<ItemStack, Identifier> icon) {
+			this.icon = () -> icon;
+			return this;
+		}
+		
+		public ShardIcon setIcon(Supplier<Either<ItemStack, Identifier>> icon) {
 			this.icon = icon;
 			return this;
 		}
 		
 		public ShardIcon setIcon(ItemStack itemStack) {
-			this.icon = Either.left(itemStack);
+			this.icon = () -> Either.left(itemStack);
 			return this;
 		}
 		
 		public ShardIcon setIcon(Identifier image) {
-			this.icon = Either.right(image);
+			this.icon = () -> Either.right(image);
 			return this;
 		}
 		
 		@Override
 		public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
-			icon.ifLeft(it -> {
+			icon.get().ifLeft(it -> {
 				this.setItems(List.of(it));
 				WScalableWidgets.paint(context, x, y, scale, () -> super.paint(context, x, y, mouseX, mouseY));
 			});
 			
-			icon.ifRight(it -> {
+			icon.get().ifRight(it -> {
 				ScreenDrawing.texturedRect(context, x, y, getWidth(), getHeight(), it, 0xFF_FFFFFF);
 			});
 		}
