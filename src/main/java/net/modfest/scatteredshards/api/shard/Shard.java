@@ -18,20 +18,22 @@ import net.minecraft.util.JsonHelper;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import org.quiltmc.loader.api.ModContainer;
+import org.quiltmc.loader.api.QuiltLoader;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class Shard {
-	
-	private static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier("scattered_shards:textures/gui/shards/missing_icon.png"));
+
+	public static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier("scattered_shards:textures/gui/shards/missing_icon.png"));
 	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING, Text.of("Missing"), Text.of(""), Text.of(""), Text.of("None"), MISSING_ICON);
 
 	protected ShardType shardType;
 	protected Text name;
 	protected Text lore;
 	protected Text hint;
-	protected final Text source;
+	protected Text source;
 	protected Either<ItemStack, Identifier> icon;
 
 	public Shard(ShardType shardType, Text name, Text lore, Text hint, Text source, Either<ItemStack, Identifier> icon) {
@@ -88,6 +90,11 @@ public class Shard {
 		return this;
 	}
 
+	public Shard setIcon(Either<ItemStack, Identifier> icon) {
+		this.icon = icon;
+		return this;
+	}
+
 	public Shard setIcon(ItemStack itemValue) {
 		this.icon = Either.left(itemValue);
 		return this;
@@ -95,6 +102,11 @@ public class Shard {
 
 	public Shard setIcon(Identifier textureValue) {
 		this.icon = Either.right(textureValue);
+		return this;
+	}
+
+	public Shard setSource(Text source) {
+		this.source = source;
 		return this;
 	}
 
@@ -230,7 +242,11 @@ public class Shard {
 	public static Text getSourceForMod(ModContainer mod) {
 		return Text.literal(mod.metadata().name());
 	}
-	
+
+	public static Optional<Text> getSourceForModId(String modId) {
+		return QuiltLoader.getModContainer(modId).map(Shard::getSourceForMod);
+	}
+
 	private static Text loadText(String s) {
 		if (s.startsWith("{")) {
 			return Text.Serializer.fromLenientJson(s);

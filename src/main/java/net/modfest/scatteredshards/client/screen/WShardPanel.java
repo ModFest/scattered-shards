@@ -108,7 +108,7 @@ public class WShardPanel extends WPlainPanel {
 			context.drawTexture(TEXTURE, left, top, 0, 0, 114, 200);
 		});
 
-		int xo = 34;
+		int xo = 35;
 		int yo = 27;
 
 		add(backing, xo, 40 + yo, 48, 64);
@@ -116,8 +116,8 @@ public class WShardPanel extends WPlainPanel {
 		add(name, 13 + xo, yo);
 		add(typeDescription, 14 + xo, 16 + yo);
 		add(source, 15 + xo, 25 + yo);
-		add(lore, 16 + xo, 113 + yo);
-		add(hint, 16 + xo, 135 + yo);
+		add(lore, 17 + xo, 113 + yo);
+		add(hint, 17 + xo, 135 + yo);
 	}
 
 	public WShardPanel(Shard shard) {
