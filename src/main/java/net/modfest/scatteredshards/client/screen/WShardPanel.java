@@ -1,5 +1,6 @@
 package net.modfest.scatteredshards.client.screen;
 
+import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import net.minecraft.item.ItemStack;
@@ -7,18 +8,18 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.util.WDynamicLabel;
-import net.modfest.scatteredshards.client.screen.util.WScalableWidgets;
 import net.modfest.scatteredshards.client.screen.util.WDynamicSprite;
+import net.modfest.scatteredshards.client.screen.util.WScalableWidgets;
 
 import java.util.function.Supplier;
 
-import com.mojang.datafixers.util.Either;
-
 public class WShardPanel extends WPlainPanel {
+
+	private static final Identifier TEXTURE = ScatteredShards.id("textures/gui/view.png");
 
 	public static final Supplier<Integer> WHITE = () -> 0xFFFFFF;
 	public static final Style HINT_STYLE = Style.EMPTY.withFont(new Identifier("minecraft:alt"));
@@ -102,13 +103,21 @@ public class WShardPanel extends WPlainPanel {
 
 	public WShardPanel() {
 		this.setSize(48, 128);
-		add(backing, 0, 40, 48, 64);
-		add(icon, 8, 48, 16, 16);
-		add(name, 13, 0);
-		add(typeDescription, 14, 16);
-		add(source, 15, 25);
-		add(lore, 15, 113);
-		add(hint, 15, 135);
+
+		setBackgroundPainter((context, left, top, panel) -> {
+			context.drawTexture(TEXTURE, left, top, 0, 0, 114, 200);
+		});
+
+		int xo = 34;
+		int yo = 27;
+
+		add(backing, xo, 40 + yo, 48, 64);
+		add(icon, 8 + xo, 48 + yo, 16, 16);
+		add(name, 13 + xo, yo);
+		add(typeDescription, 14 + xo, 16 + yo);
+		add(source, 15 + xo, 25 + yo);
+		add(lore, 16 + xo, 113 + yo);
+		add(hint, 16 + xo, 135 + yo);
 	}
 
 	public WShardPanel(Shard shard) {
