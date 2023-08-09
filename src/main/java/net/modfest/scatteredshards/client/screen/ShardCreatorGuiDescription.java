@@ -3,13 +3,11 @@ package net.modfest.scatteredshards.client.screen;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
-import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WTextField;
 import io.github.cottonmc.cotton.gui.widget.WToggleButton;
-import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
@@ -21,7 +19,7 @@ import net.modfest.scatteredshards.api.shard.Shard;
 
 import java.util.function.Consumer;
 
-public class ShardCreatorGuiDescription extends LightweightGuiDescription {
+public class ShardCreatorGuiDescription extends ShardGuiDescription {
 
 	public static class Screen extends CottonClientScreen {
 
@@ -83,11 +81,6 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		this.shard = shard;
 		this.modIcon = new Identifier(modId, "icon.png");
 		Shard.getSourceForModId(modId).ifPresent(shard::setSource);
-
-		var root = new WPlainPanel();
-		setRootPanel(root);
-		root.setSize(300, 200);
-		root.setInsets(Insets.ROOT_PANEL);
 
 		var title = new WLabel(Text.translatable("gui.scattered_shards.creator.title"));
 		title.setColor(titleColor);

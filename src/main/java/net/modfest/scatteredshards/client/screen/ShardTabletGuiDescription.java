@@ -1,23 +1,19 @@
 package net.modfest.scatteredshards.client.screen;
 
-import java.util.Collection;
-import java.util.Set;
-
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
-import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
-import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WScrollBar;
 import io.github.cottonmc.cotton.gui.widget.data.Axis;
-import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
 import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
-public class ShardTabletGuiDescription extends LightweightGuiDescription {
+import java.util.Collection;
+
+public class ShardTabletGuiDescription extends ShardGuiDescription {
 	public static final int ROWS_PER_SCREEN = 5;
 	
 	protected final ShardCollectionComponent collection;
@@ -25,19 +21,13 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	
 	WScrollBar shardSelectorScrollBar = new WScrollBar(Axis.VERTICAL);
 	WPlainPanel shardSelector = new WPlainPanel();
-	WShardPanel shardView = new WShardPanel();
 	
 	public ShardTabletGuiDescription(ShardCollectionComponent collection, ShardLibraryComponent library) {
 		this.collection = collection;
 		this.library = library;
 		
-		WGridPanel root = new WGridPanel();
-		root.setInsets(Insets.ROOT_PANEL);
-		setRootPanel(root);
-		
-		root.add(shardSelector, 0, 0, 8, 10);
-		root.add(shardSelectorScrollBar, 8, 0, 1, 10);
-		root.add(shardView, 11, 0, 5, 10);
+		root.add(shardSelector, 0, 0, 154, 188);
+		root.add(shardSelectorScrollBar, 154, 0, 18, 188);
 		
 		//TODO: Populate shards from collection
 		int rows = ScatteredShardsAPI.getShardSets().size();
