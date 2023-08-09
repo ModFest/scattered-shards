@@ -188,6 +188,11 @@ public class Shard {
 		var icon = buf.readEither(PacketByteBuf::readItemStack, PacketByteBuf::readIdentifier);
 		return new Shard(shardType, name, lore, hint, source, icon);
 	}
+	
+	public Shard copy() {
+		Either<ItemStack, Identifier> icon = icon().mapBoth(stack -> stack, id -> id);
+		return new Shard(shardType, name.copy(), lore.copy(), hint.copy(), source.copy(), icon);
+	}
 
 	public static Either<ItemStack, Identifier> iconFromJson(JsonElement element) {
 		if (element instanceof JsonPrimitive primitive) {

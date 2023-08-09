@@ -24,15 +24,15 @@ public class WShardPanel extends WPlainPanel {
 	public static final Supplier<Integer> WHITE = () -> 0xFFFFFF;
 	public static final Style HINT_STYLE = Style.EMPTY.withFont(new Identifier("minecraft:alt"));
 
-	private Shard shard;
+	private Shard shard = Shard.MISSING_SHARD.copy();
 
 	private final WDynamicSprite backing = new WDynamicSprite(ShardType.MISSING.getFrontTexture());
 	private final WScalableWidgets.ShardIcon icon = new WScalableWidgets.ShardIcon(2.0f);
-	private final WDynamicLabel name = createLabel(Shard.MISSING_SHARD::name, WHITE, 1.14f);
-	private final WDynamicLabel typeDescription = createLabel(ShardType.MISSING::getDescription, ShardType.MISSING::textColor, 0.9f);
-	private final WDynamicLabel source = createLabel(Shard.MISSING_SHARD::source, WHITE, 0.9f);
-	private final WDynamicLabel lore = createLabel(Shard.MISSING_SHARD::lore, WHITE, 0.8f);
-	private final WDynamicLabel hint = createHintLabel(Shard.MISSING_SHARD::hint, WHITE, 0.8f);
+	private final WDynamicLabel name = createLabel(shard::name, WHITE, 1.14f);
+	private final WDynamicLabel typeDescription = createLabel(() -> shard.shardType().getDescription(), ShardType.MISSING::textColor, 0.9f);
+	private final WDynamicLabel source = createLabel(shard::source, WHITE, 0.9f);
+	private final WDynamicLabel lore = createLabel(shard::lore, WHITE, 0.8f);
+	private final WDynamicLabel hint = createHintLabel(shard::hint, WHITE, 0.8f);
 
 	private static WDynamicLabel createLabel(Supplier<Text> supplier, Supplier<Integer> color, float scale) {
 		var label = new WDynamicLabel(supplier, color, scale);
@@ -122,6 +122,7 @@ public class WShardPanel extends WPlainPanel {
 
 	public WShardPanel(Shard shard) {
 		this();
+		System.out.println(Shard.MISSING_SHARD);
 		setShard(shard);
 	}
 
