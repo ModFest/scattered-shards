@@ -9,5 +9,15 @@
   "commands.scattered_shards.shard.collect": "Collected shard '%s'",
   "commands.scattered_shards.shard.uncollect": "Un-Collected shard '%s'",
   "commands.scattered_shards.shard.uncollect.all": "Un-Collected %s shards",
-  "commands.scattered_shards.nuke": "Deleted %s shards from the library"
+  "commands.scattered_shards.nuke": "Deleted %s shards from the library",
+  "gui.scattered_shards.creator.title": "Shard Creator",
+  "gui.scattered_shards.creator.field.name": "Name...",
+  "gui.scattered_shards.creator.field.lore": "Lore...",
+  "gui.scattered_shards.creator.field.hint": "Hint...",
+  "gui.scattered_shards.creator.icon.texture": "Texture Icon",
+  "gui.scattered_shards.creator.icon.item": "Item Icon",
+  "gui.scattered_shards.creator.field.item.id": "Item ID...",
+  "gui.scattered_shards.creator.field.item.nbt": "Item NBT...",
+  "gui.scattered_shards.creator.field.texture": "Texture path...",
+  "gui.scattered_shards.creator.toggle.mod_icon": "Use mod icon"
 }
