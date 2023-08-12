@@ -1,8 +1,11 @@
 package net.modfest.scatteredshards.client.screen;
 
 import com.mojang.datafixers.util.Either;
+
+import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
+import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -102,31 +105,51 @@ public class WShardPanel extends WPlainPanel {
 	}
 
 	public WShardPanel() {
-		this.setSize(48, 128);
+		this.setSize(114, 200);
+		this.setInsets(Insets.ROOT_PANEL);
 
 		setBackgroundPainter((context, left, top, panel) -> {
-			context.drawTexture(TEXTURE, left, top, 0, 0, 114, 200);
+			ScreenDrawing.coloredRect(context, left, top, panel.getWidth(), panel.getHeight(), 0xFF_0000FF);
+			
+			//context.fillGradient(x, y, x+width, y+height, 0xFF_00FF00, 0xFF0000FF);
+			//context.drawTexture(TEXTURE, left, top, 0, 0, 114, 200);
 		});
 
 		int xo = 35;
-		int yo = 27;
-
-		add(backing, xo, 40 + yo, 48, 64);
+		int yo = 0; //27;
+		
+		//add(name, 0, 0, this.getWidth(), 16);
+		//add(typeDescription, 0, 16, this.getWidth(), 16);
+		/*
+		add(backing, xo, 40 + yo, this.getWidth() - 8, 64);
 		add(icon, 8 + xo, 48 + yo, 16, 16);
-		add(name, 13 + xo, yo);
-		add(typeDescription, 14 + xo, 16 + yo);
-		add(source, 15 + xo, 25 + yo);
-		add(lore, 17 + xo, 113 + yo);
-		add(hint, 17 + xo, 135 + yo);
+		
+		
+		add(source, 0, 25, this.getWidth(), 16);
+		add(lore, 0, 113, this.getWidth(), 16);
+		add(hint, 0, 135, this.getWidth(), 16);*/
+	}
+	
+	@Override
+	public void addPainters() {
+		this.setBackgroundPainter((context, left, top, panel) -> {
+			ScreenDrawing.drawGuiPanel(context, left, top, panel.getWidth(), panel.getHeight());
+			ScreenDrawing.drawBeveledPanel(context, left+4, top+4, panel.getWidth()-8, panel.getHeight()-8);
+			context.fillGradient(left+5, top+5, left+5+panel.getWidth()-10, top+5+panel.getHeight()-10, 0xFF_777777, 0xFF_555555);
+		});
 	}
 
 	public WShardPanel(Shard shard) {
 		this();
-		System.out.println(Shard.MISSING_SHARD);
 		setShard(shard);
 	}
 
 	public Shard getShard() {
 		return shard;
+	}
+	
+	@Override
+	public boolean canResize() {
+		return false;
 	}
 }
