@@ -2,12 +2,10 @@ package net.modfest.scatteredshards.client.screen;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
-
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WButton;
-import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WCardPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WToggleButton;
@@ -21,7 +19,6 @@ import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.WAlternativeToggle;
@@ -30,6 +27,7 @@ import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
 import net.modfest.scatteredshards.client.screen.widget.WProtectableField;
 import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
 import net.modfest.scatteredshards.component.ScatteredShardsComponents;
+import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public static final String BASE_KEY = "gui.scattered_shards.creator.";
@@ -45,7 +43,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public static final Text USE_MOD_ICON_TEXT = Text.translatable(BASE_KEY + "toggle.mod_icon");
 	public static final Text SAVE_TEXT = Text.translatable(BASE_KEY + "button.save");
 	
-	private final Identifier shardId;
+	private Identifier shardId;
 	private Shard shard;
 	private Identifier modIcon;
 	
@@ -121,8 +119,10 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 			});
 	
 	
-	public WButton saveButton = new WButton(SAVE_TEXT);
-	
+	public WButton saveButton = new WButton(SAVE_TEXT)
+		.setOnClick(() -> {
+			ScatteredShardsNetworking.c2sModifyShard(shardId, shard);
+		});
 	
 	private Item item = null;
 	private NbtCompound itemNbt = null;
