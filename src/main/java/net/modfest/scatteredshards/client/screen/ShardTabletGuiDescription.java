@@ -2,30 +2,34 @@ package net.modfest.scatteredshards.client.screen;
 
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
+import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WScrollBar;
 import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
+import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
 import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
 import java.util.Collection;
 
-public class ShardTabletGuiDescription extends ShardGuiDescription {
+public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	public static final int ROWS_PER_SCREEN = 5;
 	
 	protected final ShardCollectionComponent collection;
 	protected final ShardLibraryComponent library;
 	
+	WShardPanel shardPanel = new WShardPanel();
 	WScrollBar shardSelectorScrollBar = new WScrollBar(Axis.VERTICAL);
 	WPlainPanel shardSelector = new WPlainPanel();
 	
 	public ShardTabletGuiDescription(ShardCollectionComponent collection, ShardLibraryComponent library) {
 		this.collection = collection;
 		this.library = library;
-		
+		WLeftRightPanel root = new WLeftRightPanel(shardSelector, shardPanel);
 		root.add(shardSelector, 0, 0, 154, 188);
 		root.add(shardSelectorScrollBar, 154, 0, 18, 188);
 		

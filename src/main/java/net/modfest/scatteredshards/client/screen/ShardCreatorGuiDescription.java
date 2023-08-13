@@ -2,12 +2,17 @@ package net.modfest.scatteredshards.client.screen;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
+
+import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
+import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
-import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
-import io.github.cottonmc.cotton.gui.widget.WTextField;
+import io.github.cottonmc.cotton.gui.widget.WCardPanel;
 import io.github.cottonmc.cotton.gui.widget.WToggleButton;
+import io.github.cottonmc.cotton.gui.widget.data.Axis;
+import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
+import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
@@ -16,11 +21,180 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.client.screen.widget.WAlternativeToggle;
+import net.modfest.scatteredshards.client.screen.widget.WLayoutBox;
+import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
+import net.modfest.scatteredshards.client.screen.widget.WProtectableField;
+import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
 
-import java.util.function.Consumer;
-
-public class ShardCreatorGuiDescription extends ShardGuiDescription {
-
+public class ShardCreatorGuiDescription extends LightweightGuiDescription {
+	public static final String BASE_KEY = "gui.scattered_shards.creator.";
+	public static final Text TITLE_TEXT = Text.translatable(BASE_KEY + "title");
+	public static final Text NAME_TEXT = Text.translatable(BASE_KEY + "field.name");
+	public static final Text LORE_TEXT = Text.translatable(BASE_KEY + "field.lore");
+	public static final Text HINT_TEXT = Text.translatable(BASE_KEY + "field.hint");
+	public static final Text TEXTURE_TEXT = Text.translatable(BASE_KEY + "field.texture");
+	public static final Text ICON_TEXTURE_TEXT = Text.translatable(BASE_KEY + "icon.texture");
+	public static final Text ICON_ITEM_TEXT = Text.translatable(BASE_KEY + "icon.item");
+	public static final Text ITEM_TEXT = Text.translatable(BASE_KEY + "field.item.id");
+	public static final Text NBT_TEXT = Text.translatable(BASE_KEY + "field.item.nbt");
+	public static final Text USE_MOD_ICON_TEXT = Text.translatable(BASE_KEY + "toggle.mod_icon");
+	public static final Text SAVE_TEXT = Text.translatable(BASE_KEY + "button.save");
+	
+	private Shard shard;
+	private Identifier modIcon;
+	
+	WLayoutBox editorPanel = new WLayoutBox(Axis.VERTICAL);
+	WShardPanel shardPanel = new WShardPanel();
+	
+	WLabel titleLabel = new WLabel(TITLE_TEXT);
+	
+	/*
+	 * No matter how much intelliJ complains, these lambdas cannot be changed into method references due to when they
+	 * bind. Shard is null right now. Using the full lambda captures the shard variable instead of the [nonexistant]
+	 * method.
+	 */
+	public WProtectableField nameField = new WProtectableField(NAME_TEXT)
+			.setTextChangedListener(it -> shard.setName(it))
+			.setMaxLength(32);
+	public WProtectableField loreField = new WProtectableField(LORE_TEXT)
+			.setTextChangedListener(it -> shard.setLore(it))
+			.setMaxLength(70);
+	public WProtectableField hintField = new WProtectableField(HINT_TEXT)
+			.setTextChangedListener(it -> shard.setHint(it))
+			.setMaxLength(70);
+	
+	public WAlternativeToggle iconToggle = new WAlternativeToggle(ICON_TEXTURE_TEXT, ICON_ITEM_TEXT);
+	public WCardPanel cardPanel = new WCardPanel();
+	public WLayoutBox textureIconPanel = new WLayoutBox(Axis.VERTICAL);
+	public WLayoutBox itemIconPanel = new WLayoutBox(Axis.VERTICAL);
+	
+	public WProtectableField textureField = new WProtectableField(TEXTURE_TEXT)
+			.setChangedListener(path -> {
+				this.iconPath = !path.isBlank()
+					? Identifier.tryParse(path)
+					: null;
+				updateTextureIcon();
+			});
+	
+	public WToggleButton textureToggle = new WToggleButton(USE_MOD_ICON_TEXT)
+			.setOnToggle(on -> {
+				textureField.setEditable(!on);
+				updateTextureIcon();
+			});
+	
+	public WProtectableField itemField = new WProtectableField(ITEM_TEXT)
+			.setChangedListener((it)-> {
+				this.item = null;
+				var id = Identifier.tryParse(it);
+				if (id != null) {
+					this.item = Registries.ITEM.containsId(id)
+						? Registries.ITEM.get(id)
+						: null;
+				}
+				updateItemIcon();
+			});
+	
+	public WProtectableField nbtField = new WProtectableField(NBT_TEXT)
+			.setChangedListener((it) -> {
+				try {
+					this.itemNbt = null;
+					this.itemNbt = StringNbtReader.parse(it);
+				} catch (CommandSyntaxException ignored) {
+				}
+				updateItemIcon();
+			});
+	
+	
+	public WButton saveButton = new WButton(SAVE_TEXT);
+	
+	
+	private Item item = null;
+	private NbtCompound itemNbt = null;
+	private Identifier iconPath = null;
+	
+	
+	private void updateItemIcon() {
+		if (item == null) {
+			shardPanel.setIcon(Shard.MISSING_ICON);
+			return;
+		}
+		var stack = item.getDefaultStack();
+		if (itemNbt != null) {
+			stack.setNbt(itemNbt);
+		}
+		shardPanel.setIcon(Either.left(stack));
+	}
+	
+	private void updateTextureIcon() {
+		boolean useModIcon = textureToggle.getToggle();
+		if (useModIcon) {
+			shardPanel.setIcon(Either.right(modIcon));
+		} else if (iconPath != null) {
+			shardPanel.setIcon(Either.right(iconPath));
+		} else {
+			shardPanel.setIcon(Shard.MISSING_ICON);
+		}
+	}
+	
+	
+	public ShardCreatorGuiDescription(Shard shard, String modId) {
+		this();
+		this.shard = shard;
+		shardPanel.setShard(shard);
+		this.modIcon = new Identifier(modId, "icon.png");
+		Shard.getSourceForModId(modId).ifPresent(shard::setSource);
+	}
+	
+	
+	public ShardCreatorGuiDescription() {
+		WLeftRightPanel root = new WLeftRightPanel(editorPanel, shardPanel);
+		this.setRootPanel(root);
+		
+		editorPanel.setBackgroundPainter(BackgroundPainter.VANILLA);
+		editorPanel.setInsets(Insets.ROOT_PANEL);
+		editorPanel.setSpacing(3);
+		editorPanel.setHorizontalAlignment(HorizontalAlignment.LEFT);
+		
+		editorPanel.add(titleLabel);
+		editorPanel.add(nameField);
+		editorPanel.add(loreField);
+		editorPanel.add(hintField);
+		
+		editorPanel.add(iconToggle);
+		editorPanel.add(cardPanel,
+				editorPanel.getWidth() - editorPanel.getInsets().left() - editorPanel.getInsets().right(),
+				70-18-4);
+		
+		cardPanel.add(textureIconPanel);
+		cardPanel.add(itemIconPanel);
+		iconToggle.setLeft();
+		cardPanel.setSelectedIndex(0);
+		
+		textureIconPanel.add(textureField);
+		textureIconPanel.add(textureToggle);
+		
+		itemIconPanel.add(itemField);
+		itemIconPanel.add(nbtField);
+		
+		editorPanel.add(saveButton);
+		
+		iconToggle.onLeft(() -> {
+			cardPanel.setSelectedIndex(0);
+			updateTextureIcon();
+		}).onRight(() -> {
+			cardPanel.setSelectedIndex(1);
+			updateItemIcon();
+		});
+		
+		root.validate(this);
+	}
+	
+	@Override
+	public void addPainters() {
+		//Don't add the default root painter.
+	}
+	
 	public static class Screen extends CottonClientScreen {
 
 		public Screen(Shard shard, String modId) {
@@ -28,132 +202,7 @@ public class ShardCreatorGuiDescription extends ShardGuiDescription {
 		}
 
 		public Screen() {
-			this(Shard.MISSING_SHARD, ScatteredShards.ID);
+			this(Shard.MISSING_SHARD.copy(), ScatteredShards.ID);
 		}
-	}
-
-	private final Shard shard;
-	private final Identifier modIcon;
-
-	private Item item = null;
-	private NbtCompound itemNbt = null;
-	private Identifier iconPath = null;
-
-	private WTextField addStringField(WPlainPanel root, String name, Consumer<String> action, int maxLength, int y) {
-		var field = new WTextField(Text.translatable("gui.scattered_shards.creator.field." + name));
-		field.setMaxLength(maxLength);
-		field.setChangedListener(action);
-		root.add(field, 0, y, 172, 20);
-		return field;
-	}
-
-	private WTextField addStringField(WPlainPanel root, String name, Consumer<String> action, int y) {
-		return addStringField(root, name, action, Integer.MAX_VALUE, y);
-	}
-
-	private WTextField addTextField(WPlainPanel root, String name, Consumer<Text> action, int maxLength, int y) {
-		return addStringField(root, name, str -> action.accept(Text.literal(str)), maxLength, y);
-	}
-
-	private void updateItemIcon() {
-		if (item == null) {
-			shard.setIcon(Shard.MISSING_ICON);
-			return;
-		}
-		var stack = item.getDefaultStack();
-		if (itemNbt != null) {
-			stack.setNbt(itemNbt);
-		}
-		shard.setIcon(stack);
-	}
-
-	private void updateTextureIcon(boolean useModIcon) {
-		if (useModIcon) {
-			shard.setIcon(Either.right(modIcon));
-		} else if (iconPath != null) {
-			shard.setIcon(Either.right(iconPath));
-		} else {
-			shard.setIcon(Shard.MISSING_ICON);
-		}
-	}
-
-	public ShardCreatorGuiDescription(Shard shard, String modId) {
-		this.shard = shard;
-		this.modIcon = new Identifier(modId, "icon.png");
-		Shard.getSourceForModId(modId).ifPresent(shard::setSource);
-
-		var title = new WLabel(Text.translatable("gui.scattered_shards.creator.title"));
-		title.setColor(titleColor);
-		root.add(title, 0, 0);
-
-		addTextField(root, "name", shard::setName, 14, 20);
-		addTextField(root, "lore", shard::setLore, 21, 44);
-		addTextField(root, "hint", shard::setHint, 21, 68);
-
-		var textureToggle = new WButton(Text.translatable("gui.scattered_shards.creator.icon.texture"));
-		textureToggle.setEnabled(false);
-		var textureSettings = new WPlainPanel();
-
-		var itemToggle = new WButton(Text.translatable("gui.scattered_shards.creator.icon.item"));
-		var itemSettings = new WPlainPanel();
-
-		var textureField = addStringField(textureSettings, "texture", path -> {
-			this.iconPath = !path.isBlank()
-				? Identifier.tryParse(path)
-				: null;
-			updateTextureIcon(false);
-		}, 0);
-
-		var toggle = new WToggleButton(Text.translatable("gui.scattered_shards.creator.toggle.mod_icon"));
-		toggle.setOnToggle(useModIcon -> {
-			textureField.setEditable(!useModIcon);
-			updateTextureIcon(useModIcon);
-		});
-		textureSettings.add(toggle, 0, 24);
-
-		addStringField(itemSettings, "item.id", str -> {
-			Item item = null;
-			var id = Identifier.tryParse(str);
-			if (id != null) {
-				item = Registries.ITEM.containsId(id)
-					? Registries.ITEM.get(id)
-					: null;
-			}
-			this.item = item;
-			updateItemIcon();
-		}, 0);
-
-		addStringField(itemSettings, "item.nbt", str -> {
-			try {
-				this.itemNbt = null;
-				this.itemNbt = StringNbtReader.parse(str);
-			} catch (CommandSyntaxException ignored) {
-			}
-			updateItemIcon();
-		}, 24);
-
-		root.add(textureSettings, 0, 124);
-
-		textureToggle.setOnClick(() -> {
-			textureToggle.setEnabled(false);
-			itemToggle.setEnabled(true);
-			root.add(textureSettings, 0, 124);
-			root.remove(itemSettings);
-			root.validate(this);
-		});
-
-		itemToggle.setOnClick(() -> {
-			itemToggle.setEnabled(false);
-			textureToggle.setEnabled(true);
-			root.add(itemSettings, 0, 124);
-			root.remove(textureSettings);
-			root.validate(this);
-		});
-
-		root.add(textureToggle, 0, 100, 84, 20);
-		root.add(itemToggle, 88, 100, 84, 20);
-
-		root.add(new WShardPanel(shard), 176, -7);
-		root.validate(this);
 	}
 }

@@ -1,28 +1,37 @@
-package net.modfest.scatteredshards.client.screen.util;
+package net.modfest.scatteredshards.client.screen.widget.scalable;
 
 import java.util.List;
 import java.util.function.Supplier;
+
+import org.jetbrains.annotations.Nullable;
+import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import com.mojang.datafixers.util.Either;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WItem;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
+import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
+import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class WScalableWidgets {
-
+	
+	/*
 	public static void paint(GuiGraphics context, int x, int y, float scale, Runnable runnable) {
 		context.getMatrices().push();
 		context.getMatrices().translate(x - x * scale, y - y * scale, 0.0f);
 		context.getMatrices().scale(scale, scale, 1.0f);
 		runnable.run();
 		context.getMatrices().pop();
-	}
-
+	}*/
+	/*
 	public static class Item extends WItem {
 
 		private final float scale;
@@ -90,5 +99,5 @@ public class WScalableWidgets {
 			super(text, color);
 			this.scale = scale;
 		}
-	}
+	}*/
 }
