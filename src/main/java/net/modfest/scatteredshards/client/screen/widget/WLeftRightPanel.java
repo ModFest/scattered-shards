@@ -1,4 +1,4 @@
-package net.modfest.scatteredshards.client.screen;
+package net.modfest.scatteredshards.client.screen.widget;
 
 import io.github.cottonmc.cotton.gui.widget.WPanel;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;

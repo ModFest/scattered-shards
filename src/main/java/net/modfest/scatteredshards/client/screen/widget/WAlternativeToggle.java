@@ -1,4 +1,4 @@
-package net.modfest.scatteredshards.client.screen;
+package net.modfest.scatteredshards.client.screen.widget;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -118,6 +118,18 @@ public class WAlternativeToggle extends WWidget {
 	
 	public WAlternativeToggle onRight(Runnable r) {
 		this.onRight = r;
+		return this;
+	}
+	
+	public WAlternativeToggle setLeft() {
+		if (isRight) this.onLeft.run();
+		isRight = false;
+		return this;
+	}
+	
+	public WAlternativeToggle setRight() {
+		if (!isRight) this.onRight.run();
+		isRight = true;
 		return this;
 	}
 	

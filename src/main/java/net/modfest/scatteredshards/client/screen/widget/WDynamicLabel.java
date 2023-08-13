@@ -1,4 +1,4 @@
-package net.modfest.scatteredshards.client.screen.util;
+package net.modfest.scatteredshards.client.screen.widget;
 
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import net.minecraft.client.gui.GuiGraphics;

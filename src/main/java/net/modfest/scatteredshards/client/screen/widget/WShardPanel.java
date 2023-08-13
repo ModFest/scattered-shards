@@ -1,4 +1,4 @@
-package net.modfest.scatteredshards.client.screen;
+package net.modfest.scatteredshards.client.screen.widget;
 
 import com.mojang.datafixers.util.Either;
 
@@ -11,18 +11,14 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.client.screen.util.WDynamicLabel;
-import net.modfest.scatteredshards.client.screen.util.WDynamicSprite;
-import net.modfest.scatteredshards.client.screen.util.WScalableWidgets;
 
 import java.util.function.Supplier;
 
 public class WShardPanel extends WPlainPanel {
 
-	private static final Identifier TEXTURE = ScatteredShards.id("textures/gui/view.png");
+	//private static final Identifier TEXTURE = ScatteredShards.id("textures/gui/view.png");
 
 	public static final Supplier<Integer> WHITE = () -> 0xFFFFFF;
 	public static final Style HINT_STYLE = Style.EMPTY.withFont(new Identifier("minecraft:alt"));

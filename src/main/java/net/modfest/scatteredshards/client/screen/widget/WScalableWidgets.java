@@ -1,4 +1,4 @@
-package net.modfest.scatteredshards.client.screen.util;
+package net.modfest.scatteredshards.client.screen.widget;
 
 import java.util.List;
 import java.util.function.Supplier;

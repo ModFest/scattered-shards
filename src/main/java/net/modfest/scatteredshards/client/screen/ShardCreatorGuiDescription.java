@@ -21,6 +21,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.client.screen.widget.WAlternativeToggle;
+import net.modfest.scatteredshards.client.screen.widget.WLayoutBox;
+import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
+import net.modfest.scatteredshards.client.screen.widget.WProtectableField;
+import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
 
 public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public static final String BASE_KEY = "gui.scattered_shards.creator.";
@@ -160,7 +165,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		
 		cardPanel.add(textureIconPanel);
 		cardPanel.add(itemIconPanel);
-		iconToggle.isRight = false;
+		iconToggle.setLeft();
 		cardPanel.setSelectedIndex(0);
 		
 		textureIconPanel.add(textureField);
