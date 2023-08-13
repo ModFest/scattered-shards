@@ -126,14 +126,14 @@ public class WAlternativeToggle extends WWidget {
 	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		int halfWidth = (int) Math.ceil(this.width / 2.0);
 		
-		int hoverX = (isRight) ? halfWidth - 1 : 0;
+		int hoverX = (isRight) ? 0 : halfWidth - 1;
 		boolean hovered = (mouseX>=hoverX && mouseY>=0 && mouseX<hoverX + halfWidth && mouseY<getHeight());
 		
 		var matrices = context.getMatrices();
 		matrices.push();
 		matrices.translate(x, y, 0);
-		NinePatch<Identifier> leftButton = map(button, recessedButton);
-		NinePatch<Identifier> rightButton = map(recessedButton, button);
+		NinePatch<Identifier> leftButton = map(recessedButton, button);
+		NinePatch<Identifier> rightButton = map(button, recessedButton);
 		leftButton.draw(NinePatchTextureRendererImpl.INSTANCE, context, halfWidth, this.getHeight());
 		matrices.translate(halfWidth-1, 0, 0);
 		rightButton.draw(NinePatchTextureRendererImpl.INSTANCE, context, halfWidth, this.getHeight());
@@ -150,13 +150,13 @@ public class WAlternativeToggle extends WWidget {
 	
 	public Rect2i getActiveRect(int x, int y) {
 		int halfWidth = (int) Math.ceil(this.width / 2.0);
-		int xofs = (isRight) ? halfWidth - 1 : 0;
+		int xofs = (isRight) ? 0 : halfWidth - 1;
 		return new Rect2i(x + xofs, y, halfWidth, getHeight());
 	}
 	
 	public boolean hitActive(int x, int y) {
 		int halfWidth = (int) Math.ceil(this.width / 2.0);
-		int hoverX = (isRight) ? halfWidth - 1 : 0;
+		int hoverX = (isRight) ? 0 : halfWidth - 1;
 		return (x >= hoverX && y >=0 && x< hoverX + halfWidth && y < getHeight());
 	}
 	
