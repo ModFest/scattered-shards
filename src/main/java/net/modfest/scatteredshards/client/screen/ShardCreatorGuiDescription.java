@@ -137,17 +137,17 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 	}
 	
-	
-	public ShardCreatorGuiDescription(Shard shard, String modId) {
-		this();
+	public ShardCreatorGuiDescription(Identifier shardId, Shard shard, String modId) {
+		this(shardId);
 		this.shard = shard;
 		shardPanel.setShard(shard);
 		this.modIcon = new Identifier(modId, "icon.png");
 		Shard.getSourceForModId(modId).ifPresent(shard::setSource);
 	}
 	
-	
-	public ShardCreatorGuiDescription() {
+	public ShardCreatorGuiDescription(Identifier shardId) {
+		this.shardId = shardId;
+		
 		WLeftRightPanel root = new WLeftRightPanel(editorPanel, shardPanel);
 		this.setRootPanel(root);
 		
@@ -197,12 +197,22 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	
 	public static class Screen extends CottonClientScreen {
 
-		public Screen(Shard shard, String modId) {
-			super(new ShardCreatorGuiDescription(shard, modId));
+		public Screen(Identifier shardId, Shard shard, String modId) {
+			super(new ShardCreatorGuiDescription(shardId, shard, modId));
 		}
 
-		public Screen() {
-			this(Shard.MISSING_SHARD.copy(), ScatteredShards.ID);
+		public static Screen newShard(String modId, ShardType shardType) {
+			return new Screen(
+				shardType.createModId(modId),
+				Shard.emptyOfType(shardType),
+				modId
+			);
+		}
+
+		public static Screen editShard(Shard shard) {
+			Identifier shardId = ScatteredShardsComponents.getShardLibrary(MinecraftClient.getInstance().world).getId(shard);
+			String modId = shardId.getNamespace();
+			return new Screen(shardId, shard, modId);
 		}
 	}
 }

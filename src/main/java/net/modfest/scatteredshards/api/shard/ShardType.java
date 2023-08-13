@@ -27,6 +27,10 @@ public record ShardType(int textColor, Optional<SoundEvent> collectSound) {
 	public Identifier getId() {
 		return ScatteredShardsAPI.getShardTypes().inverse().get(this);
 	}
+	
+	public Identifier createModId(String modId) {
+		return new Identifier(modId, getId().toUnderscoreSeparatedString());
+	}
 
 	private Identifier getTexture(String name) {
 		Identifier id = getId();

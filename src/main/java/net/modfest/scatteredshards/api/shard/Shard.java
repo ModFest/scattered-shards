@@ -217,6 +217,10 @@ public class Shard {
 	public String toString() {
 		return toJson().toString();
 	}
+	
+	public static Shard emptyOfType(ShardType shardType) {
+		return MISSING_SHARD.copy().setShardType(shardType);
+	}
 
 	private static ItemStack loadItemStack(JsonElement elem) {
 		if (elem instanceof JsonObject obj) {
