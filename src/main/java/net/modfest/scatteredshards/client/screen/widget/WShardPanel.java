@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
+import io.github.cottonmc.cotton.gui.widget.WSprite;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
@@ -12,16 +13,17 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
+import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledText;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WShardIcon;
 
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public class WShardPanel extends WPlainPanel {
-
 	//private static final Identifier TEXTURE = ScatteredShards.id("textures/gui/view.png");
 
 	public static final IntSupplier WHITE = () -> 0xFFFFFF;
@@ -41,10 +43,10 @@ public class WShardPanel extends WPlainPanel {
 	private final WScaledLabel source = new WScaledLabel(shard::source, 0.9f)
 			.setShadow(true)
 			.setHorizontalAlignment(HorizontalAlignment.CENTER);
-	private final WScaledLabel lore = new WScaledLabel(shard::lore, 0.8f)
+	private final WScaledText lore = new WScaledText(shard::lore, 0.8f)
 			.setShadow(true)
 			.setHorizontalAlignment(HorizontalAlignment.CENTER);
-	private final WScaledLabel hint = new WScaledLabel(shard::hint, 0.8f)
+	private final WScaledText hint = new WScaledText(shard::hint, 0.8f)
 			.setShadow(true)
 			.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
@@ -122,8 +124,12 @@ public class WShardPanel extends WPlainPanel {
 		add(icon, cardX + (4 * cardScale), 40 + (4 * cardScale), 16 * cardScale, 16 * cardScale);
 
 		
-		add(lore, 0, 113, getWidth(), 16);
-		add(hint, 0, 135, getWidth(), 16);
+		add(lore, 0, 113, getWidth(), 32);
+		
+		//TODO: Add divider image
+		add(new WSprite(ScatteredShards.id("textures/gui/divider.png")), cardX, 145, 24 * cardScale, 1);
+		
+		add(hint, 0, 149, getWidth(), 32);
 	}
 	
 	@Override

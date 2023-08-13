@@ -58,9 +58,11 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 			.setTextChangedListener(it -> shard.setName(it))
 			.setMaxLength(32);
 	public WProtectableField loreField = new WProtectableField(LORE_TEXT)
-			.setTextChangedListener(it -> shard.setLore(it));
+			.setTextChangedListener(it -> shard.setLore(it))
+			.setMaxLength(70);
 	public WProtectableField hintField = new WProtectableField(HINT_TEXT)
-			.setTextChangedListener(it -> shard.setHint(it));
+			.setTextChangedListener(it -> shard.setHint(it))
+			.setMaxLength(70);
 	
 	public WAlternativeToggle iconToggle = new WAlternativeToggle(ICON_TEXTURE_TEXT, ICON_ITEM_TEXT);
 	public WCardPanel cardPanel = new WCardPanel();
