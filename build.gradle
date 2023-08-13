@@ -8,23 +8,23 @@ version = "$project.version+${libs.versions.minecraft.get()}"
 group = project.maven_group
 
 repositories {
-	repositories {
-		maven {
-			name = "CottonMC"
-			url = "https://server.bbkr.space/artifactory/libs-release"
-			content {
-				includeGroup "io.github.cottonmc"
-			}
-		}
-		maven {
-			name = 'Ladysnake Mods'
-			url = 'https://maven.ladysnake.org/releases'
-			content {
-				includeGroup "dev.onyxstudios.cardinal-components-api"
-			}
+	maven {
+		name = "CottonMC"
+		url = "https://server.bbkr.space/artifactory/libs-release"
+		content {
+			includeGroup "io.github.cottonmc"
 		}
 	}
-	
+	maven {
+		name = 'Ladysnake Mods'
+		url = 'https://maven.ladysnake.org/releases'
+		content {
+			includeGroup "dev.onyxstudios.cardinal-components-api"
+		}
+	}
+	maven { 
+		url 'https://oss.sonatype.org/content/repositories/snapshots' 
+	}
 }
 
 // All the dependencies are declared at gradle/libs.version.toml and referenced with "libs.<id>"
@@ -58,6 +58,10 @@ dependencies {
 	include libs.ccaWorld
 	modImplementation libs.ccaLevel
 	include libs.ccaLevel
+	
+	// Fabric Permissions API
+	modImplementation libs.fabricPermissions
+	include libs.fabricPermissions
 }
 
 processResources {

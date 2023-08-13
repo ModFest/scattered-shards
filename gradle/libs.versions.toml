@@ -8,6 +8,7 @@ quilted_fabric_api = "7.0.3+0.83.1-1.20.1"
 
 libgui = "8.0.1+1.20"
 cca = "5.2.2"
+fabric_permissions = "0.2-SNAPSHOT"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -22,6 +23,7 @@ ccaBase = { module = "dev.onyxstudios.cardinal-components-api:cardinal-component
 ccaEntity = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-entity", version.ref = "cca" }
 ccaWorld = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-world", version.ref = "cca" }
 ccaLevel = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-level", version.ref = "cca" }
+fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabric_permissions" }
 
 # If you have multiple similar dependencies, you can declare a dependency bundle and reference it on the build script with "libs.bundles.example".
 [bundles]
