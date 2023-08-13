@@ -138,6 +138,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	
 	public ShardCreatorGuiDescription(Shard shard, String modId) {
 		this();
+		this.shard = shard;
 		shardPanel.setShard(shard);
 		this.modIcon = new Identifier(modId, "icon.png");
 		Shard.getSourceForModId(modId).ifPresent(shard::setSource);

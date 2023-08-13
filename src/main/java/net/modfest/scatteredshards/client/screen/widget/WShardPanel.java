@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
+import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.item.ItemStack;
@@ -13,47 +14,47 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
+import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
+import net.modfest.scatteredshards.client.screen.widget.scalable.WShardIcon;
 
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public class WShardPanel extends WPlainPanel {
 
 	//private static final Identifier TEXTURE = ScatteredShards.id("textures/gui/view.png");
 
-	public static final Supplier<Integer> WHITE = () -> 0xFFFFFF;
+	public static final IntSupplier WHITE = () -> 0xFFFFFF;
 	public static final Style HINT_STYLE = Style.EMPTY.withFont(new Identifier("minecraft:alt"));
 
 	private Shard shard = Shard.MISSING_SHARD.copy();
 
 	private final WDynamicSprite backing = new WDynamicSprite(ShardType.MISSING.getFrontTexture());
-	private final WScalableWidgets.ShardIcon icon = new WScalableWidgets.ShardIcon(2.0f);
-	private final WDynamicLabel name = createLabel(shard::name, WHITE, 1.14f);
-	private final WDynamicLabel typeDescription = createLabel(() -> shard.shardType().getDescription(), ShardType.MISSING::textColor, 0.9f);
-	private final WDynamicLabel source = createLabel(shard::source, WHITE, 0.9f);
-	private final WDynamicLabel lore = createLabel(shard::lore, WHITE, 0.8f);
-	private final WDynamicLabel hint = createHintLabel(shard::hint, WHITE, 0.8f);
-
-	private static WDynamicLabel createLabel(Supplier<Text> supplier, Supplier<Integer> color, float scale) {
-		var label = new WDynamicLabel(supplier, color, scale);
-		label.setHorizontalAlignment(HorizontalAlignment.CENTER);
-		label.setShadow(true);
-		return label;
-	}
-
-	private WDynamicLabel createHintLabel(Supplier<Text> hint, Supplier<Integer> color, float scale) {
-		var label = createLabel(() -> {
-			return hint.get().copy().fillStyle(HINT_STYLE);
-		}, color, scale);
-		label.setTooltip(hint);
-		return label;
-	}
+	private final WShardIcon icon = new WShardIcon(2.0f);
+	private final WScaledLabel name = new WScaledLabel(() -> shard.name(), 1.4f)
+			.setShadow(true)
+			.setHorizontalAlignment(HorizontalAlignment.CENTER);
+	private final WScaledLabel typeDescription = new WScaledLabel(() -> shard.shardType().getDescription(), 0.5f)
+			.setShadow(true)
+			.setHorizontalAlignment(HorizontalAlignment.CENTER)
+			.setColor(() -> shard.shardType().textColor());
+	private final WScaledLabel source = new WScaledLabel(shard::source, 0.9f)
+			.setShadow(true)
+			.setHorizontalAlignment(HorizontalAlignment.CENTER);
+	private final WScaledLabel lore = new WScaledLabel(shard::lore, 0.8f)
+			.setShadow(true)
+			.setHorizontalAlignment(HorizontalAlignment.CENTER);
+	private final WScaledLabel hint = new WScaledLabel(shard::hint, 0.8f)
+			.setShadow(true)
+			.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
 	/**
 	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
 	 */
 	public WShardPanel setType(ShardType value) {
 		backing.setImage(value::getFrontTexture);
-		typeDescription.setValues(value::getDescription, value::textColor);
+		typeDescription.setText(value::getDescription);
+		typeDescription.setColor(value::textColor);
 		return this;
 	}
 
@@ -65,24 +66,28 @@ public class WShardPanel extends WPlainPanel {
 		return this;
 	}
 
-	public WShardPanel setName(Supplier<Text> text, Supplier<Integer> color) {
-		this.name.setValues(text, color);
+	public WShardPanel setName(Supplier<Text> text, IntSupplier color) {
+		this.name.setText(text);
+		this.name.setColor(color);
 		return this;
 	}
 
-	public WShardPanel setSource(Supplier<Text> text, Supplier<Integer> color) {
-		this.source.setValues(text, color);
+	public WShardPanel setSource(Supplier<Text> text, IntSupplier color) {
+		this.source.setText(text);
+		this.source.setColor(color);
 		return this;
 	}
 
-	public WShardPanel setLore(Supplier<Text> text, Supplier<Integer> color) {
-		this.lore.setValues(() -> text.get().copy().formatted(Formatting.ITALIC), color);
+	public WShardPanel setLore(Supplier<Text> text, IntSupplier color) {
+		this.lore.setText(() -> text.get().copy().formatted(Formatting.ITALIC));
+		this.lore.setColor(color);
 		return this;
 	}
 
-	public WShardPanel setHint(Supplier<Text> text, Supplier<Integer> color) {
-		this.hint.setValues(() -> text.get().copy().fillStyle(HINT_STYLE), color);
-		this.hint.setTooltip(text);
+	public WShardPanel setHint(Supplier<Text> text, IntSupplier color) {
+		this.hint.setText(() -> text.get().copy().fillStyle(HINT_STYLE));
+		this.hint.setColor(color);
+		this.hint.setHover(text);
 		return this;
 	}
 
@@ -90,7 +95,8 @@ public class WShardPanel extends WPlainPanel {
 		this.shard = shard;
 
 		backing.setImage(() -> shard.shardType().getFrontTexture());
-		typeDescription.setValues(() -> shard.shardType().getDescription(), () -> shard.shardType().textColor());
+		typeDescription.setText(() -> shard.shardType().getDescription());
+		typeDescription.setColor(() -> shard.shardType().textColor());
 		icon.setIcon(shard::icon);
 		setName(shard::name, WHITE);
 		setSource(shard::source, WHITE);
@@ -101,29 +107,34 @@ public class WShardPanel extends WPlainPanel {
 	}
 
 	public WShardPanel() {
-		this.setSize(114, 200);
+		this.width = 114;
+		this.height = 200;
 		this.setInsets(Insets.ROOT_PANEL);
+		
+		add(name, 0, 0, getWidth(), 18);
+		add(typeDescription, 0, 16, getWidth(), 16);
+		add(source, 0, 25, getWidth(), 16);
+		
+		int cardScale = 2;
+		int cardX = ((this.getWidth()) / 2) - (12 * cardScale);
+		add(backing, cardX, 40, 24*cardScale, 32*cardScale);
+		
+		add(icon, cardX + (4 * cardScale), 40 + (4 * cardScale), 16 * cardScale, 16 * cardScale);
 
-		setBackgroundPainter((context, left, top, panel) -> {
-			ScreenDrawing.coloredRect(context, left, top, panel.getWidth(), panel.getHeight(), 0xFF_0000FF);
-			
-			//context.fillGradient(x, y, x+width, y+height, 0xFF_00FF00, 0xFF0000FF);
-			//context.drawTexture(TEXTURE, left, top, 0, 0, 114, 200);
-		});
-
-		int xo = 35;
-		int yo = 0; //27;
 		
-		//add(name, 0, 0, this.getWidth(), 16);
-		//add(typeDescription, 0, 16, this.getWidth(), 16);
-		/*
-		add(backing, xo, 40 + yo, this.getWidth() - 8, 64);
-		add(icon, 8 + xo, 48 + yo, 16, 16);
-		
-		
-		add(source, 0, 25, this.getWidth(), 16);
-		add(lore, 0, 113, this.getWidth(), 16);
-		add(hint, 0, 135, this.getWidth(), 16);*/
+		add(lore, 0, 113, getWidth(), 16);
+		add(hint, 0, 135, getWidth(), 16);
+	}
+	
+	@Override
+	public void layout() {
+		// We are already perfectly laid out from the constructor.
+	}
+	
+	@Override
+	protected void expandToFit(WWidget w, Insets insets) {
+		// Do not expand to fit anything.
+		return;
 	}
 	
 	@Override
