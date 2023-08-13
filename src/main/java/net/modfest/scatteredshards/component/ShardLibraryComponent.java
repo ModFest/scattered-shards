@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
+import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.BiMap;
@@ -80,11 +81,12 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 	 * Adds, alters, or replaces a shard on the server, resyncing the shard with all connected players. Accessing this
 	 * from the client may cause a desync.
 	 */
-	public void modifyShard(Identifier shardId, Shard newData, World world) {
+	public void modifyShard(Identifier shardId, Shard newData, World world, PlayerEntity player) {
 		data.put(shardId, newData);
 		MinecraftServer server = world.getServer();
 		if (server == null) return;
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected containing the shard added/modified
+		ScatteredShards.LOGGER.info("Shard '{}' was modified by player {} ({})", shardId, player.getUuid(), player.getEntityName());
 	}
 	
 	public Collection<Identifier> getShardIds() {

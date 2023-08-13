@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
@@ -12,6 +13,8 @@ import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
 
 public class ScatteredShardsAPI {
+	
+	public static final String MODIFY_SHARD_PERMISSION = ScatteredShards.permission("modify_shard");
 
 	public static Multimap<Identifier, Shard> getShardSets() {
 		return ScatteredShardsAPIImpl.shardSets;
