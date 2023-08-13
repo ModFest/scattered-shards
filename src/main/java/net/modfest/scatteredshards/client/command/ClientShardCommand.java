@@ -1,6 +1,7 @@
 package net.modfest.scatteredshards.client.command;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -13,9 +14,11 @@ import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
 import net.modfest.scatteredshards.component.ScatteredShardsComponents;
+import org.quiltmc.loader.api.QuiltLoader;
 import org.quiltmc.qsl.command.api.client.ClientCommandRegistrationCallback;
 import org.quiltmc.qsl.command.api.client.QuiltClientCommandSource;
 
@@ -23,22 +26,37 @@ import java.util.concurrent.CompletableFuture;
 
 public class ClientShardCommand {
 
-	public static final DynamicCommandExceptionType INVALID_ID = new DynamicCommandExceptionType(
-			id -> Text.translatable("error.scattered_shards.invalid_set_id", id)
-	);
+	private static DynamicCommandExceptionType createInvalidException(String item) {
+		return new DynamicCommandExceptionType(
+				obj -> Text.translatable("error.scattered_shards.invalid_" + item, obj)
+		);
+	}
+
+	private static final DynamicCommandExceptionType INVALID_SET_ID = createInvalidException("set_id");
+	private static final DynamicCommandExceptionType INVALID_MOD_ID = createInvalidException("mod_id");
+	private static final DynamicCommandExceptionType INVALID_SHARD_TYPE = createInvalidException("shard_type");
 
 	public static int view(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
 		Identifier id = context.getArgument("set_id", Identifier.class);
 		var shards = ScatteredShardsAPI.getShardSets().get(id);
 		if (shards.isEmpty()) {
-			throw INVALID_ID.create(id);
+			throw INVALID_SET_ID.create(id);
 		}
 		return Command.SINGLE_SUCCESS;
 	}
 
-	public static int creator(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
+	public static int creatorNew(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
+		String modId = StringArgumentType.getString(context, "mod_id");
+		if (!QuiltLoader.isModLoaded(modId)) {
+			throw INVALID_MOD_ID.create(modId);
+		}
+		Identifier shardTypeId = context.getArgument("shard_type", Identifier.class);
+		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(shardTypeId);
+		if (shardType == null) {
+			throw INVALID_SHARD_TYPE.create(shardTypeId);
+		}
 		var client = context.getSource().getClient();
-		client.send(() -> client.setScreen(new ShardCreatorGuiDescription.Screen()));
+		client.send(() -> client.setScreen(ShardCreatorGuiDescription.Screen.newShard(modId, shardType)));
 		return Command.SINGLE_SUCCESS;
 	}
 
@@ -59,6 +77,20 @@ public class ClientShardCommand {
 		return builder.buildFuture();
 	}
 
+	public static CompletableFuture<Suggestions> suggestShardTypes(CommandContext<QuiltClientCommandSource> context, SuggestionsBuilder builder) {
+		for (var id : ScatteredShardsAPI.getShardTypes().keySet()) {
+			builder.suggest(id.toString());
+		}
+		return builder.buildFuture();
+	}
+	
+	public static CompletableFuture<Suggestions> suggestModIds(CommandContext<QuiltClientCommandSource> context, SuggestionsBuilder builder) {
+		for (var mod : QuiltLoader.getAllMods()) {
+			builder.suggest(mod.metadata().id());
+		}
+		return builder.buildFuture();
+	}
+
 	private static LiteralCommandNode<QuiltClientCommandSource> literal(String name) {
 		return LiteralArgumentBuilder.<QuiltClientCommandSource>literal(name).build();
 	}
@@ -69,6 +101,10 @@ public class ClientShardCommand {
 
 	private static RequiredArgumentBuilder<QuiltClientCommandSource, Identifier> identifierArgument(String name) {
 		return RequiredArgumentBuilder.<QuiltClientCommandSource, Identifier>argument(name, IdentifierArgumentType.identifier());
+	}
+	
+	private static RequiredArgumentBuilder<QuiltClientCommandSource, String> stringArgument(String name) {
+		return RequiredArgumentBuilder.<QuiltClientCommandSource, String>argument(name, StringArgumentType.string());
 	}
 
 	public static void register() {
@@ -86,7 +122,21 @@ public class ClientShardCommand {
 			shardcRoot.addChild(view);
 
 			//Usage: /shardc creator
-			var creator = literal("creator", ClientShardCommand::creator);
+				//-> new <mod_id> <shard_type>
+				//-> edit <shard_id>
+			var creator = literal("creator");
+
+			var creatorNew = literal("new");
+			var modId = stringArgument("mod_id")
+					.suggests(ClientShardCommand::suggestModIds);
+			var modIdBuild = modId.build();
+			var shardType = identifierArgument("shard_type")
+					.suggests(ClientShardCommand::suggestShardTypes)
+					.executes(ClientShardCommand::creatorNew);
+			modIdBuild.addChild(shardType.build());
+			creatorNew.addChild(modIdBuild);
+
+			creator.addChild(creatorNew);
 			shardcRoot.addChild(creator);
 
 			//Usage: /shards
