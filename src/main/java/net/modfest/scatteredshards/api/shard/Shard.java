@@ -27,7 +27,9 @@ import java.util.stream.Stream;
 public class Shard {
 
 	public static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier("scattered_shards:textures/gui/shards/missing_icon.png"));
-	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING_ID, Text.of("Missing"), Text.of(""), Text.of(""), Text.of("None"), ScatteredShards.id("missing"), MISSING_ICON);
+	public static final Identifier MISSING_SHARD_SOURCE = ScatteredShards.id("missing");
+	public static final Identifier LOST_AND_FOUND_SHARD_SOURCE = ScatteredShards.id("lost_and_found");
+	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING_ID, Text.of("Missing"), Text.of(""), Text.of(""), Text.of("None"), MISSING_SHARD_SOURCE, MISSING_ICON);
 
 	protected Identifier shardTypeId;
 	protected Text name;
@@ -148,7 +150,7 @@ public class Shard {
 		Identifier sourceId = new Identifier(
 				nbt.contains("SourceId", NbtElement.STRING_TYPE) ?
 						nbt.getString("SourceId") :
-						"scattered_shards:lost_and_found"
+						LOST_AND_FOUND_SHARD_SOURCE.toString()
 				);
 		var icon = iconFromNbt(nbt.get("Icon"));
 		return new Shard(shardTypeId, name, lore, hint, source, sourceId, icon);
@@ -237,7 +239,7 @@ public class Shard {
 		Text name = loadText(JsonHelper.getString(obj, "name"));
 		Text lore = loadText(JsonHelper.getString(obj, "lore"));
 		Text hint = loadText(JsonHelper.getString(obj, "hint"));
-		Identifier sourceId = new Identifier(JsonHelper.getString(obj, "source_id", "scattered_shards:lost_and_found"));
+		Identifier sourceId = new Identifier(JsonHelper.getString(obj, "source_id", LOST_AND_FOUND_SHARD_SOURCE.toString()));
 		var icon = iconFromJson(obj.get("icon"));
 		return new Shard(shardTypeId, name, lore, hint, source, sourceId, icon);
 	}
@@ -286,14 +288,14 @@ public class Shard {
 	}
 	
 	public static Text getSourceForSourceId(Identifier id) {
-		if (id.getPath().equals("shard_pack")) {
-			return QuiltLoader.getModContainer(id.getNamespace())
-					.map(it -> it.metadata().name())
-					.map(it -> Text.translatable(it))
-					.orElse(Text.translatable("shard_pack." + id.getNamespace() + ".name"));
-		} else {
+		if (!id.getPath().equals("shard_pack")) {
 			return Text.translatable("shard_pack." + id.getNamespace() + "." + id.getPath() + ".name");
 		}
+		
+		return QuiltLoader.getModContainer(id.getNamespace())
+				.map(it -> it.metadata().name())
+				.map(it -> Text.translatable(it))
+				.orElse(Text.translatable("shard_pack." + id.getNamespace() + ".name"));
 	}
 	
 	public static Identifier getSourceIdForNamespace(String namespace) {
