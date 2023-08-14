@@ -3,9 +3,6 @@ package net.modfest.scatteredshards.component;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.apache.commons.compress.harmony.unpack200.bytecode.forms.ThisFieldRefForm;
-import org.apache.logging.log4j.util.ProviderActivator;
-
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -18,7 +15,6 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardEvents;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;

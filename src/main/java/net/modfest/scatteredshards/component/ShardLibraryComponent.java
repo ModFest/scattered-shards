@@ -3,12 +3,15 @@ package net.modfest.scatteredshards.component;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 
 import dev.onyxstudios.cca.api.v3.component.Component;
 import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -32,6 +35,7 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 	@SuppressWarnings("unused")
 	private WorldProperties provider;
 	private BiMap<Identifier, Shard> data = HashBiMap.create();
+	protected final Multimap<Identifier, Identifier> bySource = MultimapBuilder.linkedHashKeys().arrayListValues(3).build();
 	
 	public ShardLibraryComponent(WorldProperties provider) {
 		this.provider = provider;
@@ -83,6 +87,7 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 	 */
 	public void modifyShard(Identifier shardId, Shard newData, World world, PlayerEntity player) {
 		data.put(shardId, newData);
+		bySource.put(newData.sourceId(), shardId);
 		MinecraftServer server = world.getServer();
 		if (server == null) return;
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected containing the shard added/modified
@@ -95,8 +100,32 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		return all;
 	}
 	
+	/**
+	 * Gets the complete list of shard source Ids
+	 * @return
+	 */
+	public Collection<Identifier> getShardSources() {
+		return bySource.keySet();
+	}
+	
+	/**
+	 * Given a shardSet Id, gets a Collection of Shard Ids which are members of that shardSet. In other words, the
+	 * returned shards will have the same sourceId as the passed-in Identifier.
+	 * @param id An Identifier for a shardSet / shard sourceId
+	 * @return A collection of ShardIds where the corresponding shards have the specified sourceId.
+	 */
+	public Collection<Identifier> getShardSet(Identifier id) {
+		return bySource.get(id);
+	}
+	
+	public Stream<Shard> getResolvedShardSet(Identifier id) {
+		return bySource.get(id).stream().map(this::getShard);
+	}
+	
 	@Override
 	public void readFromNbt(NbtCompound tag) {
+		data.clear();
+		bySource.clear();
 		NbtCompound library = tag.getCompound(LIBRARY_KEY);
 		for(String k : library.getKeys()) {
 			try {
@@ -106,8 +135,17 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 				Shard shard = Shard.fromNbt(shardData);
 				
 				data.put(id, shard);
+				bySource.put(shard.sourceId(), id);
 			} catch (InvalidIdentifierException | ArrayIndexOutOfBoundsException ex) {
 				ScatteredShards.LOGGER.warn("Broken shard library data. Shard '"+k+"' was lost completely.", ex);
+			}
+		}
+		
+		// Include datapack shards in shardSet / shardSource mapping
+		for(Map.Entry<Identifier, Shard> entry : ScatteredShardsAPI.getShardSets().entries()) {
+			Identifier shardId = ScatteredShardsAPI.getShardData().inverse().get(entry.getValue());
+			if (shardId != null) {
+				bySource.put(entry.getKey(), shardId);
 			}
 		}
 	}

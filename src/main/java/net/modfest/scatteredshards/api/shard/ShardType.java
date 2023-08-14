@@ -46,6 +46,14 @@ public record ShardType(int textColor, Optional<SoundEvent> collectSound) {
 	public Identifier getFrontTexture() {
 		return getTexture("front");
 	}
+	
+	public Identifier getMiniFrontTexture() {
+		return getTexture("mini_front");
+	}
+	
+	public Identifier getMiniBackTexture() {
+		return getTexture("mini_back");
+	}
 
 	public Text getDescription() {
 		return Text.translatable(getId().toTranslationKey("shard_type", "description"));

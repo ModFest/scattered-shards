@@ -144,10 +144,13 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	private void updateTextureIcon() {
 		boolean useModIcon = textureToggle.getToggle();
 		if (useModIcon) {
+			shard.setIcon(Either.right(modIcon));
 			shardPanel.setIcon(Either.right(modIcon));
 		} else if (iconPath != null) {
+			shard.setIcon(Either.right(iconPath));
 			shardPanel.setIcon(Either.right(iconPath));
 		} else {
+			shard.setIcon(Shard.MISSING_ICON);
 			shardPanel.setIcon(Shard.MISSING_ICON);
 		}
 	}
@@ -158,6 +161,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		shardPanel.setShard(shard);
 		this.modIcon = new Identifier(modId, "icon.png");
 		Shard.getSourceForModId(modId).ifPresent(shard::setSource);
+		shard.setSourceId(new Identifier(modId, "shard_pack"));
 	}
 	
 	public ShardCreatorGuiDescription(Identifier shardId) {
