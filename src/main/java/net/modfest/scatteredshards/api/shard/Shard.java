@@ -27,18 +27,18 @@ import java.util.stream.Stream;
 public class Shard {
 
 	public static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier("scattered_shards:textures/gui/shards/missing_icon.png"));
-	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING, Text.of("Missing"), Text.of(""), Text.of(""), Text.of("None"), MISSING_ICON);
+	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING_ID, Text.of("Missing"), Text.of(""), Text.of(""), Text.of("None"), MISSING_ICON);
 
-	protected ShardType shardType;
+	protected Identifier shardTypeId;
 	protected Text name;
 	protected Text lore;
 	protected Text hint;
 	protected Text source;
 	protected Either<ItemStack, Identifier> icon;
 
-	public Shard(ShardType shardType, Text name, Text lore, Text hint, Text source, Either<ItemStack, Identifier> icon) {
+	public Shard(Identifier shardTypeId, Text name, Text lore, Text hint, Text source, Either<ItemStack, Identifier> icon) {
 		Stream.of(name, lore, hint, source, icon).forEach(Objects::requireNonNull);
-		this.shardType = shardType;
+		this.shardTypeId = shardTypeId;
 		this.name = name;
 		this.lore = lore;
 		this.hint = hint;
@@ -46,8 +46,12 @@ public class Shard {
 		this.icon = icon;
 	}
 
-	public ShardType shardType() {
-		return shardType;
+	public Identifier shardTypeId() {
+		return shardTypeId;
+	}
+
+	public ShardType getShardType() {
+		return ScatteredShardsAPI.getShardTypes().get(shardTypeId);
 	}
 
 	public Text name() {
@@ -70,9 +74,13 @@ public class Shard {
 		return icon;
 	}
 
-	public Shard setShardType(ShardType shardType) {
-		this.shardType = shardType;
+	public Shard setShardType(Identifier shardTypeId) {
+		this.shardTypeId = shardTypeId;
 		return this;
+	}
+
+	public Shard setShardType(ShardType shardType) {
+		return setShardType(shardType.getId());
 	}
 
 	public Shard setName(Text value) {
@@ -121,17 +129,17 @@ public class Shard {
 	}
 
 	public static Shard fromNbt(NbtCompound nbt) {
-		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(new Identifier(nbt.getString("ShardType")));
+		Identifier shardTypeId = new Identifier(nbt.getString("ShardType"));
 		Text name = loadText(nbt.getString("Name"));
 		Text lore = loadText(nbt.getString("Lore"));
 		Text hint = loadText(nbt.getString("Hint"));
 		Text source = loadText(nbt.getString("Source"));
 		var icon = iconFromNbt(nbt.get("Icon"));
-		return new Shard(shardType, name, lore, hint, source, icon);
+		return new Shard(shardTypeId, name, lore, hint, source, icon);
 	}
 
 	public NbtCompound writeNbt(NbtCompound nbt) {
-		nbt.putString("ShardType", shardType.getId().toString());
+		nbt.putString("ShardType", shardTypeId.toString());
 		nbt.putString("Name", Text.Serializer.toJson(name));
 		nbt.putString("Lore", Text.Serializer.toJson(lore));
 		nbt.putString("Hint", Text.Serializer.toJson(hint));
@@ -150,7 +158,7 @@ public class Shard {
 	public JsonObject toJson() {
 		JsonObject result = new JsonObject();
 
-		result.add("shard_type", new JsonPrimitive(shardType.getId().toString()));
+		result.add("shard_type", new JsonPrimitive(shardTypeId.toString()));
 		result.add("name", new JsonPrimitive(Text.Serializer.toJson(name)));
 		result.add("lore", new JsonPrimitive(Text.Serializer.toJson(lore)));
 		result.add("hint", new JsonPrimitive(Text.Serializer.toJson(hint)));
@@ -171,7 +179,7 @@ public class Shard {
 	}
 
 	public void write(PacketByteBuf buf) {
-		buf.writeIdentifier(shardType.getId());
+		buf.writeIdentifier(shardTypeId);
 		buf.writeString(Text.Serializer.toJson(name));
 		buf.writeString(Text.Serializer.toJson(lore));
 		buf.writeString(Text.Serializer.toJson(hint));
@@ -180,18 +188,18 @@ public class Shard {
 	}
 
 	public static Shard read(PacketByteBuf buf) {
-		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(buf.readIdentifier());
+		Identifier shardTypeId = buf.readIdentifier();
 		Text name = loadText(buf.readString());
 		Text lore = loadText(buf.readString());
 		Text hint = loadText(buf.readString());
 		Text source = loadText(buf.readString());
 		var icon = buf.readEither(PacketByteBuf::readItemStack, PacketByteBuf::readIdentifier);
-		return new Shard(shardType, name, lore, hint, source, icon);
+		return new Shard(shardTypeId, name, lore, hint, source, icon);
 	}
 	
 	public Shard copy() {
 		Either<ItemStack, Identifier> icon = icon().mapBoth(stack -> stack, id -> id);
-		return new Shard(shardType, name.copy(), lore.copy(), hint.copy(), source.copy(), icon);
+		return new Shard(shardTypeId, name.copy(), lore.copy(), hint.copy(), source.copy(), icon);
 	}
 
 	public static Either<ItemStack, Identifier> iconFromJson(JsonElement element) {
@@ -205,12 +213,12 @@ public class Shard {
 	}
 
 	public static Shard fromJson(JsonObject obj, Text source) {
-		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(new Identifier(JsonHelper.getString(obj, "shard_type")));
+		Identifier shardTypeId = new Identifier(JsonHelper.getString(obj, "shard_type"));
 		Text name = loadText(JsonHelper.getString(obj, "name"));
 		Text lore = loadText(JsonHelper.getString(obj, "lore"));
 		Text hint = loadText(JsonHelper.getString(obj, "hint"));
 		var icon = iconFromJson(obj.get("icon"));
-		return new Shard(shardType, name, lore, hint, source, icon);
+		return new Shard(shardTypeId, name, lore, hint, source, icon);
 	}
 
 	@Override

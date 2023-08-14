@@ -9,6 +9,7 @@ import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
 import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
@@ -22,7 +23,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	protected final ShardCollectionComponent collection;
 	protected final ShardLibraryComponent library;
 	
-	WShardPanel shardPanel = new WShardPanel();
+	WShardPanel shardPanel = new WShardPanel(ShardType.MISSING);
 	WScrollBar shardSelectorScrollBar = new WScrollBar(Axis.VERTICAL);
 	WPlainPanel shardSelector = new WPlainPanel();
 	

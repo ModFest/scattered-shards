@@ -1,5 +1,6 @@
 package net.modfest.scatteredshards.client.render;
 
+import net.modfest.scatteredshards.api.shard.ShardType;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -37,6 +38,8 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			shard = Shard.MISSING_SHARD;
 		}
 
+		ShardType shardType = shard.getShardType();
+
 		float l = (entity.getWorld().getTime() + tickDelta) / TICKS_PER_RADIAN;
 		l %= Math.PI*2;
 		float angle = l; //(float) (Math.PI/8);
@@ -49,7 +52,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		matrices.multiply(rot);
 		matrices.multiply(tilt);
 
-		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(shard.shardType().getBackingTexture()));
+		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(shardType.getBackingTexture()));
 		
 		/*
 		 * A note about scale here:
@@ -109,7 +112,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		//Draw card front
 		Vector3f revNormal = normal.mul(-1, -1, -1);
-		buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(shard.shardType().getFrontTexture()));
+		buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(shardType.getFrontTexture()));
 		buf
 			.vertex(matrices.peek().getModel(), dl.x, dl.y, dl.z)
 			.color(0xFF_FFFFFF)

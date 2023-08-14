@@ -24,6 +24,8 @@ public record ShardType(int textColor, Optional<SoundEvent> collectSound) {
 	public static final ShardType SECRET = new ShardType(0xEB4034, Optional.of(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE));
 	public static final ShardType MISSING = new ShardType(0xFFFFFF, Optional.empty());
 
+	public static final Identifier MISSING_ID = ScatteredShards.id("missing");
+
 	public Identifier getId() {
 		return ScatteredShardsAPI.getShardTypes().inverse().get(this);
 	}
@@ -77,6 +79,6 @@ public record ShardType(int textColor, Optional<SoundEvent> collectSound) {
 		ScatteredShardsAPI.registerShardType(ScatteredShards.id("visitor"), VISITOR);
 		ScatteredShardsAPI.registerShardType(ScatteredShards.id("challenge"), CHALLENGE);
 		ScatteredShardsAPI.registerShardType(ScatteredShards.id("secret"), SECRET);
-		ScatteredShardsAPI.registerShardType(ScatteredShards.id("missing"), MISSING);
+		ScatteredShardsAPI.registerShardType(MISSING_ID, MISSING);
 	}
 }
