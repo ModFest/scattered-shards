@@ -52,7 +52,7 @@ public class WMiniShard extends WWidget {
 				context.getMatrices().pop();
 			});
 			shard.icon().ifRight((it) -> {
-				ScreenDrawing.texturedRect(context, x, y, 6, 6, it, 0xFF_FFFFFF);
+				ScreenDrawing.texturedRect(context, x+3, y+3, 6, 6, it, 0xFF_FFFFFF);
 			});
 		}
 	}

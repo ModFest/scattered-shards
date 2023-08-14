@@ -131,6 +131,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	
 	private void updateItemIcon() {
 		if (item == null) {
+			shard.setIcon(Shard.MISSING_ICON);
 			shardPanel.setIcon(Shard.MISSING_ICON);
 			return;
 		}
@@ -138,6 +139,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		if (itemNbt != null) {
 			stack.setNbt(itemNbt);
 		}
+		shard.setIcon(Either.left(stack));
 		shardPanel.setIcon(Either.left(stack));
 	}
 	
