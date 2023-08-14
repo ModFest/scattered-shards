@@ -7,8 +7,8 @@ import net.minecraft.client.toast.Toast;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.client.command.ClientShardCommand;
+import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
@@ -27,16 +27,19 @@ public class ScatteredShardsClient implements ClientModInitializer {
 	}
 
 	public static void triggerShardCollectAnimation(Identifier shardId) {
-		Shard shard = ScatteredShardsAPI.getShardData().get(shardId);
+		var library = ScatteredShardsComponents.getShardLibrary(MinecraftClient.getInstance().world);
+		var collection = ScatteredShardsComponents.COLLECTION.get(MinecraftClient.getInstance().player);
+		
+		Shard shard = library.getShard(shardId);
 		if (shard == null) {
 			ScatteredShards.LOGGER.warn("Received shard collection event with ID '" + shardId + "' but it does not exist on this client");
 			return;
 		}
-
+		
+		collection.addShard(shardId);
 		ScatteredShards.LOGGER.info("Collected shard '" + shardId.toString() + "'!");
 		Toast toast = new ShardToast(shard);
 		MinecraftClient.getInstance().getToastManager().add(toast);
-		//TODO: Activate the HUD overlay
 	}
 
 	public static void triggerShardModificationToast(Identifier shardId, boolean success) {

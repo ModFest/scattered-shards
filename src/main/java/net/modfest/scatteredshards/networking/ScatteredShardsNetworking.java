@@ -139,7 +139,7 @@ public class ScatteredShardsNetworking {
 			final Identifier shardId = buf.readIdentifier();
 			final Shard shard = Shard.read(buf);
 			server.execute(() -> {
-				boolean success = Permissions.check(player, ScatteredShardsAPI.MODIFY_SHARD_PERMISSION);
+				boolean success = Permissions.check(player, ScatteredShardsAPI.MODIFY_SHARD_PERMISSION, 1);
 				if (success) {
 					ScatteredShardsComponents.getShardLibrary(player.getWorld()).modifyShard(shardId, shard, player.getWorld(), player);
 				}
