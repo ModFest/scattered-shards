@@ -34,6 +34,7 @@ public class ScatteredShardsNetworking {
 	private static final Identifier UPDATE_DATA = ScatteredShards.id("update_data");
 	private static final Identifier COLLECT_SHARD = ScatteredShards.id("collect_shard");
 	private static final Identifier MODIFY_SHARD = ScatteredShards.id("modify_shard");
+	private static final Identifier MODIFY_SHARD_RESULT = ScatteredShards.id("modify_shard_result");
 
 	private static PacketByteBuf createDataUpdate(Map<Identifier, ShardType> shardTypes, Multimap<Identifier, Shard> shardSets, Map<Identifier, Shard> shardData) {
 		PacketByteBuf buf = PacketByteBufs.create();
@@ -100,6 +101,13 @@ public class ScatteredShardsNetworking {
 		ClientPlayNetworking.send(MODIFY_SHARD, buf);
 	}
 
+	public static void s2cModifyShardResult(ServerPlayerEntity player, Identifier shardId, boolean success) {
+		PacketByteBuf buf = PacketByteBufs.create();
+		buf.writeIdentifier(shardId);
+		buf.writeBoolean(success);
+		ServerPlayNetworking.send(player, MODIFY_SHARD_RESULT, buf);
+	}
+
 	@ClientOnly
 	public static void registerClient() {
 		ClientPlayNetworking.registerGlobalReceiver(RELOAD_DATA, (client, handler, buf, responseSender) -> {
@@ -116,6 +124,14 @@ public class ScatteredShardsNetworking {
 				ScatteredShardsComponents.COLLECTION.get(client.player).addShard(shardId);
 			});
 		});
+		ClientPlayNetworking.registerGlobalReceiver(MODIFY_SHARD_RESULT, (client, handler, buf, responseSender) -> {
+			final Identifier shardId = buf.readIdentifier();
+			final boolean success = buf.readBoolean();
+
+			client.execute(() -> {
+				ScatteredShardsClient.triggerShardModificationToast(shardId, success);
+			});
+		});
 	}
 
 	public static void register() {
@@ -123,9 +139,11 @@ public class ScatteredShardsNetworking {
 			final Identifier shardId = buf.readIdentifier();
 			final Shard shard = Shard.read(buf);
 			server.execute(() -> {
-				if (!Permissions.check(player, ScatteredShardsAPI.MODIFY_SHARD_PERMISSION)) {
+				boolean success = Permissions.check(player, ScatteredShardsAPI.MODIFY_SHARD_PERMISSION);
+				if (success) {
 					ScatteredShardsComponents.getShardLibrary(player.getWorld()).modifyShard(shardId, shard, player.getWorld(), player);
 				}
+				s2cModifyShardResult(player, shardId, success);
 			});
 		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

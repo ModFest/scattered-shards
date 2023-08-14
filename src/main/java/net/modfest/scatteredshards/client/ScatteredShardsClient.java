@@ -1,8 +1,10 @@
 package net.modfest.scatteredshards.client;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.toast.SystemToast;
 import net.minecraft.client.toast.Toast;
 
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
@@ -14,6 +16,8 @@ import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
 
 public class ScatteredShardsClient implements ClientModInitializer {
+
+	public static final String SHARD_MODIFY_TOAST_KEY = "toast.scattered_shards.shard_mod";
 
 	@Override
 	public void onInitializeClient(ModContainer mod) {
@@ -33,5 +37,14 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		Toast toast = new ShardToast(shard);
 		MinecraftClient.getInstance().getToastManager().add(toast);
 		//TODO: Activate the HUD overlay
+	}
+
+	public static void triggerShardModificationToast(Identifier shardId, boolean success) {
+		var toast = new SystemToast(
+				success ? SystemToast.Type.TUTORIAL_HINT : SystemToast.Type.WORLD_ACCESS_FAILURE,
+				Text.translatable(SHARD_MODIFY_TOAST_KEY + ".title"),
+				Text.translatable(SHARD_MODIFY_TOAST_KEY + "." + (success ? "success" : "fail"), shardId)
+		);
+		MinecraftClient.getInstance().getToastManager().add(toast);
 	}
 }
