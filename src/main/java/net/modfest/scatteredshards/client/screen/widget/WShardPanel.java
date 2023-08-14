@@ -55,6 +55,7 @@ public class WShardPanel extends WPlainPanel {
 	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
 	 */
 	public WShardPanel setType(ShardType value) {
+		this.shardType = value;
 		backing.setImage(value::getFrontTexture);
 		typeDescription.setText(value::getDescription);
 		typeDescription.setColor(value::textColor);
@@ -94,15 +95,10 @@ public class WShardPanel extends WPlainPanel {
 		return this;
 	}
 
-	public WShardPanel setShardType(ShardType shardType) {
-		this.shardType = shardType;
-		return this;
-	}
-
 	public WShardPanel setShard(Shard shard) {
 		this.shard = shard;
 
-		backing.setImage(() -> shardType.getFrontTexture());
+		setType(shard.getShardType());
 		icon.setIcon(shard::icon);
 		setName(shard::name, WHITE);
 		setSource(shard::source, WHITE);
@@ -112,8 +108,8 @@ public class WShardPanel extends WPlainPanel {
 		return this;
 	}
 
-	public WShardPanel(ShardType shardType) {
-		this.shardType = shardType;
+	public WShardPanel() {
+		this.shardType = ShardType.MISSING;
 		this.width = 114;
 		this.height = 200;
 		this.setInsets(Insets.ROOT_PANEL);
@@ -158,7 +154,6 @@ public class WShardPanel extends WPlainPanel {
 	}
 
 	public WShardPanel(Shard shard) {
-		this(shard.getShardType());
 		setShard(shard);
 	}
 

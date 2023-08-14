@@ -23,7 +23,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	protected final ShardCollectionComponent collection;
 	protected final ShardLibraryComponent library;
 	
-	WShardPanel shardPanel = new WShardPanel(ShardType.MISSING);
+	WShardPanel shardPanel = new WShardPanel();
 	WScrollBar shardSelectorScrollBar = new WScrollBar(Axis.VERTICAL);
 	WPlainPanel shardSelector = new WPlainPanel();
 	

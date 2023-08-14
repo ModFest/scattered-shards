@@ -13,7 +13,6 @@ import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.toast.SystemToast;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
@@ -49,7 +48,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	private Identifier modIcon;
 	
 	WLayoutBox editorPanel = new WLayoutBox(Axis.VERTICAL);
-	private WShardPanel shardPanel;
+	WShardPanel shardPanel = new WShardPanel();
 	
 	WLabel titleLabel = new WLabel(TITLE_TEXT);
 	
@@ -153,17 +152,16 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 	}
 	
-	public ShardCreatorGuiDescription(Identifier shardId, ShardType shardType, Shard shard, String modId) {
-		this(shardId, shardType);
+	public ShardCreatorGuiDescription(Identifier shardId, Shard shard, String modId) {
+		this(shardId);
 		this.shard = shard;
 		shardPanel.setShard(shard);
 		this.modIcon = new Identifier(modId, "icon.png");
 		Shard.getSourceForModId(modId).ifPresent(shard::setSource);
 	}
 	
-	public ShardCreatorGuiDescription(Identifier shardId, ShardType shardType) {
+	public ShardCreatorGuiDescription(Identifier shardId) {
 		this.shardId = shardId;
-		this.shardPanel = new WShardPanel(shardType);
 		
 		WLeftRightPanel root = new WLeftRightPanel(editorPanel, shardPanel);
 		this.setRootPanel(root);
@@ -214,14 +212,13 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	
 	public static class Screen extends CottonClientScreen {
 
-		public Screen(Identifier shardId, ShardType shardType, Shard shard, String modId) {
-			super(new ShardCreatorGuiDescription(shardId, shardType, shard, modId));
+		public Screen(Identifier shardId, Shard shard, String modId) {
+			super(new ShardCreatorGuiDescription(shardId, shard, modId));
 		}
 
 		public static Screen newShard(String modId, ShardType shardType) {
 			return new Screen(
 				shardType.createModId(modId),
-				shardType,
 				Shard.emptyOfType(shardType),
 				modId
 			);
@@ -230,7 +227,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		public static Screen editShard(Shard shard) {
 			Identifier shardId = ScatteredShardsComponents.getShardLibrary(MinecraftClient.getInstance().world).getId(shard);
 			String modId = shardId.getNamespace();
-			return new Screen(shardId, shard.getShardType(), shard, modId);
+			return new Screen(shardId, shard, modId);
 		}
 	}
 }
