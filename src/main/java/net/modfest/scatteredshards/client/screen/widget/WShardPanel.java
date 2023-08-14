@@ -30,16 +30,17 @@ public class WShardPanel extends WPlainPanel {
 	public static final Style HINT_STYLE = Style.EMPTY.withFont(new Identifier("minecraft:alt"));
 
 	private Shard shard = Shard.MISSING_SHARD.copy();
+	private ShardType shardType;
 
-	private final WDynamicSprite backing = new WDynamicSprite(ShardType.MISSING.getFrontTexture());
+	private final WDynamicSprite backing = new WDynamicSprite(() -> shardType.getFrontTexture());
 	private final WShardIcon icon = new WShardIcon(2.0f);
 	private final WScaledLabel name = new WScaledLabel(() -> shard.name(), 1.4f)
 			.setShadow(true)
 			.setHorizontalAlignment(HorizontalAlignment.CENTER);
-	private final WScaledLabel typeDescription = new WScaledLabel(() -> shard.shardType().getDescription(), 0.5f)
+	private final WScaledLabel typeDescription = new WScaledLabel(() -> shardType.getDescription(), 0.5f)
 			.setShadow(true)
 			.setHorizontalAlignment(HorizontalAlignment.CENTER)
-			.setColor(() -> shard.shardType().textColor());
+			.setColor(() -> shardType.textColor());
 	private final WScaledLabel source = new WScaledLabel(shard::source, 0.9f)
 			.setShadow(true)
 			.setHorizontalAlignment(HorizontalAlignment.CENTER);
@@ -54,6 +55,7 @@ public class WShardPanel extends WPlainPanel {
 	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
 	 */
 	public WShardPanel setType(ShardType value) {
+		this.shardType = value;
 		backing.setImage(value::getFrontTexture);
 		typeDescription.setText(value::getDescription);
 		typeDescription.setColor(value::textColor);
@@ -96,9 +98,7 @@ public class WShardPanel extends WPlainPanel {
 	public WShardPanel setShard(Shard shard) {
 		this.shard = shard;
 
-		backing.setImage(() -> shard.shardType().getFrontTexture());
-		typeDescription.setText(() -> shard.shardType().getDescription());
-		typeDescription.setColor(() -> shard.shardType().textColor());
+		setType(shard.getShardType());
 		icon.setIcon(shard::icon);
 		setName(shard::name, WHITE);
 		setSource(shard::source, WHITE);
@@ -109,6 +109,7 @@ public class WShardPanel extends WPlainPanel {
 	}
 
 	public WShardPanel() {
+		this.shardType = ShardType.MISSING;
 		this.width = 114;
 		this.height = 200;
 		this.setInsets(Insets.ROOT_PANEL);
@@ -153,7 +154,6 @@ public class WShardPanel extends WPlainPanel {
 	}
 
 	public WShardPanel(Shard shard) {
-		this();
 		setShard(shard);
 	}
 

@@ -2,11 +2,13 @@ package net.modfest.scatteredshards.networking;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.client.ScatteredShardsClient;
 import net.modfest.scatteredshards.component.ScatteredShardsComponents;
@@ -31,6 +33,8 @@ public class ScatteredShardsNetworking {
 	private static final Identifier RELOAD_DATA = ScatteredShards.id("reload_data");
 	private static final Identifier UPDATE_DATA = ScatteredShards.id("update_data");
 	private static final Identifier COLLECT_SHARD = ScatteredShards.id("collect_shard");
+	private static final Identifier MODIFY_SHARD = ScatteredShards.id("modify_shard");
+	private static final Identifier MODIFY_SHARD_RESULT = ScatteredShards.id("modify_shard_result");
 
 	private static PacketByteBuf createDataUpdate(Map<Identifier, ShardType> shardTypes, Multimap<Identifier, Shard> shardSets, Map<Identifier, Shard> shardData) {
 		PacketByteBuf buf = PacketByteBufs.create();
@@ -85,8 +89,23 @@ public class ScatteredShardsNetworking {
 
 	public static void s2cCollectShard(ServerPlayerEntity player, Identifier shardId) {
 		PacketByteBuf buf = PacketByteBufs.create();
-		buf.writeString(shardId.toString());
+		buf.writeIdentifier(shardId);
 		ServerPlayNetworking.send(player, COLLECT_SHARD, buf);
+	}
+	
+	@ClientOnly
+	public static void c2sModifyShard(Identifier shardId, Shard shard) {
+		PacketByteBuf buf = PacketByteBufs.create();
+		buf.writeIdentifier(shardId);
+		shard.write(buf);
+		ClientPlayNetworking.send(MODIFY_SHARD, buf);
+	}
+
+	public static void s2cModifyShardResult(ServerPlayerEntity player, Identifier shardId, boolean success) {
+		PacketByteBuf buf = PacketByteBufs.create();
+		buf.writeIdentifier(shardId);
+		buf.writeBoolean(success);
+		ServerPlayNetworking.send(player, MODIFY_SHARD_RESULT, buf);
 	}
 
 	@ClientOnly
@@ -98,16 +117,35 @@ public class ScatteredShardsNetworking {
 			updateData(client, buf, ScatteredShardsAPIImpl.shardTypes, ScatteredShardsAPIImpl.shardSets, ScatteredShardsAPIImpl.shardData);
 		});
 		ClientPlayNetworking.registerGlobalReceiver(COLLECT_SHARD, (client, handler, buf, responseSender) -> {
-			final Identifier shardId = new Identifier(buf.readString());
+			final Identifier shardId = buf.readIdentifier();
 
 			client.execute(() -> {
 				ScatteredShardsClient.triggerShardCollectAnimation(shardId);
 				ScatteredShardsComponents.COLLECTION.get(client.player).addShard(shardId);
 			});
 		});
+		ClientPlayNetworking.registerGlobalReceiver(MODIFY_SHARD_RESULT, (client, handler, buf, responseSender) -> {
+			final Identifier shardId = buf.readIdentifier();
+			final boolean success = buf.readBoolean();
+
+			client.execute(() -> {
+				ScatteredShardsClient.triggerShardModificationToast(shardId, success);
+			});
+		});
 	}
 
 	public static void register() {
+		ServerPlayNetworking.registerGlobalReceiver(MODIFY_SHARD, (server, player, handler, buf, responseSender) -> {
+			final Identifier shardId = buf.readIdentifier();
+			final Shard shard = Shard.read(buf);
+			server.execute(() -> {
+				boolean success = Permissions.check(player, ScatteredShardsAPI.MODIFY_SHARD_PERMISSION);
+				if (success) {
+					ScatteredShardsComponents.getShardLibrary(player.getWorld()).modifyShard(shardId, shard, player.getWorld(), player);
+				}
+				s2cModifyShardResult(player, shardId, success);
+			});
+		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			s2cUpdateData(Collections.singletonList(handler.player));
 		});

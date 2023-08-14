@@ -37,23 +37,24 @@ public class ShardToast implements Toast {
 		TextRenderer textRenderer = manager.getGame().textRenderer;
 		
 		if (shard == null) return Toast.Visibility.HIDE;
+		ShardType shardType = shard.getShardType();
 		
 		List<OrderedText> lines = manager.getGame().textRenderer.wrapLines(shard.name(), 125); // 160 is the total toast width so this is reasonable
 		if (lines.size() == 1) {
 			graphics.drawText(textRenderer, COLLECTED_TEXT, 30, 7, YELLOW, false);
-			graphics.drawText(textRenderer, shard.name(), 30, 18, shard.shardType().textColor(), false);
+			graphics.drawText(textRenderer, shard.name(), 30, 18, shardType.textColor(), false);
 		} else {
 			int y = this.getHeight() / 2 - lines.size() * 9 / 2;
 
 			for(OrderedText orderedText : lines) {
-				graphics.drawText(manager.getGame().textRenderer, orderedText, 30, y, shard.shardType().textColor(), false);
+				graphics.drawText(manager.getGame().textRenderer, orderedText, 30, y, shardType.textColor(), false);
 				y += 9;
 			}
 		}
 
 		if (!this.soundPlayed && startTime > 0L) {
 			this.soundPlayed = true;
-			Optional<SoundEvent> collectSound = shard.shardType().collectSound();
+			Optional<SoundEvent> collectSound = shardType.collectSound();
 			collectSound.ifPresent((it) -> manager.getGame().getSoundManager().play(PositionedSoundInstance.master(it, 1.0F, 0.8F)));
 		}
 		

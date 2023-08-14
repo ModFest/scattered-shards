@@ -1,5 +1,8 @@
 {
-  "error.scattered_shards.invalid_set_id": "Shard set '%s' does not exist",
+  "error.scattered_shards.invalid_set_id": "Unknown shard set '%s'",
+  "error.scattered_shards.invalid_mod_id": "Unknown mod ID '%s'",
+  "error.scattered_shards.invalid_shard_type": "Unknown shard type '%s'",
+  "error.scattered_shards.invalid_shard_id": "Unknown shard '%s'",
   "shard_type.scattered_shards.visitor.description": "Visitor Shard",
   "shard_type.scattered_shards.challenge.description": "Challenge Shard",
   "shard_type.scattered_shards.secret.description": "Secret Shard",
@@ -20,5 +23,8 @@
   "gui.scattered_shards.creator.field.item.nbt": "Item NBT...",
   "gui.scattered_shards.creator.field.texture": "Texture path...",
   "gui.scattered_shards.creator.toggle.mod_icon": "Use mod icon",
-  "gui.scattered_shards.creator.button.save": "Save"
+  "gui.scattered_shards.creator.button.save": "Save",
+  "toast.scattered_shards.shard_mod.title": "Shard Modification",
+  "toast.scattered_shards.shard_mod.success": "Successfully modified '%s'",
+  "toast.scattered_shards.shard_mod.fail": "Failed to modify '%s'"
 }

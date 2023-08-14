@@ -19,6 +19,10 @@ public class ScatteredShards implements ModInitializer {
 	public static Identifier id(String path) {
 		return new Identifier(ID, path);
 	}
+	
+	public static String permission(String path) {
+		return ID + "." + path;
+	}
 
 	@Override
 	public void onInitialize(ModContainer mod) {

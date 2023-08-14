@@ -17,6 +17,10 @@ public class WDynamicSprite extends WWidget {
 	public WDynamicSprite(Identifier image) {
 		setImage(image);
 	}
+
+	public WDynamicSprite(Supplier<Identifier> image) {
+		setImage(image);
+	}
 	
 	public void setImage(Identifier image) {
 		this.image = () -> image;
