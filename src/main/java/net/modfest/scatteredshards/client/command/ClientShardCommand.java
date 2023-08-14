@@ -14,6 +14,7 @@ import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
@@ -35,6 +36,7 @@ public class ClientShardCommand {
 	private static final DynamicCommandExceptionType INVALID_SET_ID = createInvalidException("set_id");
 	private static final DynamicCommandExceptionType INVALID_MOD_ID = createInvalidException("mod_id");
 	private static final DynamicCommandExceptionType INVALID_SHARD_TYPE = createInvalidException("shard_type");
+	private static final DynamicCommandExceptionType INVALID_SHARD_ID = createInvalidException("shard_id");
 
 	public static int view(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
 		Identifier id = context.getArgument("set_id", Identifier.class);
@@ -60,6 +62,17 @@ public class ClientShardCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 
+	public static int creatorEdit(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
+		Identifier shardId = context.getArgument("shard_id", Identifier.class);
+		Shard shard = ScatteredShardsComponents.getShardLibrary(context.getSource().getWorld()).getShard(shardId);
+		if (shard == Shard.MISSING_SHARD) {
+			throw INVALID_SHARD_ID.create(shardId);
+		}
+		var client = context.getSource().getClient();
+		client.send(() -> client.setScreen(ShardCreatorGuiDescription.Screen.editShard(shard)));
+		return Command.SINGLE_SUCCESS;
+	}
+
 	public static int shards(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
 		var client = context.getSource().getClient();
 		var collection = ScatteredShardsComponents.getShardCollection(context.getSource().getPlayer());
@@ -72,6 +85,13 @@ public class ClientShardCommand {
 
 	public static CompletableFuture<Suggestions> suggestShardSets(CommandContext<QuiltClientCommandSource> context, SuggestionsBuilder builder) {
 		for (var id : ScatteredShardsAPI.getShardSets().keySet()) {
+			builder.suggest(id.toString());
+		}
+		return builder.buildFuture();
+	}
+
+	public static CompletableFuture<Suggestions> suggestShards(CommandContext<QuiltClientCommandSource> context, SuggestionsBuilder builder) {
+		for (var id : ScatteredShardsComponents.getShardLibrary(context.getSource().getWorld()).getShardIds()) {
 			builder.suggest(id.toString());
 		}
 		return builder.buildFuture();
@@ -136,7 +156,15 @@ public class ClientShardCommand {
 			modIdBuild.addChild(shardType.build());
 			creatorNew.addChild(modIdBuild);
 
+			var creatorEdit = literal("edit");
+			var shardId = identifierArgument("shard_id")
+					.suggests(ClientShardCommand::suggestShards)
+					.executes(ClientShardCommand::creatorEdit);
+			creatorEdit.addChild(shardId.build());
+
 			creator.addChild(creatorNew);
+			creator.addChild(creatorEdit);
+
 			shardcRoot.addChild(creator);
 
 			//Usage: /shards
