@@ -41,7 +41,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 
 	public static void triggerShardModificationToast(Identifier shardId, boolean success) {
 		var toast = new SystemToast(
-				success ? SystemToast.Type.TUTORIAL_HINT : SystemToast.Type.WORLD_ACCESS_FAILURE,
+				SystemToast.Type.TUTORIAL_HINT,
 				Text.translatable(SHARD_MODIFY_TOAST_KEY + ".title"),
 				Text.translatable(SHARD_MODIFY_TOAST_KEY + "." + (success ? "success" : "fail"), shardId)
 		);
