@@ -132,7 +132,6 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	private void updateItemIcon() {
 		if (item == null) {
 			shard.setIcon(Shard.MISSING_ICON);
-			shardPanel.setIcon(Shard.MISSING_ICON);
 			return;
 		}
 		var stack = item.getDefaultStack();
@@ -140,20 +139,16 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 			stack.setNbt(itemNbt);
 		}
 		shard.setIcon(Either.left(stack));
-		shardPanel.setIcon(Either.left(stack));
 	}
 	
 	private void updateTextureIcon() {
 		boolean useModIcon = textureToggle.getToggle();
 		if (useModIcon) {
 			shard.setIcon(Either.right(modIcon));
-			shardPanel.setIcon(Either.right(modIcon));
 		} else if (iconPath != null) {
 			shard.setIcon(Either.right(iconPath));
-			shardPanel.setIcon(Either.right(iconPath));
 		} else {
 			shard.setIcon(Shard.MISSING_ICON);
-			shardPanel.setIcon(Shard.MISSING_ICON);
 		}
 	}
 	
