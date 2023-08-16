@@ -1,10 +1,12 @@
 package net.modfest.scatteredshards.client.screen;
 
-import java.util.Collection;
+import java.util.List;
 
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
+import io.github.cottonmc.cotton.gui.widget.WListPanel;
+import io.github.cottonmc.cotton.gui.widget.WPanelWithInsets;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WScrollBar;
 import io.github.cottonmc.cotton.gui.widget.data.Axis;
@@ -24,8 +26,9 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	protected final ShardLibraryComponent library;
 	
 	WShardPanel shardPanel = new WShardPanel();
+	WPlainPanel selectorPanel = new WPlainPanel();
 	WScrollBar shardSelectorScrollBar = new WScrollBar(Axis.VERTICAL);
-	WPlainPanel shardSelector = new WPlainPanel();
+	WListPanel<Identifier, WShardSetPanel> shardSelector;
 	
 	public ShardTabletGuiDescription(ShardCollectionComponent collection, ShardLibraryComponent library) {
 		this.collection = collection;
@@ -33,29 +36,35 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		
 		shardPanel.setShard(Shard.MISSING_SHARD);
 		
-		WLeftRightPanel root = new WLeftRightPanel(shardSelector, shardPanel);
+		shardSelector = new WListPanel<Identifier, WShardSetPanel>(List.copyOf(this.library.getShardSources()), WShardSetPanel::new, this::configurePanel);
+		selectorPanel.setInsets(Insets.ROOT_PANEL);
+		
+		WLeftRightPanel root = new WLeftRightPanel(selectorPanel, shardPanel);
+		selectorPanel.add(shardSelector, 0, 0, getLayoutWidth(selectorPanel), getLayoutHeight(selectorPanel));
+		
+		
 		this.setRootPanel(root);
-		shardSelector.setInsets(Insets.ROOT_PANEL);
-		
-		int i = 0;
-		for(Identifier setId : library.getShardSources()) {
-			WShardSetPanel panel = new WShardSetPanel();
-			panel.setShardConsumer(shardPanel::setShard);
-			shardSelector.add(panel, 0, i * 22, 150, 18);
-			panel.setShardSet(setId, library, collection);
-			
-			i++;
-			if (i > 4) break;
-		}
-		
-		System.out.println("Added " + i + " shard sets");
 		
 		root.validate(this);
 	}
 	
+	private int getLayoutWidth(WPanelWithInsets panel) {
+		return panel.getWidth() - panel.getInsets().left() - panel.getInsets().right();
+	}
+	
+	private int getLayoutHeight(WPanelWithInsets panel) {
+		return panel.getHeight() - panel.getInsets().top() - panel.getInsets().bottom();
+	}
+	
+	private void configurePanel(Identifier setId, WShardSetPanel panel) {
+		panel.setSize(shardSelector.getWidth() - shardSelector.getScrollBar().getWidth(), 20);
+		panel.setShardConsumer(shardPanel::setShard);
+		panel.setShardSet(setId, library, collection);
+	}
+	
 	@Override
 	public void addPainters() {
-		shardSelector.setBackgroundPainter(BackgroundPainter.createColorful(0xFF_778888));
+		selectorPanel.setBackgroundPainter(BackgroundPainter.createColorful(0xFF_778888));
 	}
 	
 	public static class Screen extends CottonClientScreen {

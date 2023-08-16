@@ -7,6 +7,7 @@ import io.github.cottonmc.cotton.gui.widget.WLabel;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
 import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
@@ -21,7 +22,9 @@ public class WShardSetPanel extends WPanelWithInsets {
 	
 	protected Consumer<Shard> shardConsumer = (it) -> {};
 	
-	private WLabel sourceLabel = new WLabel(Text.literal(""));
+	private WScaledLabel sourceLabel = new WScaledLabel(Text.literal(""), 0.8f)
+			.setColor(0xFF_CCFFCC)
+			.setShadow(true);
 	private List<WMiniShard> shards = new ArrayList<>();
 	public WShardSetPanel() {
 		this.setInsets(new Insets(2));
@@ -57,11 +60,12 @@ public class WShardSetPanel extends WPanelWithInsets {
 		//Start fresh on this panel's actual children
 		this.children.clear();
 		this.add(sourceLabel, 0, 100, 18);
+		sourceLabel.setLocation(0+this.insets.left(), 2+this.insets.top());
 		sourceLabel.setText(Shard.getSourceForSourceId(set));
 		
-		//The actual remaining layout width is less the label and the half-card hanging off the left and right sides
-		int spaceRemaining = layoutWidth() - 100 - MINI_SHARD_HALFWIDTH - MINI_SHARD_HALFWIDTH;
-		int spacePerShard = spaceRemaining - children.size();
+		//The actual remaining layout width is less the label and the width of the card itself
+		int spaceRemaining = layoutWidth() - 100 - MINI_SHARD_WIDTH;
+		int spacePerShard = spaceRemaining / shardSet.size();
 		int xofs = 100;
 		
 		for(int i=0; i<Math.min(shards.size(), shardSet.size()); i++) {

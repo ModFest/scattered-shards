@@ -45,8 +45,8 @@ public class WMiniShard extends WWidget {
 			//Maybe draw a teeny tiny icon
 			shard.icon().ifLeft((it) -> {
 				context.getMatrices().push();
-				context.getMatrices().translate(6, 6, 0);
-				context.getMatrices().scale(1/3f, 1/3f, 1); // 18px -> 6px or 16px -> 5.33px
+				context.getMatrices().translate(x + 3, y + 3, 0);
+				context.getMatrices().scale(0.375f, 0.375f, 1); // 16px -> 6px
 				RenderSystem.enableDepthTest();
 				context.drawItemWithoutEntity(it, 0, 0);
 				context.getMatrices().pop();
