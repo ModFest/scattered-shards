@@ -26,6 +26,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		ScatteredShardsContent.registerClient();
 	}
 
+	@SuppressWarnings("resource")
 	public static void triggerShardCollectAnimation(Identifier shardId) {
 		var library = ScatteredShardsComponents.getShardLibrary(MinecraftClient.getInstance().world);
 		var collection = ScatteredShardsComponents.COLLECTION.get(MinecraftClient.getInstance().player);
