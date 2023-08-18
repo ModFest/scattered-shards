@@ -9,12 +9,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
@@ -31,15 +31,24 @@ import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
 public class ShardCommand {
 	
+	public static final DynamicCommandExceptionType INVALID_SHARD = new DynamicCommandExceptionType(
+			it -> Text.translatable("error.scattered_shards.invalid_shard_id", it)
+	);
+	
+	public static final DynamicCommandExceptionType NO_ROOM_FOR_ITEM = new DynamicCommandExceptionType(
+			it -> Text.translatable("error.scattered_shards.no_inventory_room", it)
+			);
+	
 	public static int collect(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		Identifier id = ctx.getArgument("shard_id", Identifier.class);
 		
 		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
 		
 		Shard shard = library.getShard(id);
-		if (shard == Shard.MISSING_SHARD) throw new CommandException(Text.translatable("argument.scattered_shards.shard.invalid", id));
+		if (shard == Shard.MISSING_SHARD) throw INVALID_SHARD.create(id);
 		
 		ScatteredShardsComponents.getShardCollection(ctx.getSource().getPlayer()).addShard(id);
+		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.collect", id), false);
 		
 		return Command.SINGLE_SUCCESS;
@@ -51,7 +60,7 @@ public class ShardCommand {
 		
 		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
 		Shard shard = library.getShard(shardId);
-		if (shard == Shard.MISSING_SHARD) throw new CommandException(Text.translatable("argument.scattered_shards.shard.invalid", shardId));
+		if (shard == Shard.MISSING_SHARD) throw INVALID_SHARD.create(shardId);
 		
 		int i = 0;
 		for(ServerPlayerEntity player : target.getPlayers(ctx.getSource())) {
@@ -84,7 +93,7 @@ public class ShardCommand {
 			ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.block", shardId), false);
 			return Command.SINGLE_SUCCESS;
 		} else {
-			throw new CommandException(Text.translatable("commands.scattered_shards.block.no_room"));
+			throw NO_ROOM_FOR_ITEM.create(ScatteredShardsContent.SHARD_BLOCK_ITEM.getName());
 		}
 	}
 	
@@ -108,7 +117,7 @@ public class ShardCommand {
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 		
 		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
-		if (!library.contains(shardId)) throw new CommandException(Text.translatable("argument.scattered_shards.shard.invalid", shardId));
+		if (!library.contains(shardId)) throw INVALID_SHARD.create(shardId);
 		
 		library.deleteShard(shardId, ctx.getSource().getWorld(), ctx.getSource());
 		
@@ -137,11 +146,6 @@ public class ShardCommand {
 	private static LiteralCommandNode<ServerCommandSource> literal(String name) {
 		return LiteralArgumentBuilder.<ServerCommandSource>literal(name).build();
 	}
-	
-	/*
-	private static LiteralCommandNode<ServerCommandSource> literal(String name, Command<ServerCommandSource> command) {
-		return LiteralArgumentBuilder.<ServerCommandSource>literal(name).executes(command).build();
-	}*/
 	
 	private static RequiredArgumentBuilder<ServerCommandSource, Identifier> identifierArgument(String name) {
 		return RequiredArgumentBuilder.<ServerCommandSource, Identifier>argument(name, IdentifierArgumentType.identifier());

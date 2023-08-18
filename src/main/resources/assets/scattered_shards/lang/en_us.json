@@ -3,6 +3,7 @@
   "error.scattered_shards.invalid_mod_id": "Unknown mod ID '%s'",
   "error.scattered_shards.invalid_shard_type": "Unknown shard type '%s'",
   "error.scattered_shards.invalid_shard_id": "Unknown shard '%s'",
+  "error.scattered_shards.no_inventory_room": "There's no inventory room for this %s",
   "shard_type.scattered_shards.visitor.description": "Visitor Shard",
   "shard_type.scattered_shards.challenge.description": "Challenge Shard",
   "shard_type.scattered_shards.secret.description": "Secret Shard",
@@ -13,7 +14,6 @@
   "commands.scattered_shards.shard.award": "Awarded shard '%s' to %s players",
   "commands.scattered_shards.shard.award.none": "Tried to award shard '%s' but no players are eligible",
   "commands.scattered_shards.shard.block": "Shard-block '%s' added to inventory",
-  "commands.scattered_shards.shard.block.no_room": "There's no inventory room for this shard-block'",
   "commands.scattered_shards.shard.uncollect": "Un-Collected shard '%s'",
   "commands.scattered_shards.shard.uncollect.all": "Un-Collected %s shards",
   "commands.scattered_shards.shard.library.delete": "Deleted shard '%s' from the library",
@@ -31,5 +31,6 @@
   "gui.scattered_shards.creator.button.save": "Save",
   "toast.scattered_shards.shard_mod.title": "Shard Modification",
   "toast.scattered_shards.shard_mod.success": "Successfully modified '%s'",
-  "toast.scattered_shards.shard_mod.fail": "Failed to modify '%s'"
+  "toast.scattered_shards.shard_mod.fail": "Failed to modify '%s'",
+  "block.scattered_shards.shard_block": "Shard"
 }
