@@ -97,15 +97,17 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 	}
 	
 	public void deleteShard(Identifier shardId, ServerWorld world, ServerCommandSource source) {
+		MinecraftServer server = world.getServer();
+		if (server == null) return;
+		
 		Shard shard = data.get(shardId);
 		if (shard == null) return;
 		
 		data.remove(shardId);
 		bySource.remove(shard.sourceId(), shardId);
-		MinecraftServer server = world.getServer();
-		if (server == null) return;
+		
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected to notify about shard deletion
-		ScatteredShards.LOGGER.info("Shard '{}' was deleted by {}.", shardId, source.getName());
+		ScatteredShards.LOGGER.info("Shard '{}' was deleted by player {} ({})", shardId, source.getName());
 	}
 	
 	public Collection<Identifier> getShardIds() {
