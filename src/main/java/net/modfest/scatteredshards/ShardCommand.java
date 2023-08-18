@@ -19,16 +19,12 @@ import net.minecraft.command.EntitySelector;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.shard.Shard;
-import net.modfest.scatteredshards.api.shard.ShardType;
+import net.modfest.scatteredshards.block.ShardBlock;
 import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
 import net.modfest.scatteredshards.component.ShardLibraryComponent;
@@ -82,21 +78,7 @@ public class ShardCommand {
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 		
 		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
-		Shard shard = library.getShard(shardId);
-		
-		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
-		NbtCompound blockEntityTag = stack.getOrCreateSubNbt("BlockEntityTag");
-		blockEntityTag.putString("Shard", shardId.toString());
-		NbtCompound displayTag = stack.getOrCreateSubNbt("display");
-		
-		displayTag.putString("Name", Text.Serializer.toJson(shard.name()));
-		NbtList loreTag = new NbtList();
-		displayTag.put("Lore", loreTag);
-		ShardType shardType = shard.getShardType();
-		Text shardTypeDesc = shardType.getDescription().copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
-		loreTag.add(NbtString.of(
-				Text.Serializer.toJson(shardTypeDesc)
-				));
+		ItemStack stack = ShardBlock.createShardBlock(library, shardId);
 		
 		if (player.giveItemStack(stack)) {
 			ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.block", shardId), false);

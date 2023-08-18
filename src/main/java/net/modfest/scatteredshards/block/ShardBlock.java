@@ -11,6 +11,12 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
@@ -18,6 +24,8 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.modfest.scatteredshards.ScatteredShardsContent;
+import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
 import net.modfest.scatteredshards.component.ShardLibraryComponent;
@@ -68,5 +76,26 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 				}
 			}
 		}
+	}
+	
+	public static ItemStack createShardBlock(ShardLibraryComponent library, Identifier shardId) {
+		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
+		
+		NbtCompound blockEntityTag = stack.getOrCreateSubNbt("BlockEntityTag");
+		blockEntityTag.putString("Shard", shardId.toString());
+		NbtCompound displayTag = stack.getOrCreateSubNbt("display");
+		
+		//Fill in name / lore
+		Shard shard = library.getShard(shardId);
+		displayTag.putString("Name", Text.Serializer.toJson(shard.name()));
+		NbtList loreTag = new NbtList();
+		displayTag.put("Lore", loreTag);
+		ShardType shardType = shard.getShardType();
+		Text shardTypeDesc = shardType.getDescription().copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
+		loreTag.add(NbtString.of(
+				Text.Serializer.toJson(shardTypeDesc)
+				));
+		
+		return stack;
 	}
 }
