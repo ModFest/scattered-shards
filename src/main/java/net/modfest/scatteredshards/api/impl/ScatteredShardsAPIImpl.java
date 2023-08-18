@@ -18,10 +18,11 @@ public class ScatteredShardsAPIImpl {
 	public static BiMap<Identifier, Shard> shardData = null;
 
 	public static final BiMap<Identifier, ShardType> REGISTERED_SHARD_TYPES = HashBiMap.create();
-	public static BiMap<Identifier, ShardType> shardTypes;
+	public static BiMap<Identifier, ShardType> shardTypes = null;
 
 	static {
 		updateShards();
+		updateShardTypes();
 	}
 
 	private static Multimap<Identifier, Shard> createShardSets() {
