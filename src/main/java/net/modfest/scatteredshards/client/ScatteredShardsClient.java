@@ -14,16 +14,21 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
+import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 
 public class ScatteredShardsClient implements ClientModInitializer {
 
 	public static final String SHARD_MODIFY_TOAST_KEY = "toast.scattered_shards.shard_mod";
+
+	public static int animationTickCounter = 0;
 
 	@Override
 	public void onInitializeClient(ModContainer mod) {
 		ClientShardCommand.register();
 		ScatteredShardsNetworking.registerClient();
 		ScatteredShardsContent.registerClient();
+
+		ClientTickEvents.END.register(client -> animationTickCounter++);
 	}
 
 	@SuppressWarnings("resource")

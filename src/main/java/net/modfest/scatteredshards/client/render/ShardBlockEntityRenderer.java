@@ -1,6 +1,7 @@
 package net.modfest.scatteredshards.client.render;
 
 import net.modfest.scatteredshards.api.shard.ShardType;
+import net.modfest.scatteredshards.client.ScatteredShardsClient;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -40,7 +41,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		ShardType shardType = shard.getShardType();
 
-		float l = (entity.getWorld().getTime() + tickDelta) / TICKS_PER_RADIAN;
+		float l = (ScatteredShardsClient.animationTickCounter + tickDelta) / TICKS_PER_RADIAN;
 		l %= Math.PI*2;
 		float angle = l; //(float) (Math.PI/8);
 		Quaternionf rot = new Quaternionf(new AxisAngle4f(angle, 0f, 1f, 0f));
