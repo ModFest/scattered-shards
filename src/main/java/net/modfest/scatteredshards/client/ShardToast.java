@@ -10,10 +10,8 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 

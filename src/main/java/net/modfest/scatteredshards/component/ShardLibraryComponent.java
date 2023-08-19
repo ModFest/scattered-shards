@@ -18,6 +18,8 @@ import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import dev.onyxstudios.cca.api.v3.level.LevelComponents;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.world.World;
@@ -92,6 +94,25 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		if (server == null) return;
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected containing the shard added/modified
 		ScatteredShards.LOGGER.info("Shard '{}' was modified by player {} ({})", shardId, player.getUuid(), player.getEntityName());
+	}
+	
+	public void deleteShard(Identifier shardId, ServerWorld world, ServerCommandSource source) {
+		MinecraftServer server = world.getServer();
+		if (server == null) return;
+		
+		Shard shard = data.get(shardId);
+		if (shard == null) return;
+		
+		data.remove(shardId);
+		bySource.remove(shard.sourceId(), shardId);
+		
+		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected to notify about shard deletion
+		PlayerEntity player = source.getPlayer();
+		if (player != null) {
+			ScatteredShards.LOGGER.info("Shard '{}' was deleted by player {} ({})", shardId, player.getUuid(), player.getEntityName());
+		} else {
+			ScatteredShards.LOGGER.info("Shard '{}' was deleted.", shardId);
+		}
 	}
 	
 	public Collection<Identifier> getShardIds() {

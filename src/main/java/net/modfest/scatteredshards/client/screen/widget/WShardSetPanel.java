@@ -3,7 +3,6 @@ package net.modfest.scatteredshards.client.screen.widget;
 import io.github.cottonmc.cotton.gui.widget.WPanelWithInsets;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
-import io.github.cottonmc.cotton.gui.widget.WLabel;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.shard.Shard;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 
 public class WShardSetPanel extends WPanelWithInsets {
 	private static final int MINI_SHARD_WIDTH = 12;
-	private static final int MINI_SHARD_HALFWIDTH = MINI_SHARD_WIDTH / 2;
+	//private static final int MINI_SHARD_HALFWIDTH = MINI_SHARD_WIDTH / 2;
 	private static final int MINI_SHARD_HEIGHT = 16;
 	
 	protected Consumer<Shard> shardConsumer = (it) -> {};
