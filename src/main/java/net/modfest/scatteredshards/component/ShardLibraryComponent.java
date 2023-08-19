@@ -107,7 +107,12 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		bySource.remove(shard.sourceId(), shardId);
 		
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected to notify about shard deletion
-		ScatteredShards.LOGGER.info("Shard '{}' was deleted by player {} ({})", shardId, source.getName());
+		PlayerEntity player = source.getPlayer();
+		if (player != null) {
+			ScatteredShards.LOGGER.info("Shard '{}' was deleted by player {} ({})", shardId, player.getUuid(), player.getEntityName());
+		} else {
+			ScatteredShards.LOGGER.info("Shard '{}' was deleted.", shardId);
+		}
 	}
 	
 	public Collection<Identifier> getShardIds() {
