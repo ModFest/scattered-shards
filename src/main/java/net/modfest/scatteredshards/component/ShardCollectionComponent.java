@@ -54,8 +54,8 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 		return collection.iterator();
 	}
 	
-	public void addShard(Identifier shardId) {
-		if (collection.contains(shardId)) return;
+	public boolean addShard(Identifier shardId) {
+		if (collection.contains(shardId)) return false;
 		
 		collection.add(shardId);
 		if (provider instanceof ServerPlayerEntity serverPlayer) {
@@ -65,7 +65,10 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 			
 			//Sync to client so they get the toast
 			ScatteredShardsNetworking.s2cCollectShard(serverPlayer, shardId);
+			return true;
 		}
+
+		return false;
 	}
 	
 	public void removeShard(Identifier shardId) {

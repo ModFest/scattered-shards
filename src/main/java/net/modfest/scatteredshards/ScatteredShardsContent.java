@@ -2,6 +2,7 @@ package net.modfest.scatteredshards;
 
 import net.modfest.scatteredshards.block.ShardBlock;
 import net.modfest.scatteredshards.block.ShardBlockEntity;
+import net.modfest.scatteredshards.item.ShardTablet;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 import org.quiltmc.qsl.block.entity.api.QuiltBlockEntityTypeBuilder;
 
@@ -17,9 +18,13 @@ import net.modfest.scatteredshards.client.render.ShardBlockEntityRenderer;
 
 public class ScatteredShardsContent {
 	public static final Identifier SHARD_BLOCK_ID = ScatteredShards.id("shard_block");
+	public static final Identifier SHARD_TABLET_ID = ScatteredShards.id("shard_tablet");
 
 	public static final Block SHARD_BLOCK = new ShardBlock();
 	public static final Item SHARD_BLOCK_ITEM = new BlockItem(SHARD_BLOCK, new Item.Settings());
+
+	public static final Item SHARD_TABLET = new ShardTablet(new Item.Settings());
+
 	public static final BlockEntityType<ShardBlockEntity> SHARD_BLOCKENTITY =
 			QuiltBlockEntityTypeBuilder.create(ShardBlockEntity::new, SHARD_BLOCK).build();
 	
@@ -27,6 +32,7 @@ public class ScatteredShardsContent {
 		Registry.register(Registries.BLOCK, SHARD_BLOCK_ID, SHARD_BLOCK);
 		Registry.register(Registries.ITEM, SHARD_BLOCK_ID, SHARD_BLOCK_ITEM);
 		Registry.register(Registries.BLOCK_ENTITY_TYPE, SHARD_BLOCK_ID, SHARD_BLOCKENTITY);
+		Registry.register(Registries.ITEM, SHARD_TABLET_ID, SHARD_TABLET);
 	}
 
 	@ClientOnly

@@ -2,6 +2,8 @@ package net.modfest.scatteredshards;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import org.quiltmc.qsl.command.api.CommandRegistrationCallback;
 
 import com.mojang.brigadier.Command;
@@ -65,8 +67,7 @@ public class ShardCommand {
 		int i = 0;
 		for(ServerPlayerEntity player : target.getPlayers(ctx.getSource())) {
 			ShardCollectionComponent collection = ScatteredShardsComponents.getShardCollection(player);
-			if (!collection.contains(shardId)) {
-				collection.addShard(shardId);
+			if (collection.addShard(shardId)) {
 				i++;
 			}
 		}
@@ -80,21 +81,33 @@ public class ShardCommand {
 		
 		return collected;
 	}
-	
-	public static int block(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-		
+
+	public static int blockCommand(CommandContext<ServerCommandSource> ctx, boolean options) throws CommandSyntaxException {
 		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
-		
+
 		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
-		ItemStack stack = ShardBlock.createShardBlock(library, shardId);
-		
+
+		boolean canInteract = options && BoolArgumentType.getBool(ctx, "can_interact");
+		float glowSize = options ? FloatArgumentType.getFloat(ctx, "glow_size") : 0.5f;
+		float glowStrength = options ? FloatArgumentType.getFloat(ctx, "glow_strength") : 0.5f;
+
+		ItemStack stack = ShardBlock.createShardBlock(library, shardId, canInteract, glowSize, glowStrength);
+
 		if (player.giveItemStack(stack)) {
 			ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.block", shardId), false);
 			return Command.SINGLE_SUCCESS;
 		} else {
 			throw NO_ROOM_FOR_ITEM.create(ScatteredShardsContent.SHARD_BLOCK_ITEM.getName());
 		}
+	}
+	
+	public static int block(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+		return blockCommand(ctx, false);
+	}
+
+	public static int blockOptions(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+		return blockCommand(ctx, true);
 	}
 	
 	public static int uncollect(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -146,6 +159,14 @@ public class ShardCommand {
 	private static LiteralCommandNode<ServerCommandSource> literal(String name) {
 		return LiteralArgumentBuilder.<ServerCommandSource>literal(name).build();
 	}
+
+	private static RequiredArgumentBuilder<ServerCommandSource, Boolean> boolArgument(String name) {
+		return RequiredArgumentBuilder.argument(name, BoolArgumentType.bool());
+	}
+
+	private static RequiredArgumentBuilder<ServerCommandSource, Float> floatArgument(String name) {
+		return RequiredArgumentBuilder.argument(name, FloatArgumentType.floatArg());
+	}
 	
 	private static RequiredArgumentBuilder<ServerCommandSource, Identifier> identifierArgument(String name) {
 		return RequiredArgumentBuilder.<ServerCommandSource, Identifier>argument(name, IdentifierArgumentType.identifier());
@@ -195,6 +216,17 @@ public class ShardCommand {
 						Permissions.check(it, ScatteredShards.permission("command.block"), 2)
 					)
 					.build();
+			var blockInteractArgument = boolArgument("can_interact").build();
+			var blockGlowSizeArgument = floatArgument("glow_size").build();
+			var blockGlowStrengthArgument = floatArgument("glow_strength")
+					.executes(ShardCommand::blockOptions)
+					.requires(it ->
+							Permissions.check(it, ScatteredShards.permission("command.block"), 2)
+					)
+					.build();
+			blockGlowSizeArgument.addChild(blockGlowStrengthArgument);
+			blockInteractArgument.addChild(blockGlowSizeArgument);
+			blockIdArgument.addChild(blockInteractArgument);
 			blockCommand.addChild(blockIdArgument);
 			shardRoot.addChild(blockCommand);
 			
