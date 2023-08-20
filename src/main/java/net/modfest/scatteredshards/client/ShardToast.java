@@ -1,19 +1,16 @@
 package net.modfest.scatteredshards.client;
 
-import java.util.List;
-import java.util.Optional;
-
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
+
+import java.util.List;
 
 public class ShardToast implements Toast {
 	public static final int YELLOW = 0xFF_FFFF00;
@@ -22,7 +19,6 @@ public class ShardToast implements Toast {
 	
 	public static final int DURATION = 5000;
 	private final Shard shard;
-	private boolean soundPlayed;
 	
 	public ShardToast(Shard shard) {
 		this.shard = shard;
@@ -48,12 +44,6 @@ public class ShardToast implements Toast {
 				graphics.drawText(manager.getGame().textRenderer, orderedText, 30, y, shardType.textColor(), false);
 				y += 9;
 			}
-		}
-
-		if (!this.soundPlayed && startTime > 0L) {
-			this.soundPlayed = true;
-			Optional<SoundEvent> collectSound = shardType.collectSound();
-			collectSound.ifPresent((it) -> manager.getGame().getSoundManager().play(PositionedSoundInstance.master(it, 1.0F, 0.8F)));
 		}
 		
 		shard.icon().ifLeft(it -> {

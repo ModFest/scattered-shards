@@ -1,9 +1,11 @@
 package net.modfest.scatteredshards.client;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.toast.SystemToast;
 import net.minecraft.client.toast.Toast;
 
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
@@ -14,6 +16,8 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
+
+import java.util.Optional;
 
 public class ScatteredShardsClient implements ClientModInitializer {
 
@@ -39,6 +43,10 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		
 		collection.addShard(shardId);
 		ScatteredShards.LOGGER.info("Collected shard '" + shardId.toString() + "'!");
+
+		Optional<SoundEvent> collectSound = shard.getShardType().collectSound();
+		collectSound.ifPresent((it) -> MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(it, 1.0F, 0.8F)));
+
 		Toast toast = new ShardToast(shard);
 		MinecraftClient.getInstance().getToastManager().add(toast);
 	}
