@@ -8,6 +8,11 @@
     "sounds": [
       "scattered_shards:collect_challenge"
     ]
+  },
+  "collect_secret": {
+    "sounds": [
+      "scattered_shards:collect_secret"
+    ]
   }
 }
 
