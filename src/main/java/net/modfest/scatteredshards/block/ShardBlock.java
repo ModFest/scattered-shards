@@ -1,7 +1,5 @@
 package net.modfest.scatteredshards.block;
 
-import java.util.Optional;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockRenderType;
@@ -86,7 +84,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (hand != Hand.MAIN_HAND || !(world.getBlockEntity(pos) instanceof ShardBlockEntity be) || !be.pickup) {
+		if (hand != Hand.MAIN_HAND || !(world.getBlockEntity(pos) instanceof ShardBlockEntity be) || !be.canInteract) {
 			return ActionResult.PASS;
 		}
 		if (world.isClient) {
@@ -109,7 +107,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		}
 	}
 	
-	public static ItemStack createShardBlock(ShardLibraryComponent library, Identifier shardId, boolean pickup, float glowSize, float glowStrength) {
+	public static ItemStack createShardBlock(ShardLibraryComponent library, Identifier shardId, boolean canInteract, float glowSize, float glowStrength) {
 		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
 		
 		NbtCompound blockEntityTag = stack.getOrCreateSubNbt("BlockEntityTag");
@@ -127,7 +125,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 				Text.Serializer.toJson(shardTypeDesc)
 				));
 
-		blockEntityTag.putBoolean("Pickup", pickup);
+		blockEntityTag.putBoolean("CanInteract", canInteract);
 
 		NbtCompound glowTag = new NbtCompound();
 		glowTag.putFloat("size", glowSize);

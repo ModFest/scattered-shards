@@ -88,11 +88,11 @@ public class ShardCommand {
 
 		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
 
-		boolean pickup = options && BoolArgumentType.getBool(ctx, "pickup");
+		boolean canInteract = options && BoolArgumentType.getBool(ctx, "can_interact");
 		float glowSize = options ? FloatArgumentType.getFloat(ctx, "glow_size") : 0.5f;
 		float glowStrength = options ? FloatArgumentType.getFloat(ctx, "glow_strength") : 0.5f;
 
-		ItemStack stack = ShardBlock.createShardBlock(library, shardId, pickup, glowSize, glowStrength);
+		ItemStack stack = ShardBlock.createShardBlock(library, shardId, canInteract, glowSize, glowStrength);
 
 		if (player.giveItemStack(stack)) {
 			ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.block", shardId), false);
@@ -216,7 +216,7 @@ public class ShardCommand {
 						Permissions.check(it, ScatteredShards.permission("command.block"), 2)
 					)
 					.build();
-			var blockPickupArgument = boolArgument("pickup").build();
+			var blockInteractArgument = boolArgument("can_interact").build();
 			var blockGlowSizeArgument = floatArgument("glow_size").build();
 			var blockGlowStrengthArgument = floatArgument("glow_strength")
 					.executes(ShardCommand::blockOptions)
@@ -225,8 +225,8 @@ public class ShardCommand {
 					)
 					.build();
 			blockGlowSizeArgument.addChild(blockGlowStrengthArgument);
-			blockPickupArgument.addChild(blockGlowSizeArgument);
-			blockIdArgument.addChild(blockPickupArgument);
+			blockInteractArgument.addChild(blockGlowSizeArgument);
+			blockIdArgument.addChild(blockInteractArgument);
 			blockCommand.addChild(blockIdArgument);
 			shardRoot.addChild(blockCommand);
 			

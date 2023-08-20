@@ -36,7 +36,7 @@ public class ShardBlockEntity extends BlockEntity {
 
 	protected float glowSize = 0.5f;
 	protected float glowStrength = 0.5f;
-	protected boolean pickup = false;
+	protected boolean canInteract = false;
 
 	private Animations animations = null;
 
@@ -88,7 +88,7 @@ public class ShardBlockEntity extends BlockEntity {
 		super.writeNbt(nbt);
 		if (shardId!=null) nbt.putString(SHARD_NBT_KEY, shardId.toString());
 
-		nbt.putBoolean("Pickup", this.pickup);
+		nbt.putBoolean("CanInteract", this.canInteract);
 
 		NbtCompound glowSettings = new NbtCompound();
 		glowSettings.putFloat("size", this.glowSize);
@@ -103,7 +103,7 @@ public class ShardBlockEntity extends BlockEntity {
 			setShardId(new Identifier(nbt.getString(SHARD_NBT_KEY)));
 		}
 
-		this.pickup = nbt.getBoolean("Pickup");
+		this.canInteract = nbt.getBoolean("CanInteract");
 
 		NbtCompound glowSettings = nbt.getCompound("Glow");
 		this.glowSize = glowSettings.getFloat("size");
