@@ -27,7 +27,7 @@ public class ShardTablet extends Item {
         final var library = ScatteredShardsComponents.getShardLibrary(world);
         final var collection = ScatteredShardsComponents.getShardCollection(user);
         final var client = MinecraftClient.getInstance();
-        client.execute(() -> {
+        client.send(() -> {
             client.setScreen(new ShardTabletGuiDescription.Screen(collection, library));
             client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f));
         });
