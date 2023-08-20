@@ -105,7 +105,6 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 			return;
 		}
 		if (world.getBlockEntity(pos) instanceof ShardBlockEntity be) {
-			System.out.println("joe");
 			tryCollect(world, player, be);
 		}
 	}
