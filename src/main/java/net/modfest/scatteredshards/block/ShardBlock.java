@@ -110,7 +110,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		}
 	}
 	
-	public static ItemStack createShardBlock(ShardLibraryComponent library, Identifier shardId) {
+	public static ItemStack createShardBlock(ShardLibraryComponent library, Identifier shardId, boolean pickup, float glowSize, float glowStrength) {
 		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
 		
 		NbtCompound blockEntityTag = stack.getOrCreateSubNbt("BlockEntityTag");
@@ -127,6 +127,13 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		loreTag.add(NbtString.of(
 				Text.Serializer.toJson(shardTypeDesc)
 				));
+
+		blockEntityTag.putBoolean("Pickup", pickup);
+
+		NbtCompound glowTag = new NbtCompound();
+		glowTag.putFloat("size", glowSize);
+		glowTag.putFloat("strength", glowStrength);
+		blockEntityTag.put("Glow", glowTag);
 		
 		return stack;
 	}
