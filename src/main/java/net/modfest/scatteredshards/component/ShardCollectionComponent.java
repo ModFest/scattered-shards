@@ -79,6 +79,7 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 	
 	@Override
 	public void readFromNbt(NbtCompound tag) {
+		collection.clear();
 		for(NbtElement elem : tag.getList(COLLECTION_KEY, NbtElement.STRING_TYPE)) {
 			if (elem instanceof NbtString str) {
 				collection.add(new Identifier(str.asString()));
