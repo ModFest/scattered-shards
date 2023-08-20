@@ -33,6 +33,7 @@ public class ScatteredShardsNetworking {
 	private static final Identifier RELOAD_DATA = ScatteredShards.id("reload_data");
 	private static final Identifier UPDATE_DATA = ScatteredShards.id("update_data");
 	private static final Identifier COLLECT_SHARD = ScatteredShards.id("collect_shard");
+	private static final Identifier UNCOLLECT_SHARD = ScatteredShards.id("uncollect_shard");
 	private static final Identifier MODIFY_SHARD = ScatteredShards.id("modify_shard");
 	private static final Identifier MODIFY_SHARD_RESULT = ScatteredShards.id("modify_shard_result");
 
@@ -92,6 +93,12 @@ public class ScatteredShardsNetworking {
 		buf.writeIdentifier(shardId);
 		ServerPlayNetworking.send(player, COLLECT_SHARD, buf);
 	}
+
+	public static void s2cUncollectShard(ServerPlayerEntity player, Identifier shardId) {
+		PacketByteBuf buf = PacketByteBufs.create();
+		buf.writeIdentifier(shardId);
+		ServerPlayNetworking.send(player, UNCOLLECT_SHARD, buf);
+	}
 	
 	@ClientOnly
 	public static void c2sModifyShard(Identifier shardId, Shard shard) {
@@ -122,6 +129,13 @@ public class ScatteredShardsNetworking {
 			client.execute(() -> {
 				ScatteredShardsClient.triggerShardCollectAnimation(shardId);
 				ScatteredShardsComponents.COLLECTION.get(client.player).addShard(shardId);
+			});
+		});
+		ClientPlayNetworking.registerGlobalReceiver(UNCOLLECT_SHARD, (client, handler, buf, responseSender) -> {
+			final Identifier shardId = buf.readIdentifier();
+
+			client.execute(() -> {
+				ScatteredShardsComponents.COLLECTION.get(client.player).removeShard(shardId);
 			});
 		});
 		ClientPlayNetworking.registerGlobalReceiver(MODIFY_SHARD_RESULT, (client, handler, buf, responseSender) -> {

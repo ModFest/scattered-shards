@@ -1,5 +1,12 @@
 package net.modfest.scatteredshards.client.render;
 
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Axis;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 
@@ -22,7 +29,8 @@ import net.modfest.scatteredshards.api.shard.Shard;
 
 @ClientOnly
 public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity> {
-	public static final float TICKS_PER_RADIAN = 16f;
+	private static final Identifier DISTANCE_GLOW_TEX = ScatteredShards.id("textures/entity/shard_distance_glow.png");
+	private static final Identifier DISTANCE_HALO_TEX = ScatteredShards.id("textures/entity/shard_distance_halo.png");
 
 	public ShardBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
 
@@ -31,6 +39,8 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 	@Override
 	public void render(ShardBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+		boolean collected = entity.getAnimations().collected();
+		final int actualLight = collected ? light : LightmapTextureManager.MAX_LIGHT_COORDINATE;
 
 		Shard shard = entity.getShard();
 		if (shard == null) {
@@ -40,9 +50,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		ShardType shardType = shard.getShardType();
 
-		float l = (entity.getWorld().getTime() + tickDelta) / TICKS_PER_RADIAN;
-		l %= Math.PI*2;
-		float angle = l; //(float) (Math.PI/8);
+		float angle = entity.getAnimations().getAngle(tickDelta);
 		Quaternionf rot = new Quaternionf(new AxisAngle4f(angle, 0f, 1f, 0f));
 		Quaternionf tilt = new Quaternionf(new AxisAngle4f((float) (Math.PI/8), 0f, 0f, 1f));
 
@@ -52,7 +60,9 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		matrices.multiply(rot);
 		matrices.multiply(tilt);
 
-		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(shardType.getBackingTexture()));
+		float alpha = collected ? 0.5f : 1f;
+
+		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(shardType.getBackingTexture()));
 		
 		/*
 		 * A note about scale here:
@@ -76,76 +86,76 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		//Draw card back
 		buf
 			.vertex(matrices.peek().getModel(), dl.x, dl.y, dl.z)
-			.color(0xFF_FFFFFF)
+			.color(1, 1, 1, alpha)
 			.uv(0, 1)
 			.overlay(overlay)
-			.light(light)
+			.light(actualLight)
 			.normal(normal.x(), normal.y(), normal.z())
 			.next();
 
 		buf
 			.vertex(matrices.peek().getModel(), dr.x, dr.y, dr.z)
-			.color(0xFF_FFFFFF)
+			.color(1, 1, 1, alpha)
 			.uv(1, 1)
 			.overlay(overlay)
-			.light(light)
+			.light(actualLight)
 			.normal(normal.x(), normal.y(), normal.z())
 			.next();
 
 		buf
 			.vertex(matrices.peek().getModel(), ur.x, ur.y, ur.z)
-			.color(0xFF_FFFFFF)
+			.color(1, 1, 1, alpha)
 			.uv(1, 0)
 			.overlay(overlay)
-			.light(light)
+			.light(actualLight)
 			.normal(normal.x(), normal.y(), normal.z())
 			.next();
 
 		buf
 			.vertex(matrices.peek().getModel(), ul.x, ul.y, ul.z)
-			.color(0xFF_FFFFFF)
+			.color(1, 1, 1, alpha)
 			.uv(0, 0)
 			.overlay(overlay)
-			.light(light)
+			.light(actualLight)
 			.normal(normal.x(), normal.y(), normal.z())
 			.next();
 
 		//Draw card front
 		Vector3f revNormal = normal.mul(-1, -1, -1);
-		buf = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(shardType.getFrontTexture()));
+		buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(shardType.getFrontTexture()));
 		buf
 			.vertex(matrices.peek().getModel(), dl.x, dl.y, dl.z)
-			.color(0xFF_FFFFFF)
+			.color(1, 1, 1, alpha)
 			.uv(1, 1)
 			.overlay(overlay)
-			.light(light)
+			.light(actualLight)
 			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
 
 		buf
 			.vertex(matrices.peek().getModel(), ul.x, ul.y, ul.z)
-			.color(0xFF_FFFFFF)
+			.color(1, 1, 1, alpha)
 			.uv(1, 0)
 			.overlay(overlay)
-			.light(light)
+			.light(actualLight)
 			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
 
 		buf
 			.vertex(matrices.peek().getModel(), ur.x, ur.y, ur.z)
-			.color(0xFF_FFFFFF)
+			.color(1, 1, 1, alpha)
 			.uv(0, 0)
 			.overlay(overlay)
-			.light(light)
+			.light(actualLight)
 			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
 
 		buf
 			.vertex(matrices.peek().getModel(), dr.x, dr.y, dr.z)
-			.color(0xFF_FFFFFF)
+			.color(1, 1, 1, alpha)
 			.uv(0, 1)
 			.overlay(overlay)
-			.light(light)
+			.light(actualLight)
 			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
 		
@@ -171,7 +181,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			matrices.scale(0.5f, 0.5f, 0.01f /*0.6f*/);
 			
 
-			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
+			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.FIXED, actualLight, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
 		});
 
 		shard.icon().ifRight( texId -> {
@@ -181,7 +191,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 				.color(0xFF_FFFFFF)
 				.uv(1, 1)
 				.overlay(overlay)
-				.light(light)
+				.light(actualLight)
 				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
@@ -189,7 +199,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 				.color(0xFF_FFFFFF)
 				.uv(1, 0)
 				.overlay(overlay)
-				.light(light)
+				.light(actualLight)
 				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
@@ -197,7 +207,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 				.color(0xFF_FFFFFF)
 				.uv(0, 0)
 				.overlay(overlay)
-				.light(light)
+				.light(actualLight)
 				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
@@ -205,12 +215,82 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 				.color(0xFF_FFFFFF)
 				.uv(0, 1)
 				.overlay(overlay)
-				.light(light)
+				.light(actualLight)
 				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 		});
 
 		matrices.pop();
 
+		float glowSize = entity.getGlowSize();
+		float glowStrength = entity.getGlowStrength();
+
+		if (!collected && glowSize > 0 && glowStrength > 0) {
+			matrices.push();
+
+			Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
+
+			matrices.translate(0.5, 0.5, 0.5);
+
+			matrices.multiply(Axis.Y_NEGATIVE.rotationDegrees(camera.getYaw()));
+			matrices.multiply(Axis.X_POSITIVE.rotationDegrees(camera.getPitch() + 90));
+
+			BlockPos pos = entity.getPos();
+			double distToShard = Math.sqrt(camera.getPos()
+					.squaredDistanceTo(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
+
+			float scale = 2f + (float) MathHelper.clamp((distToShard - 2) * 0.12, 0, glowSize);
+			matrices.scale(scale, scale, scale);
+
+			float distFadeAlpha = (float) MathHelper.clamp((distToShard - 1) * 0.1 * glowStrength, 0, 1);
+
+			int color = shard.getShardType().glowColor();
+			float r = ((color >> 16) & 0xFF) / 255f;
+			float g = ((color >> 8) & 0xFF) / 255f;
+			float b = (color & 0xFF) / 255f;
+
+			renderGlowingBillboard(matrices, vertexConsumers.getBuffer(RenderLayer.getBeaconBeam(DISTANCE_HALO_TEX, true)), r, g, b, distFadeAlpha);
+			matrices.translate(0, 0.01, 0);
+			renderGlowingBillboard(matrices, vertexConsumers.getBuffer(RenderLayer.getBeaconBeam(DISTANCE_GLOW_TEX, true)), 1f, 1f, 1f, distFadeAlpha);
+
+			matrices.pop();
+		}
+	}
+
+	private void renderGlowingBillboard(MatrixStack matrices, VertexConsumer v, float r, float g, float b, float a) {
+		int maxLight = LightmapTextureManager.MAX_LIGHT_COORDINATE;
+		int noOverlay = OverlayTexture.DEFAULT_UV;
+
+		v.vertex(matrices.peek().getModel(), -0.5f, 0, -0.5f)
+				.color(r, g, b, a)
+				.uv(0, 0)
+				.overlay(noOverlay)
+				.light(maxLight)
+				.normal(0, 1, 0)
+				.next();
+
+		v.vertex(matrices.peek().getModel(), 0.5f, 0, -0.5f)
+				.color(r, g, b, a)
+				.uv(1, 0)
+				.overlay(noOverlay)
+				.light(maxLight)
+				.normal(0, 1, 0)
+				.next();
+
+		v.vertex(matrices.peek().getModel(), 0.5f, 0, 0.5f)
+				.color(r, g, b, a)
+				.uv(1, 1)
+				.overlay(noOverlay)
+				.light(maxLight)
+				.normal(0, 1, 0)
+				.next();
+
+		v.vertex(matrices.peek().getModel(), -0.5f, 0, 0.5f)
+				.color(r, g, b, a)
+				.uv(0, 1)
+				.overlay(noOverlay)
+				.light(maxLight)
+				.normal(0, 1, 0)
+				.next();
 	}
 }
