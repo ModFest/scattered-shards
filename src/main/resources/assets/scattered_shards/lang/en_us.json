@@ -32,5 +32,6 @@
   "toast.scattered_shards.shard_mod.title": "Shard Modification",
   "toast.scattered_shards.shard_mod.success": "Successfully modified '%s'",
   "toast.scattered_shards.shard_mod.fail": "Failed to modify '%s'",
-  "block.scattered_shards.shard_block": "Shard"
+  "block.scattered_shards.shard_block": "Shard",
+  "block.scattered_shards.shard_block.pickup_fail": "Shard already collected!"
 }

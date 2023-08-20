@@ -19,7 +19,10 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
@@ -70,24 +73,40 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return SHAPE;
 	}
-	
+
+	public static boolean tryCollect(World world, PlayerEntity player, ShardBlockEntity be) {
+		// Make sure the shard exists and the player doesn't have it before awarding it!
+		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(world);
+		if (!library.contains(be.shardId)) {
+			return false;
+		}
+		ShardCollectionComponent collection = ScatteredShardsComponents.COLLECTION.get(player);
+		return collection.addShard(be.shardId);
+	}
+
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (hand != Hand.MAIN_HAND || !(world.getBlockEntity(pos) instanceof ShardBlockEntity be) || !be.pickup) {
+			return ActionResult.PASS;
+		}
+		if (world.isClient) {
+			return ActionResult.CONSUME;
+		}
+		if (tryCollect(world, player, be)) {
+			return ActionResult.SUCCESS;
+		}
+		player.sendMessage(Text.translatable("block.scattered_shards.shard_block.pickup_fail"), true);
+		return ActionResult.FAIL;
+	}
+
 	@Override
 	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-		if (world.isClient) return;
-		if (entity instanceof PlayerEntity player) {
-			Optional<ShardBlockEntity> be = world.getBlockEntity(pos, ScatteredShardsContent.SHARD_BLOCKENTITY);
-			Identifier shardId = be.map(it -> it.shardId).orElse(null);
-			if (shardId != null) {
-				//Make sure the shard exists and the player doesn't have it before awarding it!
-				ShardCollectionComponent collection = ScatteredShardsComponents.COLLECTION.get(player);
-				if (!collection.contains(shardId)) {
-					ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(world);
-					if (library.contains(shardId)) {
-						//Collect it!
-						collection.addShard(shardId);
-					}
-				}
-			}
+		if (world.isClient || !(entity instanceof PlayerEntity player)) {
+			return;
+		}
+		if (world.getBlockEntity(pos) instanceof ShardBlockEntity be) {
+			System.out.println("joe");
+			tryCollect(world, player, be);
 		}
 	}
 	

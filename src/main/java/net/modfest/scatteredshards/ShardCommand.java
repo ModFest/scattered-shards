@@ -65,8 +65,7 @@ public class ShardCommand {
 		int i = 0;
 		for(ServerPlayerEntity player : target.getPlayers(ctx.getSource())) {
 			ShardCollectionComponent collection = ScatteredShardsComponents.getShardCollection(player);
-			if (!collection.contains(shardId)) {
-				collection.addShard(shardId);
+			if (collection.addShard(shardId)) {
 				i++;
 			}
 		}
