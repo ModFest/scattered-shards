@@ -35,7 +35,7 @@ public class ShardCommand {
 	
 	public static final DynamicCommandExceptionType INVALID_SHARD = new DynamicCommandExceptionType(
 			it -> Text.translatable("error.scattered_shards.invalid_shard_id", it)
-	);
+			);
 	
 	public static final DynamicCommandExceptionType NO_ROOM_FOR_ITEM = new DynamicCommandExceptionType(
 			it -> Text.translatable("error.scattered_shards.no_inventory_room", it)
@@ -150,8 +150,18 @@ public class ShardCommand {
 	}
 	
 	public static CompletableFuture<Suggestions> suggestShardIds(CommandContext<ServerCommandSource> source, SuggestionsBuilder builder) {
+		String prefix = builder.getRemaining();
 		for(Identifier id : ScatteredShardsComponents.getShardLibrary(source).getShardIds()) {
-			builder.suggest(id.toString());
+			if (prefix == "" || id.toString().startsWith(prefix)) builder.suggest(id.toString());
+		}
+		return builder.buildFuture();
+	}
+	
+	public static CompletableFuture<Suggestions> suggestShardIdsAndAll(CommandContext<ServerCommandSource> source, SuggestionsBuilder builder) {
+		String prefix = builder.getRemaining();
+		if (prefix == "" || "all".startsWith(prefix)) builder.suggest("all");
+		for(Identifier id : ScatteredShardsComponents.getShardLibrary(source).getShardIds()) {
+			if (prefix == "" || id.toString().startsWith(prefix)) builder.suggest(id.toString());
 		}
 		return builder.buildFuture();
 	}
@@ -186,8 +196,8 @@ public class ShardCommand {
 			var collectIdArgument = identifierArgument("shard_id")
 					.suggests(ShardCommand::suggestShardIds)
 					.executes(ShardCommand::collect)
-					.requires(it -> 
-						Permissions.check(it, ScatteredShards.permission("command.collect"), 2)
+					.requires(
+						Permissions.require(ScatteredShards.permission("command.collect"), 2)
 					)
 					.build();
 			collectCommand.addChild(collectIdArgument);
@@ -199,8 +209,8 @@ public class ShardCommand {
 			var awardIdArgument = identifierArgument("shard_id")
 					.suggests(ShardCommand::suggestShardIds)
 					.executes(ShardCommand::award)
-					.requires(it -> 
-						Permissions.check(it, ScatteredShards.permission("command.award"), 2)
+					.requires(
+						Permissions.require(ScatteredShards.permission("command.award"), 2)
 					)
 					.build();
 			awardCommand.addChild(awardPlayerArgument);
@@ -212,16 +222,16 @@ public class ShardCommand {
 			var blockIdArgument = identifierArgument("shard_id")
 					.suggests(ShardCommand::suggestShardIds)
 					.executes(ShardCommand::block)
-					.requires(it -> 
-						Permissions.check(it, ScatteredShards.permission("command.block"), 2)
+					.requires(
+						Permissions.require(ScatteredShards.permission("command.block"), 2)
 					)
 					.build();
 			var blockInteractArgument = boolArgument("can_interact").build();
 			var blockGlowSizeArgument = floatArgument("glow_size").build();
 			var blockGlowStrengthArgument = floatArgument("glow_strength")
 					.executes(ShardCommand::blockOptions)
-					.requires(it ->
-							Permissions.check(it, ScatteredShards.permission("command.block"), 2)
+					.requires(
+							Permissions.require(ScatteredShards.permission("command.block"), 2)
 					)
 					.build();
 			blockGlowSizeArgument.addChild(blockGlowStrengthArgument);
@@ -233,10 +243,10 @@ public class ShardCommand {
 			//Usage: /shard uncollect <shard_id>
 			var uncollectCommand = literal("uncollect");
 			var uncollectIdArgument = identifierArgument("shard_id")
-					.suggests(ShardCommand::suggestShardIds)
+					.suggests(ShardCommand::suggestShardIdsAndAll)
 					.executes(ShardCommand::uncollect)
-					.requires(it -> 
-						Permissions.check(it, ScatteredShards.permission("command.uncollect"), 2)
+					.requires(
+						Permissions.require(ScatteredShards.permission("command.uncollect"), 2)
 					)
 					.build();
 			uncollectCommand.addChild(uncollectIdArgument);
@@ -245,8 +255,8 @@ public class ShardCommand {
 			//Usage: /shard uncollect all
 			var uncollectAllCommand = LiteralArgumentBuilder.<ServerCommandSource>literal("all")
 					.executes(ShardCommand::uncollectAll)
-					.requires(it -> 
-						Permissions.check(it, ScatteredShards.permission("command.uncollect.all"), 2)
+					.requires(
+						Permissions.require(ScatteredShards.permission("command.uncollect.all"), 2)
 					)
 					.build();
 			uncollectCommand.addChild(uncollectAllCommand);
@@ -259,10 +269,10 @@ public class ShardCommand {
 			//Usage: /shard library delete <shard_id>
 			var deleteCommand = literal("delete");
 			var deleteIdArgument = identifierArgument("shard_id")
-					.suggests(ShardCommand::suggestShardIds)
+					.suggests(ShardCommand::suggestShardIdsAndAll)
 					.executes(ShardCommand::delete)
-					.requires(it -> 
-						Permissions.check(it, ScatteredShards.permission("command.delete"), 3)
+					.requires(
+						Permissions.require(ScatteredShards.permission("command.delete"), 3)
 					)
 					.build();
 			deleteCommand.addChild(deleteIdArgument);
@@ -271,8 +281,8 @@ public class ShardCommand {
 			//Usage: /shard library delete all
 			var deleteAllCommand = LiteralArgumentBuilder.<ServerCommandSource>literal("all")
 					.executes(ShardCommand::deleteAll)
-					.requires(it -> 
-						Permissions.check(it, ScatteredShards.permission("command.delete.all"), 4)
+					.requires(
+						Permissions.require(ScatteredShards.permission("command.delete.all"), 4)
 					)
 					.build();
 			libraryRoot.addChild(deleteAllCommand);

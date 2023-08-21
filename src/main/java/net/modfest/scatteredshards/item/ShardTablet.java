@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.item;
 
+import org.quiltmc.loader.api.minecraft.ClientOnly;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,6 +20,7 @@ public class ShardTablet extends Item {
         super(settings);
     }
 
+    @ClientOnly
     // TODO: sneak interact on another player opens their collection
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
