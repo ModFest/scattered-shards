@@ -38,6 +38,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		w.setSize(width, height);
 		w.setLocation(x, 0);
 		children.add(w);
+		w.setParent(this);
 	}
 	
 	public int layoutWidth() {

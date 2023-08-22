@@ -66,10 +66,8 @@ public class UncollectCommand {
 		//syntax: uncollect all
 		var uncollectAllCommand = Node.literal("all")
 				.executes(UncollectCommand::uncollectAll)
-				.requires((src) -> {
-						System.out.println(Permissions.getPermissionValue(src, "scattered_shards.command.uncollect.all"));
-						return Permissions.require(ScatteredShards.permission("command.uncollect.all"), 2).test(src);
-					}
+				.requires(
+						Permissions.require(ScatteredShards.permission("command.uncollect.all"), 2)
 				)
 				.build();
 		uncollectCommand.addChild(uncollectAllCommand);
