@@ -71,13 +71,15 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 		return false;
 	}
 	
-	public void removeShard(Identifier shardId) {
+	public boolean removeShard(Identifier shardId) {
 		boolean hadShard = collection.remove(shardId);
 
 		if (hadShard && provider instanceof ServerPlayerEntity serverPlayer) {
 			// Sync to client so shard will appear solid in-world again
 			ScatteredShardsNetworking.s2cUncollectShard(serverPlayer, shardId);
 		}
+		
+		return hadShard;
 	}
 	
 	@Override

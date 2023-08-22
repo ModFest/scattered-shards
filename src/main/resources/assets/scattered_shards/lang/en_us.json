@@ -4,6 +4,7 @@
   "error.scattered_shards.invalid_shard_type": "Unknown shard type '%s'",
   "error.scattered_shards.invalid_shard_id": "Unknown shard '%s'",
   "error.scattered_shards.no_inventory_room": "There's no inventory room for this %s",
+  "error.scattered_shards.shard_not_in_collection": "Shard '%s' was not in your collection",
   "shard_type.scattered_shards.visitor.description": "Visitor Shard",
   "shard_type.scattered_shards.challenge.description": "Challenge Shard",
   "shard_type.scattered_shards.secret.description": "Secret Shard",

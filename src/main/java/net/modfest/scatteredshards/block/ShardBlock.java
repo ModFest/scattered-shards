@@ -41,6 +41,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 			.noCollision()
 			.nonOpaque()
 			.luminance(state -> 3)
+			.strength(-1)
 			.mapColor(MapColor.EMERALD);
 
 	public ShardBlock() {

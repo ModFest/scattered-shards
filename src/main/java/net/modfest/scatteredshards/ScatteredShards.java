@@ -2,6 +2,7 @@ package net.modfest.scatteredshards;
 
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.shard.ShardType;
+import net.modfest.scatteredshards.command.ShardCommand;
 import net.modfest.scatteredshards.load.ShardSetLoader;
 import net.modfest.scatteredshards.load.ShardTypeLoader;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
