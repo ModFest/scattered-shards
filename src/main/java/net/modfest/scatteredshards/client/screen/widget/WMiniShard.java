@@ -11,10 +11,12 @@ import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 
 public class WMiniShard extends WWidget {
+	private static final Identifier MINI_OUTLINE = ScatteredShards.id("/textures/gui/shards/mini_outline.png");
 	
 	protected Shard shard = null;
 	protected ShardType shardType = null;
@@ -56,6 +58,11 @@ public class WMiniShard extends WWidget {
 			shard.icon().ifRight((it) -> {
 				ScreenDrawing.texturedRect(context, x+3, y+3, 6, 6, it, 0xFF_FFFFFF);
 			});
+		}
+		
+		boolean hovered = (mouseX>=0 && mouseY>=0 && mouseX<getWidth() && mouseY<getHeight());
+		if (hovered) {
+			ScreenDrawing.texturedRect(context, x - 2, y - 2, 16, 20, MINI_OUTLINE, 0, 0, 1, 1, 0xFF_FFFFFF);
 		}
 	}
 	

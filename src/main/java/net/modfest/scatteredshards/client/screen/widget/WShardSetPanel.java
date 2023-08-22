@@ -59,7 +59,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		
 		//Start fresh on this panel's actual children
 		this.children.clear();
-		this.add(sourceLabel, 0, 100, 18);
+		this.add(sourceLabel, 0, 96, 18);
 		sourceLabel.setLocation(0+this.insets.left(), 2+this.insets.top());
 		sourceLabel.setText(Shard.getSourceForSourceId(set));
 		
