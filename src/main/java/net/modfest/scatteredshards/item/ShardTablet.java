@@ -24,9 +24,6 @@ public class ShardTablet extends Item {
 	// TODO: sneak interact on another player opens their collection
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-		if (!world.isClient) {
-			return TypedActionResult.pass(user.getStackInHand(hand));
-		}
 		final var library = ScatteredShardsComponents.getShardLibrary(world);
 		final var collection = ScatteredShardsComponents.getShardCollection(user);
 		final var client = MinecraftClient.getInstance();

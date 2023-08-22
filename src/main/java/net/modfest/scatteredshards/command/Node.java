@@ -32,7 +32,7 @@ public class Node {
 		return identifier(name).suggests((source, builder) -> {
 			String prefix = builder.getRemaining();
 			for(Identifier id : ScatteredShardsComponents.getShardLibrary(source).getShardIds()) {
-				if (prefix == "" || id.toString().startsWith(prefix)) builder.suggest(id.toString());
+				if (prefix.isBlank() || id.toString().startsWith(prefix)) builder.suggest(id.toString());
 			}
 			return builder.buildFuture();
 		});
@@ -50,7 +50,7 @@ public class Node {
 			
 			String prefix = builder.getRemaining();
 			for (Identifier id : ScatteredShardsComponents.getShardCollection(player)) {
-				if (prefix == "" || id.toString().startsWith(prefix)) builder.suggest(id.toString());
+				if (prefix.isBlank() || id.toString().startsWith(prefix)) builder.suggest(id.toString());
 			}
 			
 			return builder.buildFuture();
