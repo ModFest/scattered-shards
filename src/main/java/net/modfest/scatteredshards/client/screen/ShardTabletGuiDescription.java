@@ -35,6 +35,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		this.library = library;
 		
 		shardPanel.setShard(Shard.MISSING_SHARD);
+		shardPanel.setHidden(true);
 		
 		shardSelector = new WListPanel<Identifier, WShardSetPanel>(List.copyOf(this.library.getShardSources()), WShardSetPanel::new, this::configurePanel);
 		selectorPanel.setInsets(Insets.ROOT_PANEL);

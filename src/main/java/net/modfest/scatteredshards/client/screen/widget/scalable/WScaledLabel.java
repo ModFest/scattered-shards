@@ -103,7 +103,7 @@ public class WScaledLabel extends WScalableWidget {
 			case BOTTOM -> height - renderer.fontHeight;
 			case TOP -> 0;
 		};
-		
+		context.setShaderColor(1, 1, 1, 1);
 		if (shadow) {
 			ScreenDrawing.drawStringWithShadow(context, text.get().asOrderedText(), horizontalAlignment, 0, yOffset, width, color.getAsInt());
 		} else {

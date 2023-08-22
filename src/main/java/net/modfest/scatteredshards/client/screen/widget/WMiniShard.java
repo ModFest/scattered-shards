@@ -40,7 +40,9 @@ public class WMiniShard extends WWidget {
 	@Override
 	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		Identifier tex = (isCollected) ? shardType.getMiniFrontTexture() : shardType.getMiniBackTexture();
-		ScreenDrawing.texturedRect(context, x, y, 12, 16, tex, 0xFF_FFFFFF);
+		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
+		float opacity = (isCollected) ? 1.0f : 0.6f;
+		ScreenDrawing.texturedRect(context, x, y, 12, 16, tex, color, opacity);
 		if (isCollected) {
 			//Maybe draw a teeny tiny icon
 			shard.icon().ifLeft((it) -> {

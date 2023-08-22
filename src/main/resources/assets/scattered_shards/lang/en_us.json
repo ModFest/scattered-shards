@@ -30,6 +30,7 @@
   "gui.scattered_shards.creator.field.texture": "Texture path...",
   "gui.scattered_shards.creator.toggle.mod_icon": "Use mod icon",
   "gui.scattered_shards.creator.button.save": "Save",
+  "gui.scattered_shards.tablet.click_on_a_shard": "Click on a Shard to the left",
   "toast.scattered_shards.shard_mod.title": "Shard Modification",
   "toast.scattered_shards.shard_mod.success": "Successfully modified '%s'",
   "toast.scattered_shards.shard_mod.fail": "Failed to modify '%s'",
