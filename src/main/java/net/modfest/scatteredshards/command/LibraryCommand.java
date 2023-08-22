@@ -46,12 +46,13 @@ public class LibraryCommand {
 				.build();
 		
 		//Usage: /shard library delete <shard_id>
-		var deleteCommand = Node.literal("delete").build();
+		var deleteCommand = Node.literal("delete")
+				.requires(
+						Permissions.require(ScatteredShards.permission("command.library.delete"), 3)
+					)
+				.build();
 		var deleteIdArgument = Node.shardId("shard_id")
 				.executes(LibraryCommand::delete)
-				.requires(
-					Permissions.require(ScatteredShards.permission("command.library.delete"), 3)
-				)
 				.build();
 		deleteCommand.addChild(deleteIdArgument);
 		library.addChild(deleteCommand);
