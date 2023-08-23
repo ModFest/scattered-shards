@@ -49,9 +49,9 @@ public class ClientShardCommand {
 
 	public static int creatorNew(CommandContext<QuiltClientCommandSource> context) throws CommandSyntaxException {
 		String modId = StringArgumentType.getString(context, "mod_id");
-		if (!QuiltLoader.isModLoaded(modId)) {
-			throw INVALID_MOD_ID.create(modId);
-		}
+		//if (!QuiltLoader.isModLoaded(modId)) {
+		//	throw INVALID_MOD_ID.create(modId);
+		//}
 		Identifier shardTypeId = context.getArgument("shard_type", Identifier.class);
 		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(shardTypeId);
 		if (shardType == null) {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
+import io.github.cottonmc.cotton.gui.client.Scissors;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
@@ -12,6 +13,8 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.tooltip.DefaultTooltipPositioner;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.text.OrderedText;
 
 public class WScaledLabel extends WScalableWidget {
@@ -84,7 +87,10 @@ public class WScaledLabel extends WScalableWidget {
 	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		//Paint background here because it's one pixel more accurate; results are validated for scaled painting already.
 		if (backgroundColor != 0) ScreenDrawing.coloredRect(context, x, y, getWidth(), getHeight(), backgroundColor);
+		
+		Scissors.push(x, y, width, height);
 		super.paint(context, x, y, mouseX, mouseY);
+		Scissors.pop();
 		
 		if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
 			List<OrderedText> tooltip = hover.get();
@@ -104,12 +110,34 @@ public class WScaledLabel extends WScalableWidget {
 			case TOP -> 0;
 		};
 		
+		boolean hovered = (mouseX>=0 && mouseY>=0 && mouseX<getWidth() && mouseY<getHeight());
+		drawScrollableString(context, text.get().asOrderedText(), horizontalAlignment, 0, yOffset, width, color.getAsInt(), shadow, hovered);
+		
+	}
+	
+	public static void drawScrollableString(GuiGraphics context, OrderedText text, HorizontalAlignment alignment, int x, int y, int width, int color, boolean shadow, boolean scroll) {
+		MinecraftClient mc = MinecraftClient.getInstance();
+		TextRenderer font = mc.textRenderer;
+		int textWidth = font.getWidth(text);
+		int xofs = 0;
+		
+		if (textWidth > width && scroll) {
+			alignment = HorizontalAlignment.LEFT;
+			int scrollWidth = textWidth - width;
+			double seconds = Util.getMeasuringTimeMs() / 1000.0;
+			double scrollSpeed = Math.max(scrollWidth * 0.5, 3.0);
+			double t = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * seconds / scrollSpeed)) / 2.0 + 0.5;
+			xofs = (int) MathHelper.lerp(t, 0.0, scrollWidth);
+		}
+		
+		context.setShaderColor(1, 1, 1, 1);
 		if (shadow) {
-			ScreenDrawing.drawStringWithShadow(context, text.get().asOrderedText(), horizontalAlignment, 0, yOffset, width, color.getAsInt());
+			ScreenDrawing.drawStringWithShadow(context, text, alignment, x - (int) xofs, y, width, color);
 		} else {
-			ScreenDrawing.drawString(context, text.get().asOrderedText(), horizontalAlignment, 0, yOffset, width, color.getAsInt());
+			ScreenDrawing.drawString(context, text, alignment, x - (int) xofs, y, width, color);
 		}
 	}
+	
 	
 	@Override
 	public boolean canResize() {

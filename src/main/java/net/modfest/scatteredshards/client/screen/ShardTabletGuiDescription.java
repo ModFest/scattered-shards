@@ -1,6 +1,11 @@
 package net.modfest.scatteredshards.client.screen;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+
+import com.google.common.base.Strings;
 
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
@@ -35,8 +40,13 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		this.library = library;
 		
 		shardPanel.setShard(Shard.MISSING_SHARD);
+		shardPanel.setHidden(true);
 		
-		shardSelector = new WListPanel<Identifier, WShardSetPanel>(List.copyOf(this.library.getShardSources()), WShardSetPanel::new, this::configurePanel);
+		List<Identifier> ids = new ArrayList<>();
+		ids.addAll(this.library.getShardSources());
+		ids.sort((a, b) -> a.getNamespace().compareTo(b.getNamespace()));
+		
+		shardSelector = new WListPanel<Identifier, WShardSetPanel>(ids, WShardSetPanel::new, this::configurePanel);
 		selectorPanel.setInsets(Insets.ROOT_PANEL);
 		
 		WLeftRightPanel root = new WLeftRightPanel(selectorPanel, shardPanel);

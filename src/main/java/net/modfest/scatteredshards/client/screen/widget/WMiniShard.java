@@ -11,10 +11,12 @@ import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 
 public class WMiniShard extends WWidget {
+	private static final Identifier MINI_OUTLINE = ScatteredShards.id("/textures/gui/shards/mini_outline.png");
 	
 	protected Shard shard = null;
 	protected ShardType shardType = null;
@@ -40,7 +42,9 @@ public class WMiniShard extends WWidget {
 	@Override
 	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		Identifier tex = (isCollected) ? shardType.getMiniFrontTexture() : shardType.getMiniBackTexture();
-		ScreenDrawing.texturedRect(context, x, y, 12, 16, tex, 0xFF_FFFFFF);
+		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
+		float opacity = (isCollected) ? 1.0f : 0.6f;
+		ScreenDrawing.texturedRect(context, x, y, 12, 16, tex, color, opacity);
 		if (isCollected) {
 			//Maybe draw a teeny tiny icon
 			shard.icon().ifLeft((it) -> {
@@ -54,6 +58,11 @@ public class WMiniShard extends WWidget {
 			shard.icon().ifRight((it) -> {
 				ScreenDrawing.texturedRect(context, x+3, y+3, 6, 6, it, 0xFF_FFFFFF);
 			});
+		}
+		
+		boolean hovered = (mouseX>=0 && mouseY>=0 && mouseX<getWidth() && mouseY<getHeight());
+		if (hovered) {
+			ScreenDrawing.texturedRect(context, x - 2, y - 2, 16, 20, MINI_OUTLINE, 0, 0, 1, 1, 0xFF_FFFFFF);
 		}
 	}
 	

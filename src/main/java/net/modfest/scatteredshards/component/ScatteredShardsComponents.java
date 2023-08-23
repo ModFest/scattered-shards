@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.component;
 
+import org.quiltmc.loader.api.minecraft.ClientOnly;
+
 import com.mojang.brigadier.context.CommandContext;
 
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
@@ -37,6 +39,11 @@ public class ScatteredShardsComponents implements EntityComponentInitializer, Le
 				ShardCollectionComponent::new,
 				RespawnCopyStrategy.ALWAYS_COPY
 				);
+	}
+	
+	@ClientOnly
+	public static ShardLibraryComponent getClientShardLibrary(World world) {
+		return LIBRARY.get(world.getProperties()); // There's only one world
 	}
 	
 	/**

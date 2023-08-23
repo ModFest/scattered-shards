@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"": {
+			"model": "scattered_shards:block/shard_block"
+		}
+	}
+}

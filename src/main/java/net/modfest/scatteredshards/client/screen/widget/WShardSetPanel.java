@@ -5,13 +5,18 @@ import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
 import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
 public class WShardSetPanel extends WPanelWithInsets {
@@ -38,6 +43,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		w.setSize(width, height);
 		w.setLocation(x, 0);
 		children.add(w);
+		w.setParent(this);
 	}
 	
 	public int layoutWidth() {
@@ -49,8 +55,9 @@ public class WShardSetPanel extends WPanelWithInsets {
 	}
 	
 	public void setShardSet(Identifier set, ShardLibraryComponent library, ShardCollectionComponent collection) {
-		List<Identifier> shardSet = List.copyOf(library.getShardSet(set));
-		
+		List<Identifier> shardSet = new ArrayList<>();
+		shardSet.addAll(library.getShardSet(set));
+		shardSet.sort(WShardSetPanel::shardComparator);
 		
 		//Add/dump MiniShards till we have the same number of card icons as the shardSet has cards
 		while(shards.size() > shardSet.size()) shards.remove(shards.size()-1);
@@ -58,7 +65,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		
 		//Start fresh on this panel's actual children
 		this.children.clear();
-		this.add(sourceLabel, 0, 100, 18);
+		this.add(sourceLabel, 0, 96, 18);
 		sourceLabel.setLocation(0+this.insets.left(), 2+this.insets.top());
 		sourceLabel.setText(Shard.getSourceForSourceId(set));
 		
@@ -77,5 +84,18 @@ public class WShardSetPanel extends WPanelWithInsets {
 		}
 		
 		if (host != null) this.validate(host);
+	}
+	
+	private static int shardPriority(String path) {
+		return switch(path) {
+		case "scattered_shards_visitor" -> 0;
+		case "scattered_shards_challenge" -> 1;
+		case "scattered_shards_secret" -> 2;
+		default -> Integer.MAX_VALUE;
+		};
+	}
+	
+	private static int shardComparator(Identifier a, Identifier b) {
+		return Integer.compare(shardPriority(a.getPath()), shardPriority(b.getPath()));
 	}
 }
