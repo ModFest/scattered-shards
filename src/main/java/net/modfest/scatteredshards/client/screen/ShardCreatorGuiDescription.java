@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.client.screen;
 
+import org.quiltmc.loader.api.QuiltLoader;
+
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
@@ -156,7 +158,20 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		this(shardId);
 		this.shard = shard;
 		shardPanel.setShard(shard);
-		this.modIcon = new Identifier(modId, "icon.png");
+		//this.modIcon = new Identifier(modId, "icon.png");
+		System.out.println("ModId: "+modId+" ModContainer: "+QuiltLoader.getModContainer(modId));
+		this.modIcon = QuiltLoader.getModContainer(modId)
+				.map(it -> it.metadata().icon(16))
+				.filter(it -> it != null && it.startsWith("assets/"))
+				.map(it -> it.substring("assets/".length()))
+				.map(it -> {
+					int firstSlash = it.indexOf("/");
+					String namespace = it.substring(0,firstSlash);
+					String path = it.substring(firstSlash+1);
+					
+					return new Identifier(namespace, path);
+				})
+				.orElse(Shard.MISSING_ICON.right().get()); //TODO: Deal with non-resource icons here.
 		Shard.getSourceForModId(modId).ifPresent(shard::setSource);
 		shard.setSourceId(new Identifier(modId, "shard_pack"));
 	}
