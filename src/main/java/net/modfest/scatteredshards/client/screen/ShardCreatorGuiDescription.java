@@ -158,8 +158,6 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		this(shardId);
 		this.shard = shard;
 		shardPanel.setShard(shard);
-		//this.modIcon = new Identifier(modId, "icon.png");
-		System.out.println("ModId: "+modId+" ModContainer: "+QuiltLoader.getModContainer(modId));
 		this.modIcon = QuiltLoader.getModContainer(modId)
 				.map(it -> it.metadata().icon(16))
 				.filter(it -> it != null && it.startsWith("assets/"))

@@ -171,21 +171,22 @@ public class WShardPanel extends WPlainPanel {
 	@ClientOnly
 	@Override
 	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
-		if (isHidden) {
-			var backgroundPainter = this.getBackgroundPainter();
-			if (backgroundPainter!=null) backgroundPainter.paintBackground(context, x, y, this);
-			
-			@SuppressWarnings("resource")
-			var textRenderer = MinecraftClient.getInstance().textRenderer;
-			List<OrderedText> lines = textRenderer.wrapLines(hideText, 108);
-			int yOffset = 30;
-			int layoutWidth = this.getWidth() - this.getInsets().left() - this.getInsets().right();
-			for(OrderedText t : lines) {
-				ScreenDrawing.drawStringWithShadow(context, t, HorizontalAlignment.CENTER, x + this.insets.left(), y + yOffset, layoutWidth, 0xFF_FFFFFF);
-				yOffset += textRenderer.fontHeight;
-			}
-		} else {
+		if (!isHidden) {
 			super.paint(context, x, y, mouseX, mouseY);
+			return;
+		}
+		
+		var backgroundPainter = this.getBackgroundPainter();
+		if (backgroundPainter!=null) backgroundPainter.paintBackground(context, x, y, this);
+		
+		@SuppressWarnings("resource")
+		var textRenderer = MinecraftClient.getInstance().textRenderer;
+		List<OrderedText> lines = textRenderer.wrapLines(hideText, 108);
+		int yOffset = 30;
+		int layoutWidth = this.getWidth() - this.getInsets().left() - this.getInsets().right();
+		for(OrderedText t : lines) {
+			ScreenDrawing.drawStringWithShadow(context, t, HorizontalAlignment.CENTER, x + this.insets.left(), y + yOffset, layoutWidth, 0xFF_FFFFFF);
+			yOffset += textRenderer.fontHeight;
 		}
 	}
 	

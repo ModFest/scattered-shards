@@ -42,7 +42,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		shardPanel.setShard(Shard.MISSING_SHARD);
 		shardPanel.setHidden(true);
 		
-		ArrayList<Identifier> ids = new ArrayList<>();
+		List<Identifier> ids = new ArrayList<>();
 		ids.addAll(this.library.getShardSources());
 		ids.sort((a, b) -> a.getNamespace().compareTo(b.getNamespace()));
 		

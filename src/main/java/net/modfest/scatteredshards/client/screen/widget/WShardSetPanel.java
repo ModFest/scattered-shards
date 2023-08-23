@@ -55,7 +55,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 	}
 	
 	public void setShardSet(Identifier set, ShardLibraryComponent library, ShardCollectionComponent collection) {
-		ArrayList<Identifier> shardSet = new ArrayList<>();
+		List<Identifier> shardSet = new ArrayList<>();
 		shardSet.addAll(library.getShardSet(set));
 		shardSet.sort(WShardSetPanel::shardComparator);
 		
