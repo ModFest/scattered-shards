@@ -4,8 +4,10 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.impl.client.NinePatchTextureRendererImpl;
@@ -14,7 +16,6 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
 import io.github.cottonmc.cotton.gui.widget.data.Rect2i;
 import juuxel.libninepatch.NinePatch;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
@@ -133,9 +134,9 @@ public class WAlternativeToggle extends WWidget {
 		return this;
 	}
 	
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
 		int halfWidth = (int) Math.ceil(this.width / 2.0);
 		
 		int hoverX = (isRight) ? 0 : halfWidth - 1;

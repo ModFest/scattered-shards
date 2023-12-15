@@ -1,7 +1,5 @@
 package net.modfest.scatteredshards.client.screen;
 
-import org.quiltmc.loader.api.QuiltLoader;
-
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
@@ -14,6 +12,7 @@ import io.github.cottonmc.cotton.gui.widget.WToggleButton;
 import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
@@ -158,8 +157,8 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		this(shardId);
 		this.shard = shard;
 		shardPanel.setShard(shard);
-		this.modIcon = QuiltLoader.getModContainer(modId)
-				.map(it -> it.metadata().icon(16))
+		this.modIcon = FabricLoader.getInstance().getModContainer(modId)
+				.flatMap(it -> it.getMetadata().getIconPath(16))
 				.filter(it -> it != null && it.startsWith("assets/"))
 				.map(it -> it.substring("assets/".length()))
 				.map(it -> {

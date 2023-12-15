@@ -5,6 +5,8 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.JsonDataLoader;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
@@ -16,13 +18,11 @@ import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.api.shard.Shard;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
-import org.quiltmc.qsl.resource.loader.api.reloader.IdentifiableResourceReloader;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShardSetLoader extends JsonDataLoader implements IdentifiableResourceReloader {
+public class ShardSetLoader extends JsonDataLoader implements IdentifiableResourceReloadListener {
 
 	public static final String TYPE = "shard_set";
 	public static final Identifier ID = ScatteredShards.id(TYPE);
@@ -35,7 +35,7 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 	}
 
 	@Override
-	public @NotNull Identifier getQuiltId() {
+	public @NotNull Identifier getFabricId() {
 		return ID;
 	}
 
@@ -64,8 +64,8 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 	}
 
 	public static void register() {
-		var serverData = ResourceLoader.get(ResourceType.SERVER_DATA);
-		serverData.addReloaderOrdering(ShardTypeLoader.ID, ShardSetLoader.ID);
-		serverData.registerReloader(new ShardSetLoader());
+		// TODO: How to ordered resource reloading on Fabric?
+		// serverData.addReloaderOrdering(ShardTypeLoader.ID, ShardSetLoader.ID);
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ShardSetLoader());
 	}
 }

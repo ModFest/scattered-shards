@@ -7,7 +7,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
@@ -109,15 +109,15 @@ public class ShardBlockEntity extends BlockEntity {
 		this.glowSize = glowSettings.getFloat("size");
 		this.glowStrength = glowSettings.getFloat("strength");
 	}
-	
+
 	@Override
-	public NbtCompound toSyncedNbt() {
-		return this.toNbt();
+	public NbtCompound toInitialChunkDataNbt() {
+		return createNbt();
 	}
 	
 	@Override
 	public Packet<ClientPlayPacketListener> toUpdatePacket() {
-		return BlockEntityUpdateS2CPacket.of(this);
+		return BlockEntityUpdateS2CPacket.create(this);
 	}
 
 	public static void clientTick(World world, BlockPos pos, BlockState state, BlockEntity entity) {
@@ -171,7 +171,7 @@ public class ShardBlockEntity extends BlockEntity {
 			this.spinSpeed = ON_COLLECT_SPIN_SPEED;
 
 			final WorldRenderer worldRenderer = MinecraftClient.getInstance().worldRenderer;
-			final RandomGenerator random = ShardBlockEntity.this.getWorld().getRandom();
+			final Random random = ShardBlockEntity.this.getWorld().getRandom();
 			final Vec3d pos = Vec3d.ofCenter(ShardBlockEntity.this.getPos());
 
 			ShardBlockEntity.this.getShard().getShardType().collectParticle().ifPresent(p -> {

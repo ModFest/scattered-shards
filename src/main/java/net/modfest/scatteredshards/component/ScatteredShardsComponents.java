@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.component;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import com.mojang.brigadier.context.CommandContext;
@@ -41,16 +43,16 @@ public class ScatteredShardsComponents implements EntityComponentInitializer, Le
 				);
 	}
 	
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public static ShardLibraryComponent getClientShardLibrary(World world) {
-		return LIBRARY.get(world.getProperties()); // There's only one world
+		return LIBRARY.get(world.getLevelProperties()); // There's only one world
 	}
 	
 	/**
 	 * Convenience method to get the global shard library for your Side
 	 */
 	public static ShardLibraryComponent getShardLibrary(World world) {
-		return LIBRARY.get(world.getProperties());
+		return LIBRARY.get(world.getLevelProperties());
 	}
 	
 	public static ShardLibraryComponent getShardLibrary(CommandContext<ServerCommandSource> ctx) {

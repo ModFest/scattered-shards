@@ -1,17 +1,18 @@
 package net.modfest.scatteredshards.client.screen.widget.scalable;
 
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import io.github.cottonmc.cotton.gui.widget.WWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 
 public abstract class WScalableWidget extends WWidget {
 	
 	protected float scale = 1.0f;
 	
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
 		context.getMatrices().push();
 		context.getMatrices().translate(x, y, 0);
 		context.getMatrices().scale(scale, scale, 1.0f);
@@ -28,6 +29,6 @@ public abstract class WScalableWidget extends WWidget {
 	 * @param mouseX  The mouse x coordinate in scaled component space - 0 is the left edge, width is the right edge.
 	 * @param mouseY  The mouse y coordinate in scaled component space - 0 is the top edge, height is the bottom edge.
 	 */
-	@ClientOnly
-	public abstract void paintScaled(GuiGraphics context, int width, int height, int mouseX, int mouseY);
+	@Environment(EnvType.CLIENT)
+	public abstract void paintScaled(DrawContext context, int width, int height, int mouseX, int mouseY);
 }

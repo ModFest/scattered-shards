@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Either;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
@@ -38,7 +38,7 @@ public class WShardIcon extends WScalableWidget {
 	}
 
 	@Override
-	public void paintScaled(GuiGraphics context, int width, int height, int mouseX, int mouseY) {
+	public void paintScaled(DrawContext context, int width, int height, int mouseX, int mouseY) {
 		icon.get().ifLeft(it -> {
 			RenderSystem.enableDepthTest();
 			context.drawItemWithoutEntity(it, width / 2 - 8, height / 2 - 8);

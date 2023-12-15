@@ -3,6 +3,8 @@ package net.modfest.scatteredshards.load;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.JsonDataLoader;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
@@ -13,13 +15,11 @@ import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
-import org.quiltmc.qsl.resource.loader.api.reloader.IdentifiableResourceReloader;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResourceReloader {
+public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResourceReloadListener {
 
 	public static final String TYPE = "shard_type";
 	public static final Identifier ID = ScatteredShards.id(TYPE);
@@ -31,7 +31,7 @@ public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResou
 	}
 
 	@Override
-	public @NotNull Identifier getQuiltId() {
+	public @NotNull Identifier getFabricId() {
 		return ID;
 	}
 
@@ -53,6 +53,6 @@ public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResou
 	}
 
 	public static void register() {
-		ResourceLoader.get(ResourceType.SERVER_DATA).registerReloader(new ShardTypeLoader());
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ShardTypeLoader());
 	}
 }

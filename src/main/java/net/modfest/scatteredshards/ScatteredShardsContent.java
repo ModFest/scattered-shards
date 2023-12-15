@@ -1,10 +1,11 @@
 package net.modfest.scatteredshards;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.modfest.scatteredshards.block.ShardBlock;
 import net.modfest.scatteredshards.block.ShardBlockEntity;
 import net.modfest.scatteredshards.item.ShardTablet;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.block.entity.api.QuiltBlockEntityTypeBuilder;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
@@ -26,7 +27,7 @@ public class ScatteredShardsContent {
 	public static final Item SHARD_TABLET = new ShardTablet(new Item.Settings());
 
 	public static final BlockEntityType<ShardBlockEntity> SHARD_BLOCKENTITY =
-			QuiltBlockEntityTypeBuilder.create(ShardBlockEntity::new, SHARD_BLOCK).build();
+			FabricBlockEntityTypeBuilder.create(ShardBlockEntity::new, SHARD_BLOCK).build();
 	
 	public static void register() {
 		Registry.register(Registries.BLOCK, SHARD_BLOCK_ID, SHARD_BLOCK);
@@ -35,7 +36,7 @@ public class ScatteredShardsContent {
 		Registry.register(Registries.ITEM, SHARD_TABLET_ID, SHARD_TABLET);
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public static void registerClient() {
 		BlockEntityRendererFactories.register(ScatteredShardsContent.SHARD_BLOCKENTITY, ShardBlockEntityRenderer::new);
 	}

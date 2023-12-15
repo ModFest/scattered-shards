@@ -93,7 +93,7 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		MinecraftServer server = world.getServer();
 		if (server == null) return;
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected containing the shard added/modified
-		ScatteredShards.LOGGER.info("Shard '{}' was modified by player {} ({})", shardId, player.getUuid(), player.getEntityName());
+		ScatteredShards.LOGGER.info("Shard '{}' was modified by player {} ({})", shardId, player.getUuid(), player.getDisplayName());
 	}
 	
 	public void deleteShard(Identifier shardId, ServerWorld world, ServerCommandSource source) {
@@ -109,7 +109,7 @@ public class ShardLibraryComponent implements Component, AutoSyncedComponent {
 		LevelComponents.sync(ScatteredShardsComponents.LIBRARY, server); //TODO: Send a smaller packet to all players currently connected to notify about shard deletion
 		PlayerEntity player = source.getPlayer();
 		if (player != null) {
-			ScatteredShards.LOGGER.info("Shard '{}' was deleted by player {} ({})", shardId, player.getUuid(), player.getEntityName());
+			ScatteredShards.LOGGER.info("Shard '{}' was deleted by player {} ({})", shardId, player.getUuid(), player.getDisplayName());
 		} else {
 			ScatteredShards.LOGGER.info("Shard '{}' was deleted.", shardId);
 		}

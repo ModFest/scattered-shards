@@ -1,16 +1,16 @@
 package net.modfest.scatteredshards.client.render;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-
-import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import org.joml.Quaternionf;
 import org.joml.AxisAngle4f;
@@ -27,7 +27,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.modfest.scatteredshards.block.ShardBlockEntity;
 import net.modfest.scatteredshards.api.shard.Shard;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity> {
 	private static final Identifier DISTANCE_GLOW_TEX = ScatteredShards.id("textures/entity/shard_distance_glow.png");
 	private static final Identifier DISTANCE_HALO_TEX = ScatteredShards.id("textures/entity/shard_distance_halo.png");
@@ -85,36 +85,36 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		//Draw card back
 		buf
-			.vertex(matrices.peek().getModel(), dl.x, dl.y, dl.z)
+			.vertex(matrices.peek().getPositionMatrix(), dl.x, dl.y, dl.z)
 			.color(1, 1, 1, alpha)
-			.uv(0, 1)
+			.texture(0, 1)
 			.overlay(overlay)
 			.light(actualLight)
 			.normal(normal.x(), normal.y(), normal.z())
 			.next();
 
 		buf
-			.vertex(matrices.peek().getModel(), dr.x, dr.y, dr.z)
+			.vertex(matrices.peek().getPositionMatrix(), dr.x, dr.y, dr.z)
 			.color(1, 1, 1, alpha)
-			.uv(1, 1)
+			.texture(1, 1)
 			.overlay(overlay)
 			.light(actualLight)
 			.normal(normal.x(), normal.y(), normal.z())
 			.next();
 
 		buf
-			.vertex(matrices.peek().getModel(), ur.x, ur.y, ur.z)
+			.vertex(matrices.peek().getPositionMatrix(), ur.x, ur.y, ur.z)
 			.color(1, 1, 1, alpha)
-			.uv(1, 0)
+			.texture(1, 0)
 			.overlay(overlay)
 			.light(actualLight)
 			.normal(normal.x(), normal.y(), normal.z())
 			.next();
 
 		buf
-			.vertex(matrices.peek().getModel(), ul.x, ul.y, ul.z)
+			.vertex(matrices.peek().getPositionMatrix(), ul.x, ul.y, ul.z)
 			.color(1, 1, 1, alpha)
-			.uv(0, 0)
+			.texture(0, 0)
 			.overlay(overlay)
 			.light(actualLight)
 			.normal(normal.x(), normal.y(), normal.z())
@@ -124,39 +124,39 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		Vector3f revNormal = normal.mul(-1, -1, -1);
 		buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(shardType.getFrontTexture()));
 		buf
-			.vertex(matrices.peek().getModel(), dl.x, dl.y, dl.z)
+			.vertex(matrices.peek().getPositionMatrix(), dl.x, dl.y, dl.z)
 			.color(1, 1, 1, alpha)
-			.uv(1, 1)
+			.texture(1, 1)
 			.overlay(overlay)
 			.light(actualLight)
-			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
+			.normal(matrices.peek().getNormalMatrix(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
 
 		buf
-			.vertex(matrices.peek().getModel(), ul.x, ul.y, ul.z)
+			.vertex(matrices.peek().getPositionMatrix(), ul.x, ul.y, ul.z)
 			.color(1, 1, 1, alpha)
-			.uv(1, 0)
+			.texture(1, 0)
 			.overlay(overlay)
 			.light(actualLight)
-			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
+			.normal(matrices.peek().getNormalMatrix(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
 
 		buf
-			.vertex(matrices.peek().getModel(), ur.x, ur.y, ur.z)
+			.vertex(matrices.peek().getPositionMatrix(), ur.x, ur.y, ur.z)
 			.color(1, 1, 1, alpha)
-			.uv(0, 0)
+			.texture(0, 0)
 			.overlay(overlay)
 			.light(actualLight)
-			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
+			.normal(matrices.peek().getNormalMatrix(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
 
 		buf
-			.vertex(matrices.peek().getModel(), dr.x, dr.y, dr.z)
+			.vertex(matrices.peek().getPositionMatrix(), dr.x, dr.y, dr.z)
 			.color(1, 1, 1, alpha)
-			.uv(0, 1)
+			.texture(0, 1)
 			.overlay(overlay)
 			.light(actualLight)
-			.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
+			.normal(matrices.peek().getNormalMatrix(), revNormal.x(), revNormal.y(), revNormal.z())
 			.next();
 		
 		/*
@@ -187,36 +187,36 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		shard.icon().ifRight( texId -> {
 			VertexConsumer v = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(texId));
 
-			v.vertex(matrices.peek().getModel(), dl.x + (4*xpx), dl.y + (12*ypx), dl.z - 0.002f)
+			v.vertex(matrices.peek().getPositionMatrix(), dl.x + (4*xpx), dl.y + (12*ypx), dl.z - 0.002f)
 				.color(0xFF_FFFFFF)
-				.uv(1, 1)
+				.texture(1, 1)
 				.overlay(overlay)
 				.light(actualLight)
-				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
+				.normal(matrices.peek().getNormalMatrix(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
-			v.vertex(matrices.peek().getModel(), ul.x + (4*xpx), ul.y - (4*ypx), ul.z - 0.002f)
+			v.vertex(matrices.peek().getPositionMatrix(), ul.x + (4*xpx), ul.y - (4*ypx), ul.z - 0.002f)
 				.color(0xFF_FFFFFF)
-				.uv(1, 0)
+				.texture(1, 0)
 				.overlay(overlay)
 				.light(actualLight)
-				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
+				.normal(matrices.peek().getNormalMatrix(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
-			v.vertex(matrices.peek().getModel(), ur.x - (4*xpx), ur.y - (4*ypx), ur.z - 0.002f)
+			v.vertex(matrices.peek().getPositionMatrix(), ur.x - (4*xpx), ur.y - (4*ypx), ur.z - 0.002f)
 				.color(0xFF_FFFFFF)
-				.uv(0, 0)
+				.texture(0, 0)
 				.overlay(overlay)
 				.light(actualLight)
-				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
+				.normal(matrices.peek().getNormalMatrix(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 
-			v.vertex(matrices.peek().getModel(), dr.x - (4*xpx), dr.y + (12*ypx), dr.z - 0.002f)
+			v.vertex(matrices.peek().getPositionMatrix(), dr.x - (4*xpx), dr.y + (12*ypx), dr.z - 0.002f)
 				.color(0xFF_FFFFFF)
-				.uv(0, 1)
+				.texture(0, 1)
 				.overlay(overlay)
 				.light(actualLight)
-				.normal(matrices.peek().getNormal(), revNormal.x(), revNormal.y(), revNormal.z())
+				.normal(matrices.peek().getNormalMatrix(), revNormal.x(), revNormal.y(), revNormal.z())
 				.next();
 		});
 
@@ -232,8 +232,8 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 			matrices.translate(0.5, 0.5, 0.5);
 
-			matrices.multiply(Axis.Y_NEGATIVE.rotationDegrees(camera.getYaw()));
-			matrices.multiply(Axis.X_POSITIVE.rotationDegrees(camera.getPitch() + 90));
+			matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(camera.getYaw()));
+			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch() + 90));
 
 			BlockPos pos = entity.getPos();
 			double distToShard = Math.sqrt(camera.getPos()
@@ -261,33 +261,33 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		int maxLight = LightmapTextureManager.MAX_LIGHT_COORDINATE;
 		int noOverlay = OverlayTexture.DEFAULT_UV;
 
-		v.vertex(matrices.peek().getModel(), -0.5f, 0, -0.5f)
+		v.vertex(matrices.peek().getPositionMatrix(), -0.5f, 0, -0.5f)
 				.color(r, g, b, a)
-				.uv(0, 0)
+				.texture(0, 0)
 				.overlay(noOverlay)
 				.light(maxLight)
 				.normal(0, 1, 0)
 				.next();
 
-		v.vertex(matrices.peek().getModel(), 0.5f, 0, -0.5f)
+		v.vertex(matrices.peek().getPositionMatrix(), 0.5f, 0, -0.5f)
 				.color(r, g, b, a)
-				.uv(1, 0)
+				.texture(1, 0)
 				.overlay(noOverlay)
 				.light(maxLight)
 				.normal(0, 1, 0)
 				.next();
 
-		v.vertex(matrices.peek().getModel(), 0.5f, 0, 0.5f)
+		v.vertex(matrices.peek().getPositionMatrix(), 0.5f, 0, 0.5f)
 				.color(r, g, b, a)
-				.uv(1, 1)
+				.texture(1, 1)
 				.overlay(noOverlay)
 				.light(maxLight)
 				.normal(0, 1, 0)
 				.next();
 
-		v.vertex(matrices.peek().getModel(), -0.5f, 0, 0.5f)
+		v.vertex(matrices.peek().getPositionMatrix(), -0.5f, 0, 0.5f)
 				.color(r, g, b, a)
-				.uv(0, 1)
+				.texture(0, 1)
 				.overlay(noOverlay)
 				.light(maxLight)
 				.normal(0, 1, 0)

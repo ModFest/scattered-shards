@@ -8,9 +8,10 @@ import io.github.cottonmc.cotton.gui.widget.WSprite;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer.TextLayerType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
@@ -27,8 +28,6 @@ import net.modfest.scatteredshards.client.screen.widget.scalable.WShardIcon;
 import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
-
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 public class WShardPanel extends WPlainPanel {
 	
@@ -168,9 +167,9 @@ public class WShardPanel extends WPlainPanel {
 		return;
 	}
 	
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
 		if (!isHidden) {
 			super.paint(context, x, y, mouseX, mouseY);
 			return;
@@ -190,7 +189,7 @@ public class WShardPanel extends WPlainPanel {
 		}
 	}
 	
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void addPainters() {
 		this.setBackgroundPainter((context, left, top, panel) -> {

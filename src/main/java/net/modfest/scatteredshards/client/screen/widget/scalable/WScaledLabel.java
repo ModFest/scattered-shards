@@ -10,8 +10,8 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.tooltip.HoveredTooltipPositioner;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -84,7 +84,7 @@ public class WScaledLabel extends WScalableWidget {
 	
 	@SuppressWarnings("resource")
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
 		//Paint background here because it's one pixel more accurate; results are validated for scaled painting already.
 		if (backgroundColor != 0) ScreenDrawing.coloredRect(context, x, y, getWidth(), getHeight(), backgroundColor);
 		
@@ -95,13 +95,13 @@ public class WScaledLabel extends WScalableWidget {
 		if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
 			List<OrderedText> tooltip = hover.get();
 			if (!tooltip.isEmpty()) {
-				context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltip, DefaultTooltipPositioner.INSTANCE, x + mouseX, y + mouseY);
+				context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltip, HoveredTooltipPositioner.INSTANCE, x + mouseX, y + mouseY);
 			}
 		}
 	}
 	
 	@Override
-	public void paintScaled(GuiGraphics context, int width, int height, int mouseX, int mouseY) {
+	public void paintScaled(DrawContext context, int width, int height, int mouseX, int mouseY) {
 		MinecraftClient mc = MinecraftClient.getInstance();
 		TextRenderer renderer = mc.textRenderer;
 		int yOffset = switch (verticalAlignment) {
@@ -115,7 +115,7 @@ public class WScaledLabel extends WScalableWidget {
 		
 	}
 	
-	public static void drawScrollableString(GuiGraphics context, OrderedText text, HorizontalAlignment alignment, int x, int y, int width, int color, boolean shadow, boolean scroll) {
+	public static void drawScrollableString(DrawContext context, OrderedText text, HorizontalAlignment alignment, int x, int y, int width, int color, boolean shadow, boolean scroll) {
 		MinecraftClient mc = MinecraftClient.getInstance();
 		TextRenderer font = mc.textRenderer;
 		int textWidth = font.getWidth(text);

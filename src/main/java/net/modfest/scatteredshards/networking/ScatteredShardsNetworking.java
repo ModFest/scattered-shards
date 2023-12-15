@@ -3,6 +3,13 @@ package net.modfest.scatteredshards.networking;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,12 +23,6 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.load.ShardSetLoader;
 import net.modfest.scatteredshards.load.ShardTypeLoader;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
-import org.quiltmc.qsl.networking.api.ServerPlayConnectionEvents;
-import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoaderEvents;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,7 +67,7 @@ public class ScatteredShardsNetworking {
 		return buf.readMap(PacketByteBuf::readIdentifier, Shard::read);
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	private static void updateData(MinecraftClient client, PacketByteBuf buf, Map<Identifier, ShardType> shardTypeMap, Multimap<Identifier, Shard> shardSetMap, Map<Identifier, Shard> shardDataMap) {
 		final var shardTypes = readShardTypes(buf);
 		final var shardSets = readShardSets(buf);
@@ -80,12 +81,12 @@ public class ScatteredShardsNetworking {
 
 	public static void s2cReloadData(Collection<ServerPlayerEntity> players) {
 		PacketByteBuf buf = createDataUpdate(ShardTypeLoader.MAP, ShardSetLoader.BY_SHARD_SET, ShardSetLoader.BY_ID);
-		ServerPlayNetworking.send(players, RELOAD_DATA, buf);
+		players.forEach(player -> ServerPlayNetworking.send(player, RELOAD_DATA, buf));
 	}
 
 	public static void s2cUpdateData(Collection<ServerPlayerEntity> players) {
 		PacketByteBuf buf = createDataUpdate(ScatteredShardsAPIImpl.shardTypes, ScatteredShardsAPIImpl.shardSets, ScatteredShardsAPIImpl.shardData);
-		ServerPlayNetworking.send(players, UPDATE_DATA, buf);
+		players.forEach(player -> ServerPlayNetworking.send(player, UPDATE_DATA, buf));
 	}
 
 	public static void s2cCollectShard(ServerPlayerEntity player, Identifier shardId) {
@@ -99,8 +100,8 @@ public class ScatteredShardsNetworking {
 		buf.writeIdentifier(shardId);
 		ServerPlayNetworking.send(player, UNCOLLECT_SHARD, buf);
 	}
-	
-	@ClientOnly
+
+	@Environment(EnvType.CLIENT)
 	public static void c2sModifyShard(Identifier shardId, Shard shard) {
 		PacketByteBuf buf = PacketByteBufs.create();
 		buf.writeIdentifier(shardId);
@@ -115,7 +116,7 @@ public class ScatteredShardsNetworking {
 		ServerPlayNetworking.send(player, MODIFY_SHARD_RESULT, buf);
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public static void registerClient() {
 		ClientPlayNetworking.registerGlobalReceiver(RELOAD_DATA, (client, handler, buf, responseSender) -> {
 			updateData(client, buf, ShardTypeLoader.MAP, ShardSetLoader.BY_SHARD_SET, ShardSetLoader.BY_ID);
@@ -163,9 +164,9 @@ public class ScatteredShardsNetworking {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			s2cUpdateData(Collections.singletonList(handler.player));
 		});
-		ResourceLoaderEvents.END_DATA_PACK_RELOAD.register(context -> {
-			if (context.server() != null) {
-				ScatteredShardsNetworking.s2cReloadData(context.server().getPlayerManager().getPlayerList());
+		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, manager, success) -> {
+			if (server != null) {
+				ScatteredShardsNetworking.s2cReloadData(server.getPlayerManager().getPlayerList());
 			}
 		});
 	}

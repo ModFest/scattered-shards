@@ -2,14 +2,15 @@ package net.modfest.scatteredshards.client.screen.widget;
 
 import java.util.function.Consumer;
 
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.shard.Shard;
@@ -38,9 +39,9 @@ public class WMiniShard extends WWidget {
 		return this;
 	}
 	
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
 		Identifier tex = (isCollected) ? shardType.getMiniFrontTexture() : shardType.getMiniBackTexture();
 		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
 		float opacity = (isCollected) ? 1.0f : 0.6f;

@@ -17,9 +17,9 @@ import java.util.Optional;
 
 public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> collectParticle, Optional<SoundEvent> collectSound) {
 
-	public static final SoundEvent COLLECT_VISITOR_SOUND = SoundEvent.createVariableRangeEvent(ScatteredShards.id("collect_visitor"));
-	public static final SoundEvent COLLECT_CHALLENGE_SOUND = SoundEvent.createVariableRangeEvent(ScatteredShards.id("collect_challenge"));
-	public static final SoundEvent COLLECT_SECRET_SOUND = SoundEvent.createVariableRangeEvent(ScatteredShards.id("collect_secret"));
+	public static final SoundEvent COLLECT_VISITOR_SOUND = SoundEvent.of(ScatteredShards.id("collect_visitor"));
+	public static final SoundEvent COLLECT_CHALLENGE_SOUND = SoundEvent.of(ScatteredShards.id("collect_challenge"));
+	public static final SoundEvent COLLECT_SECRET_SOUND = SoundEvent.of(ScatteredShards.id("collect_secret"));
 	
 	public static final ShardType VISITOR = new ShardType(0x6DE851, 0x00FF48, Optional.of(ParticleTypes.TOTEM_OF_UNDYING), Optional.of(COLLECT_VISITOR_SOUND));
 	public static final ShardType CHALLENGE = new ShardType(0x5174E8, 0x0026FF, Optional.of(ParticleTypes.GLOW), Optional.of(COLLECT_CHALLENGE_SOUND));
@@ -64,16 +64,16 @@ public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> 
 	public void write(PacketByteBuf buf) {
 		buf.writeInt(textColor);
 		buf.writeInt(glowColor);
-		buf.writeOptional(collectParticle, (b, t) -> b.writeFromIterable(Registries.PARTICLE_TYPE, t));
-		buf.writeOptional(collectSound, (b, t) -> t.toPacket(b));
+		buf.writeOptional(collectParticle, (b, t) -> b.writeRegistryValue(Registries.PARTICLE_TYPE, t));
+		buf.writeOptional(collectSound, (b, t) -> t.writeBuf(b));
 	}
 
 	public static ShardType read(PacketByteBuf buf) {
 		return new ShardType(
 				buf.readInt(),
 				buf.readInt(),
-				buf.readOptional(b -> b.readFromIterable(Registries.PARTICLE_TYPE)),
-				buf.readOptional(SoundEvent::fromPacket));
+				buf.readOptional(b -> b.readRegistryValue(Registries.PARTICLE_TYPE)),
+				buf.readOptional(SoundEvent::fromBuf));
 	}
 
 	public static ShardType fromJson(JsonObject obj) {

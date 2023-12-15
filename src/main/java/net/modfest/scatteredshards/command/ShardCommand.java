@@ -1,6 +1,6 @@
 package net.modfest.scatteredshards.command;
 
-import org.quiltmc.qsl.command.api.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.text.Text;
 

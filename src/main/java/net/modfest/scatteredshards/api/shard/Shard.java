@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.JsonOps;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -17,8 +19,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.QuiltLoader;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -158,10 +158,10 @@ public class Shard {
 
 	public NbtCompound writeNbt(NbtCompound nbt) {
 		nbt.putString("ShardType", shardTypeId.toString());
-		nbt.putString("Name", Text.Serializer.toJson(name));
-		nbt.putString("Lore", Text.Serializer.toJson(lore));
-		nbt.putString("Hint", Text.Serializer.toJson(hint));
-		nbt.putString("Source", Text.Serializer.toJson(source));
+		nbt.putString("Name", Text.Serialization.toJsonString(name));
+		nbt.putString("Lore", Text.Serialization.toJsonString(lore));
+		nbt.putString("Hint", Text.Serialization.toJsonString(hint));
+		nbt.putString("Source", Text.Serialization.toJsonString(source));
 		nbt.putString("SourceId", sourceId.toString());
 
 		icon.ifLeft((stack) -> {
@@ -178,10 +178,10 @@ public class Shard {
 		JsonObject result = new JsonObject();
 
 		result.add("shard_type", new JsonPrimitive(shardTypeId.toString()));
-		result.add("name", new JsonPrimitive(Text.Serializer.toJson(name)));
-		result.add("lore", new JsonPrimitive(Text.Serializer.toJson(lore)));
-		result.add("hint", new JsonPrimitive(Text.Serializer.toJson(hint)));
-		result.add("source", new JsonPrimitive(Text.Serializer.toJson(source)));
+		result.add("name", new JsonPrimitive(Text.Serialization.toJsonString(name)));
+		result.add("lore", new JsonPrimitive(Text.Serialization.toJsonString(lore)));
+		result.add("hint", new JsonPrimitive(Text.Serialization.toJsonString(hint)));
+		result.add("source", new JsonPrimitive(Text.Serialization.toJsonString(source)));
 		result.add("source_id", new JsonPrimitive(sourceId.toString()));
 
 		icon.ifLeft((stack) -> {
@@ -200,10 +200,10 @@ public class Shard {
 
 	public void write(PacketByteBuf buf) {
 		buf.writeIdentifier(shardTypeId);
-		buf.writeString(Text.Serializer.toJson(name));
-		buf.writeString(Text.Serializer.toJson(lore));
-		buf.writeString(Text.Serializer.toJson(hint));
-		buf.writeString(Text.Serializer.toJson(source));
+		buf.writeString(Text.Serialization.toJsonString(name));
+		buf.writeString(Text.Serialization.toJsonString(lore));
+		buf.writeString(Text.Serialization.toJsonString(hint));
+		buf.writeString(Text.Serialization.toJsonString(source));
 		buf.writeIdentifier(sourceId);
 		buf.writeEither(icon, PacketByteBuf::writeItemStack, PacketByteBuf::writeIdentifier);
 	}
@@ -280,11 +280,11 @@ public class Shard {
 	}
 
 	public static Text getSourceForMod(ModContainer mod) {
-		return Text.literal(mod.metadata().name());
+		return Text.literal(mod.getMetadata().getName());
 	}
 
 	public static Optional<Text> getSourceForModId(String modId) {
-		return QuiltLoader.getModContainer(modId).map(Shard::getSourceForMod);
+		return FabricLoader.getInstance().getModContainer(modId).map(Shard::getSourceForMod);
 	}
 	
 	public static Text getSourceForSourceId(Identifier id) {
@@ -292,9 +292,7 @@ public class Shard {
 			return Text.translatable("shard_pack." + id.getNamespace() + "." + id.getPath() + ".name");
 		}
 		
-		return QuiltLoader.getModContainer(id.getNamespace())
-				.map(it -> it.metadata().name())
-				.map(it -> Text.translatable(it))
+		return getSourceForModId(id.getNamespace())
 				.orElse(Text.translatable("shard_pack." + id.getNamespace() + ".name"));
 	}
 	
@@ -304,7 +302,7 @@ public class Shard {
 
 	private static Text loadText(String s) {
 		if (s.startsWith("{")) {
-			return Text.Serializer.fromLenientJson(s);
+			return Text.Serialization.fromLenientJson(s);
 		} else {
 			return Text.literal(s);
 		}

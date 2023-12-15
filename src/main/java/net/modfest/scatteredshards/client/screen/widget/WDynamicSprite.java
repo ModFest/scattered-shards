@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 
 public class WDynamicSprite extends WWidget {
@@ -40,7 +40,7 @@ public class WDynamicSprite extends WWidget {
 	}
 	
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
 		ScreenDrawing.texturedRect(context, x, y, getWidth(), getHeight(), image.get(), tint);
 	}
 }

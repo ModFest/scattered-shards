@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import io.github.cottonmc.cotton.gui.widget.WTextField;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 
 public class WProtectableField extends WTextField {
@@ -24,12 +24,12 @@ public class WProtectableField extends WTextField {
 	}
 	
 	@Override
-	protected void renderCursor(GuiGraphics context, int x, int y, String visibleText) {
+	protected void renderCursor(DrawContext context, int x, int y, String visibleText) {
 		if (this.isEditable()) super.renderCursor(context, x, y, visibleText);
 	}
 	
 	@Override
-	protected void renderSelection(GuiGraphics context, int x, int y, String visibleText) {
+	protected void renderSelection(DrawContext context, int x, int y, String visibleText) {
 		if (this.isEditable()) super.renderSelection(context, x, y, visibleText);
 	}
 	

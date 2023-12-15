@@ -42,7 +42,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 			.nonOpaque()
 			.luminance(state -> 3)
 			.strength(-1)
-			.mapColor(MapColor.EMERALD);
+			.mapColor(MapColor.EMERALD_GREEN);
 
 	public ShardBlock() {
 		super(SETTINGS);
@@ -117,13 +117,13 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		
 		//Fill in name / lore
 		Shard shard = library.getShard(shardId);
-		displayTag.putString("Name", Text.Serializer.toJson(shard.name()));
+		displayTag.putString("Name", Text.Serialization.toJsonString(shard.name()));
 		NbtList loreTag = new NbtList();
 		displayTag.put("Lore", loreTag);
 		ShardType shardType = shard.getShardType();
 		Text shardTypeDesc = shardType.getDescription().copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
 		loreTag.add(NbtString.of(
-				Text.Serializer.toJson(shardTypeDesc)
+				Text.Serialization.toJsonString(shardTypeDesc)
 				));
 
 		blockEntityTag.putBoolean("CanInteract", canInteract);

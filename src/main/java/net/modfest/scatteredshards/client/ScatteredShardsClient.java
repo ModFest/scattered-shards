@@ -1,5 +1,6 @@
 package net.modfest.scatteredshards.client;
 
+import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.toast.SystemToast;
@@ -14,8 +15,6 @@ import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
 
 import java.util.Optional;
 
@@ -24,7 +23,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 	public static final String SHARD_MODIFY_TOAST_KEY = "toast.scattered_shards.shard_mod";
 
 	@Override
-	public void onInitializeClient(ModContainer mod) {
+	public void onInitializeClient() {
 		ClientShardCommand.register();
 		ScatteredShardsNetworking.registerClient();
 		ScatteredShardsContent.registerClient();
@@ -53,7 +52,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 
 	public static void triggerShardModificationToast(Identifier shardId, boolean success) {
 		var toast = new SystemToast(
-				SystemToast.Type.TUTORIAL_HINT,
+				SystemToast.Type.PERIODIC_NOTIFICATION,
 				Text.translatable(SHARD_MODIFY_TOAST_KEY + ".title"),
 				Text.translatable(SHARD_MODIFY_TOAST_KEY + "." + (success ? "success" : "fail"), shardId)
 		);
