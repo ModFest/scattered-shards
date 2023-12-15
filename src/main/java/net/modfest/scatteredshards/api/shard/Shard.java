@@ -143,10 +143,10 @@ public class Shard {
 
 	public static Shard fromNbt(NbtCompound nbt) {
 		Identifier shardTypeId = new Identifier(nbt.getString("ShardType"));
-		Text name = loadText(nbt.getString("Name"));
-		Text lore = loadText(nbt.getString("Lore"));
-		Text hint = loadText(nbt.getString("Hint"));
-		Text source = loadText(nbt.getString("Source"));
+		Text name = Text.Serialization.fromLenientJson(nbt.getString("Name"));
+		Text lore = Text.Serialization.fromLenientJson(nbt.getString("Lore"));
+		Text hint = Text.Serialization.fromLenientJson(nbt.getString("Hint"));
+		Text source = Text.Serialization.fromLenientJson(nbt.getString("Source"));
 		Identifier sourceId = new Identifier(
 				nbt.contains("SourceId", NbtElement.STRING_TYPE) ?
 						nbt.getString("SourceId") :
@@ -210,10 +210,10 @@ public class Shard {
 
 	public static Shard read(PacketByteBuf buf) {
 		Identifier shardTypeId = buf.readIdentifier();
-		Text name = loadText(buf.readString());
-		Text lore = loadText(buf.readString());
-		Text hint = loadText(buf.readString());
-		Text source = loadText(buf.readString());
+		Text name = Text.Serialization.fromLenientJson(buf.readString());
+		Text lore = Text.Serialization.fromLenientJson(buf.readString());
+		Text hint = Text.Serialization.fromLenientJson(buf.readString());
+		Text source = Text.Serialization.fromLenientJson(buf.readString());
 		Identifier sourceId = buf.readIdentifier();
 		var icon = buf.readEither(PacketByteBuf::readItemStack, PacketByteBuf::readIdentifier);
 		return new Shard(shardTypeId, name, lore, hint, source, sourceId, icon);
@@ -236,9 +236,9 @@ public class Shard {
 
 	public static Shard fromJson(JsonObject obj, Text source) {
 		Identifier shardTypeId = new Identifier(JsonHelper.getString(obj, "shard_type"));
-		Text name = loadText(JsonHelper.getString(obj, "name"));
-		Text lore = loadText(JsonHelper.getString(obj, "lore"));
-		Text hint = loadText(JsonHelper.getString(obj, "hint"));
+		Text name = Text.Serialization.fromLenientJson(JsonHelper.getString(obj, "name"));
+		Text lore = Text.Serialization.fromLenientJson(JsonHelper.getString(obj, "lore"));
+		Text hint = Text.Serialization.fromLenientJson(JsonHelper.getString(obj, "hint"));
 		Identifier sourceId = new Identifier(JsonHelper.getString(obj, "source_id", LOST_AND_FOUND_SHARD_SOURCE.toString()));
 		var icon = iconFromJson(obj.get("icon"));
 		return new Shard(shardTypeId, name, lore, hint, source, sourceId, icon);
@@ -298,13 +298,5 @@ public class Shard {
 	
 	public static Identifier getSourceIdForNamespace(String namespace) {
 		return new Identifier(namespace, "shard_pack");
-	}
-
-	private static Text loadText(String s) {
-		if (s.startsWith("{")) {
-			return Text.Serialization.fromLenientJson(s);
-		} else {
-			return Text.literal(s);
-		}
 	}
 }

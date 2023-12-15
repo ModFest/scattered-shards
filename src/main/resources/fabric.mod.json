@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "scattered_shards",
+  "version": "${version}",
+  "name": "Scattered Shards",
+  "description": "Collectible trading cards... without the trading. Shards!",
+  "authors": [
+    "Falkreon",
+    "acikek",
+    "Trudle",
+    "FoundationGames"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/scattered-shards",
+    "issues": "https://github.com/ModFest/scattered-shards/issues",
+    "sources": "https://github.com/ModFest/scattered-shards"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/scattered_shards/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.modfest.scatteredshards.ScatteredShards"
+    ],
+    "client": [
+      "net.modfest.scatteredshards.client.ScatteredShardsClient"
+    ],
+    "cardinal-components": [
+      "net.modfest.scatteredshards.component.ScatteredShardsComponents"
+    ]
+  },
+  "mixins": [
+    "scattered_shards.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.4",
+    "java": ">=17",
+    "fabric-api": "*"
+  },
+  "custom": {
+    "cardinal-components": [
+      "scattered_shards:collection",
+      "scattered_shards:library"
+    ]
+  }
+}
