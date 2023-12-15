@@ -2,7 +2,6 @@ package net.modfest.scatteredshards.component;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import com.mojang.brigadier.context.CommandContext;
 
