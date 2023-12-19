@@ -18,7 +18,7 @@ public class ShardToast implements Toast {
 	public static final int WHITE = 0xFF_FFFFFF;
 	public static final Text COLLECTED_TEXT = Text.translatable("scattered_shards.toast.collect");
 
-	private static final Identifier TEXTURE = new Identifier("toast/system");
+	private static final Identifier TEXTURE = new Identifier("toast/advancement");
 	
 	public static final int DURATION = 5000;
 	private final Shard shard;
@@ -30,7 +30,7 @@ public class ShardToast implements Toast {
 	@SuppressWarnings("resource")
 	@Override
 	public Visibility draw(DrawContext graphics, ToastManager manager, long startTime) {
-		graphics.drawTexture(TEXTURE, 0, 0, 0, 0, this.getWidth(), this.getHeight());
+		graphics.drawGuiTexture(TEXTURE, 0, 0, this.getWidth(), this.getHeight());
 		TextRenderer textRenderer = manager.getClient().textRenderer;
 		
 		if (shard == null) return Toast.Visibility.HIDE;
