@@ -2,17 +2,17 @@ package net.modfest.scatteredshards.client.screen.widget;
 
 import java.util.function.Consumer;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 
@@ -29,7 +29,7 @@ public class WMiniShard extends WWidget {
 	
 	public WMiniShard setShard(Shard shard, boolean collected) {
 		this.shard = shard;
-		this.shardType = shard.getShardType();
+		this.shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
 		this.isCollected = collected;
 		return this;
 	}
@@ -42,7 +42,7 @@ public class WMiniShard extends WWidget {
 	@Environment(EnvType.CLIENT)
 	@Override
 	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
-		Identifier tex = (isCollected) ? shardType.getMiniFrontTexture() : shardType.getMiniBackTexture();
+		Identifier tex = (isCollected) ? ShardType.getMiniFrontTexture(shard.shardTypeId()) : ShardType.getMiniBackTexture(shard.shardTypeId());
 		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
 		float opacity = (isCollected) ? 1.0f : 0.6f;
 		ScreenDrawing.texturedRect(context, x, y, 12, 16, tex, color, opacity);

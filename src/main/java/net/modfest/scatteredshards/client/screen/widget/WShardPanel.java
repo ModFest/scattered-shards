@@ -1,5 +1,9 @@
 package net.modfest.scatteredshards.client.screen.widget;
 
+import java.util.List;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
+
 import com.mojang.datafixers.util.Either;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
@@ -19,15 +23,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledText;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WShardIcon;
-
-import java.util.List;
-import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 
 public class WShardPanel extends WPlainPanel {
 	
@@ -39,12 +40,12 @@ public class WShardPanel extends WPlainPanel {
 	private boolean isHidden = false;
 	private Text hideText = Text.translatable("gui.scattered_shards.tablet.click_on_a_shard");
 	
-	private final WDynamicSprite backing = new WDynamicSprite(() -> shardType.getFrontTexture());
+	private final WDynamicSprite backing = new WDynamicSprite(() -> ShardType.getFrontTexture(shard.shardTypeId()));
 	private final WShardIcon icon = new WShardIcon(2.0f);
 	private final WScaledLabel name = new WScaledLabel(() -> shard.name(), 1.4f)
 			.setShadow(true)
 			.setHorizontalAlignment(HorizontalAlignment.CENTER);
-	private final WScaledLabel typeDescription = new WScaledLabel(() -> shardType.getDescription(), 0.5f)
+	private final WScaledLabel typeDescription = new WScaledLabel(() -> ShardType.getDescription(shard.shardTypeId()), 0.5f)
 			.setShadow(true)
 			.setHorizontalAlignment(HorizontalAlignment.CENTER)
 			.setColor(() -> shardType.textColor());
@@ -61,10 +62,10 @@ public class WShardPanel extends WPlainPanel {
 	/**
 	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
 	 */
-	public WShardPanel setType(ShardType value) {
+	public WShardPanel setType(Identifier shardTypeId, ShardType value) {
 		this.shardType = value;
-		backing.setImage(value::getFrontTexture);
-		typeDescription.setText(value::getDescription);
+		backing.setImage(ShardType.getFrontTexture(shardTypeId));
+		typeDescription.setText(ShardType.getDescription(shardTypeId));
 		typeDescription.setColor(value::textColor);
 		return this;
 	}
@@ -106,7 +107,7 @@ public class WShardPanel extends WPlainPanel {
 		this.shard = shard;
 		this.isHidden = false;
 
-		setType(shard.getShardType());
+		setType(shard.shardTypeId(), ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING));
 		icon.setIcon(shard::icon);
 		setName(shard::name, WHITE);
 		setSource(shard::source, WHITE);

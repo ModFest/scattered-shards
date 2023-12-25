@@ -17,6 +17,7 @@ import io.github.cottonmc.cotton.gui.widget.WScrollBar;
 import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
 import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
@@ -28,14 +29,14 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	public static final int ROWS_PER_SCREEN = 5;
 	
 	protected final ShardCollectionComponent collection;
-	protected final ShardLibraryComponent library;
+	protected final ShardLibrary library;
 	
 	WShardPanel shardPanel = new WShardPanel();
 	WPlainPanel selectorPanel = new WPlainPanel();
 	WScrollBar shardSelectorScrollBar = new WScrollBar(Axis.VERTICAL);
 	WListPanel<Identifier, WShardSetPanel> shardSelector;
 	
-	public ShardTabletGuiDescription(ShardCollectionComponent collection, ShardLibraryComponent library) {
+	public ShardTabletGuiDescription(ShardCollectionComponent collection, ShardLibrary library) {
 		this.collection = collection;
 		this.library = library;
 		
@@ -78,7 +79,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	}
 	
 	public static class Screen extends CottonClientScreen {
-		public Screen(ShardCollectionComponent collection, ShardLibraryComponent library) {
+		public Screen(ShardCollectionComponent collection, ShardLibrary library) {
 			super(new ShardTabletGuiDescription(collection, library));
 		}
 	}

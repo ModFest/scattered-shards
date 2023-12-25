@@ -15,9 +15,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.ScatteredShardsContent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.block.ShardBlock;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
 public class BlockCommand {
 	
@@ -25,7 +25,7 @@ public class BlockCommand {
 		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 
-		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
+		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 
 		boolean canInteract = options && BoolArgumentType.getBool(ctx, "can_interact");
 		float glowSize = options ? FloatArgumentType.getFloat(ctx, "glow_size") : 0.5f;

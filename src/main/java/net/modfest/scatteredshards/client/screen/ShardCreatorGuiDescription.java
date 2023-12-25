@@ -20,6 +20,7 @@ import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.WAlternativeToggle;
@@ -122,7 +123,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	
 	public WButton saveButton = new WButton(SAVE_TEXT)
 		.setOnClick(() -> {
-			ScatteredShardsNetworking.c2sModifyShard(shardId, shard);
+			ScatteredShardsNetworking.C2SModifyShard.send(shardId, shard);
 		});
 	
 	private Item item = null;
@@ -230,9 +231,10 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 
 		public static Screen newShard(String modId, ShardType shardType) {
+			Identifier shardTypeId = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardType).orElse(ShardType.MISSING_ID);
 			return new Screen(
-				shardType.createModId(modId),
-				Shard.emptyOfType(shardType),
+				ShardType.createModId(shardTypeId, modId),
+				Shard.emptyOfType(shardTypeId),
 				modId
 			);
 		}

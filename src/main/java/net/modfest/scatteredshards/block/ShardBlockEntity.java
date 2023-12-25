@@ -2,28 +2,31 @@ package net.modfest.scatteredshards.block;
 
 import java.util.Objects;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.particle.DefaultParticleType;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
-import net.modfest.scatteredshards.ScatteredShardsContent;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.World;
+import net.modfest.scatteredshards.ScatteredShardsContent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.component.ScatteredShardsComponents;
+import net.modfest.scatteredshards.component.ShardCollectionComponent;
 
 public class ShardBlockEntity extends BlockEntity {
 	public static final String SHARD_NBT_KEY = "Shard";
@@ -51,14 +54,10 @@ public class ShardBlockEntity extends BlockEntity {
 	}
 
 	@Nullable
-	public Shard getShard() {
-		if (shard == null && world != null) {
-			if (shardId == null) {
-				return Shard.MISSING_SHARD;
-			}
-			shard = ScatteredShardsComponents.getShardLibrary(world).getShard(shardId);
-		}
-		return shard;
+	public Shard getShard(ShardLibrary library) {
+		if (shardId == null) return Shard.MISSING_SHARD;
+
+		return library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
 	}
 
 	public void setShardId(Identifier id) {
@@ -170,11 +169,17 @@ public class ShardBlockEntity extends BlockEntity {
 		public void playCollectAnimation() {
 			this.spinSpeed = ON_COLLECT_SPIN_SPEED;
 
+			@SuppressWarnings("resource")
 			final WorldRenderer worldRenderer = MinecraftClient.getInstance().worldRenderer;
 			final Random random = ShardBlockEntity.this.getWorld().getRandom();
 			final Vec3d pos = Vec3d.ofCenter(ShardBlockEntity.this.getPos());
-
-			ShardBlockEntity.this.getShard().getShardType().collectParticle().ifPresent(p -> {
+			
+			ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
+			
+			ShardType shardType = library.shardTypes()
+					.get(ShardBlockEntity.this.getShard(library).shardTypeId())
+					.orElse(ShardType.MISSING);
+			shardType.collectParticle().ifPresent(p -> {
 				if (!(p instanceof DefaultParticleType particle)) {
 					return;
 				}

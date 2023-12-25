@@ -1,31 +1,31 @@
 package net.modfest.scatteredshards.client.render;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
-import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.shard.ShardType;
-
-import org.joml.Quaternionf;
 import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.modfest.scatteredshards.block.ShardBlockEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
+import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
+import net.modfest.scatteredshards.block.ShardBlockEntity;
 
 @Environment(EnvType.CLIENT)
 public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity> {
@@ -48,7 +48,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			shard = Shard.MISSING_SHARD;
 		}
 
-		ShardType shardType = shard.getShardType();
+		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
 
 		float angle = entity.getAnimations().getAngle(tickDelta);
 		Quaternionf rot = new Quaternionf(new AxisAngle4f(angle, 0f, 1f, 0f));

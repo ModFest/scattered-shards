@@ -17,7 +17,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ShardEvents;
 import net.modfest.scatteredshards.api.shard.Shard;
-import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 /**
  * Component on players which holds their shard collection.
@@ -64,7 +63,7 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 			ShardEvents.COLLECT.invoker().handle(serverPlayer, shardId, shard);
 			
 			//Sync to client so they get the toast
-			ScatteredShardsNetworking.s2cCollectShard(serverPlayer, shardId);
+			//ScatteredShardsNetworking.s2cCollectShard(serverPlayer, shardId);
 			return true;
 		}
 
@@ -76,7 +75,7 @@ public class ShardCollectionComponent implements Component, Iterable<Identifier>
 
 		if (hadShard && provider instanceof ServerPlayerEntity serverPlayer) {
 			// Sync to client so shard will appear solid in-world again
-			ScatteredShardsNetworking.s2cUncollectShard(serverPlayer, shardId);
+			//ScatteredShardsNetworking.s2cUncollectShard(serverPlayer, shardId);
 		}
 		
 		return hadShard;

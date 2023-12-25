@@ -6,11 +6,11 @@ import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
 import net.modfest.scatteredshards.component.ShardCollectionComponent;
-import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
 import java.util.List;
 import java.util.Locale;
@@ -54,9 +54,9 @@ public class WShardSetPanel extends WPanelWithInsets {
 		return this.height - insets.top() - insets.bottom();
 	}
 	
-	public void setShardSet(Identifier set, ShardLibraryComponent library, ShardCollectionComponent collection) {
+	public void setShardSet(Identifier setId, ShardLibrary library, ShardCollectionComponent collection) {
 		List<Identifier> shardSet = new ArrayList<>();
-		shardSet.addAll(library.getShardSet(set));
+		shardSet.addAll(library.shardSets().get(setId));
 		shardSet.sort(WShardSetPanel::shardComparator);
 		
 		//Add/dump MiniShards till we have the same number of card icons as the shardSet has cards
@@ -67,7 +67,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		this.children.clear();
 		this.add(sourceLabel, 0, 96, 18);
 		sourceLabel.setLocation(0+this.insets.left(), 2+this.insets.top());
-		sourceLabel.setText(Shard.getSourceForSourceId(set));
+		sourceLabel.setText(Shard.getSourceForSourceId(setId));
 		
 		//The actual remaining layout width is less the label and the width of the card itself
 		int spaceRemaining = layoutWidth() - 100 - MINI_SHARD_WIDTH;
@@ -79,7 +79,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 			WMiniShard widget = shards.get(i);
 			widget.setShardConsumer(shardConsumer);
 			collection.contains(shardId);
-			widget.setShard(library.getShard(shardId), collection.contains(shardId));
+			widget.setShard(library.shards().get(shardId).orElse(Shard.MISSING_SHARD), collection.contains(shardId));
 			this.add(widget, xofs + (spacePerShard * i), MINI_SHARD_WIDTH, MINI_SHARD_HEIGHT);
 		}
 		
