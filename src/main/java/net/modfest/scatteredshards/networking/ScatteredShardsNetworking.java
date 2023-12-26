@@ -55,9 +55,9 @@ public class ScatteredShardsNetworking {
 			
 			client.execute(() -> {
 				Shard shard = Shard.fromNbt(compound);
-				
+				ScatteredShards.LOGGER.info("Received SyncShard for " + shardId);
 				ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
-				if (library != null) library.shards().put(shardId, shard);
+				library.shards().put(shardId, shard);
 			});
 		}
 	}
