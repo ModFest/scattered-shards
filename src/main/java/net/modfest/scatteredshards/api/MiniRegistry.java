@@ -2,15 +2,20 @@ package net.modfest.scatteredshards.api;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.ScatteredShards;
 
 /**
  * Little wrapper around BiMap to optionalize some things
@@ -35,6 +40,10 @@ public class MiniRegistry<T> {
 		data.forEach(consumer);
 	}
 	
+	public Stream<Identifier> streamKeys() {
+		return data.keySet().stream();
+	}
+	
 	public void put(Identifier id, T value) {
 		data.put(id, value);
 	}
@@ -52,30 +61,26 @@ public class MiniRegistry<T> {
 	}
 	
 	public NbtCompound toNbt() {
-		return (NbtCompound) mapCodec.encodeStart(NbtOps.INSTANCE, data).result().get();
-		/*
-		Codec.unboundedMap(Identifier.CODEC, valueCodec);
-		forEach((id, value) -> {
-			valueCodec.encodeStart(NbtOps.INSTANCE, value).result().ifPresent((it) -> {
-				tag.put(id.toString(), it);
-			});
-		});
-		return tag;*/
+		return (NbtCompound) mapCodec.encodeStart(NbtOps.INSTANCE, data).result().orElseThrow();
 	}
 	
-	public void syncFromNbt(NbtCompound tag) {
-		mapCodec.parse(NbtOps.INSTANCE, tag).result().ifPresent(it -> {
+	public JsonObject toJson() {
+		return (JsonObject) mapCodec.encodeStart(JsonOps.INSTANCE, data).result().orElseThrow();
+	}
+	
+	public <U> void syncFrom(DynamicOps<U> sourceDataFlavor, U sourceData) {
+		mapCodec.parse(sourceDataFlavor, sourceData).result().ifPresent(it -> {
+			ScatteredShards.LOGGER.info("Syncing " + it.size() + " items: " + it);
 			data.clear();
 			data.putAll(it);
 		});
-		
-		/*
-		data.clear();
-		for(String key : tag.getKeys()) {
-			valueCodec.parse(NbtOps.INSTANCE, tag.get(key))
-				.result().ifPresent((it) -> {
-					this.put(new Identifier(key), it);
-				});
-		}*/
+	}
+	
+	public void syncFromNbt(NbtCompound tag) {
+		syncFrom(NbtOps.INSTANCE, tag);
+	}
+	
+	public void syncFromJson(JsonObject obj) {
+		syncFrom(JsonOps.INSTANCE, obj);
 	}
 }

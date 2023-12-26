@@ -5,18 +5,13 @@ import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
-import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Consumer;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
 public class WShardSetPanel extends WPanelWithInsets {
@@ -54,7 +49,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		return this.height - insets.top() - insets.bottom();
 	}
 	
-	public void setShardSet(Identifier setId, ShardLibrary library, ShardCollectionComponent collection) {
+	public void setShardSet(Identifier setId, ShardLibrary library, ShardCollection collection) {
 		List<Identifier> shardSet = new ArrayList<>();
 		shardSet.addAll(library.shardSets().get(setId));
 		shardSet.sort(WShardSetPanel::shardComparator);
@@ -86,6 +81,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		if (host != null) this.validate(host);
 	}
 	
+	//TODO: Replace with json / ShardType field
 	private static int shardPriority(String path) {
 		return switch(path) {
 		case "scattered_shards_visitor" -> 0;

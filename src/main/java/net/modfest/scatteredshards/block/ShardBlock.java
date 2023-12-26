@@ -32,11 +32,10 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
 
 public class ShardBlock extends Block implements BlockEntityProvider {
 	public static final VoxelShape SHAPE = VoxelShapes.cuboid(4/16f, 3/16f, 4/16f, 12/16f, 13/16f, 12/16f);
@@ -86,8 +85,9 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		}
 		
 		//TODO: Implement new shard collection
-		ShardCollectionComponent collection = ScatteredShardsComponents.COLLECTION.get(player);
-		return collection.addShard(be.shardId);
+		ShardCollection shardCollection = ScatteredShardsAPI.getServerCollection(player);
+		//ShardCollectionComponent collection = ScatteredShardsComponents.COLLECTION.get(player);
+		return shardCollection.add(be.shardId);
 	}
 
 	@Override

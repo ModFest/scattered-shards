@@ -42,7 +42,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		boolean collected = entity.getAnimations().collected();
 		final int actualLight = collected ? light : LightmapTextureManager.MAX_LIGHT_COORDINATE;
 
-		Shard shard = entity.getShard();
+		Shard shard = entity.getShard(ScatteredShardsAPI.getClientLibrary());
 		if (shard == null) {
 			//Let's make one up!
 			shard = Shard.MISSING_SHARD;
@@ -62,7 +62,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		float alpha = collected ? 0.5f : 1f;
 
-		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(shardType.getBackingTexture()));
+		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(ShardType.getBackingTexture(shard.shardTypeId())));
 		
 		/*
 		 * A note about scale here:
@@ -122,7 +122,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		//Draw card front
 		Vector3f revNormal = normal.mul(-1, -1, -1);
-		buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(shardType.getFrontTexture()));
+		buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(ShardType.getFrontTexture(shard.shardTypeId())));
 		buf
 			.vertex(matrices.peek().getPositionMatrix(), dl.x, dl.y, dl.z)
 			.color(1, 1, 1, alpha)
@@ -228,6 +228,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		if (!collected && glowSize > 0 && glowStrength > 0) {
 			matrices.push();
 
+			@SuppressWarnings("resource")
 			Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
 
 			matrices.translate(0.5, 0.5, 0.5);
@@ -244,7 +245,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 			float distFadeAlpha = (float) MathHelper.clamp((distToShard - 1) * 0.1 * glowStrength, 0, 1);
 
-			int color = shard.getShardType().glowColor();
+			int color = shardType.glowColor();
 			float r = ((color >> 16) & 0xFF) / 255f;
 			float g = ((color >> 8) & 0xFF) / 255f;
 			float b = (color & 0xFF) / 255f;

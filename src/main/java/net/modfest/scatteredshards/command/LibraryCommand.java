@@ -10,18 +10,19 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardLibraryComponent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class LibraryCommand {
 	
 	public static int delete(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 		
-		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
-		if (!library.contains(shardId)) throw ShardCommand.INVALID_SHARD.create(shardId);
+		var library = ScatteredShardsAPI.getServerLibrary();
+		library.shards().get(shardId).orElseThrow(() -> ShardCommand.INVALID_SHARD.create(shardId));
 		
-		library.deleteShard(shardId, ctx.getSource().getWorld(), ctx.getSource());
+		library.shards().remove(shardId);
+		ScatteredShardsNetworking.S2CDeleteShard.sendToAll(ctx.getSource().getServer(), shardId);
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete", shardId), true);
 		
@@ -29,9 +30,10 @@ public class LibraryCommand {
 	}
 	
 	public static int deleteAll(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
-		int toDelete = library.size();
-		library.clear(ctx.getSource().getWorld());
+		var library = ScatteredShardsAPI.getServerLibrary();
+		int toDelete = library.shards().size();
+		library.shards().clear();
+		ScatteredShardsNetworking.S2CSyncLibrary.sendToAll(ctx.getSource().getServer());
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete.all", toDelete), true);
 		

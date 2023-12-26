@@ -24,9 +24,6 @@
     ],
     "client": [
       "net.modfest.scatteredshards.client.ScatteredShardsClient"
-    ],
-    "cardinal-components": [
-      "net.modfest.scatteredshards.component.ScatteredShardsComponents"
     ]
   },
   "mixins": [

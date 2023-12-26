@@ -22,11 +22,10 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
 
 public class ShardBlockEntity extends BlockEntity {
 	public static final String SHARD_NBT_KEY = "Shard";
@@ -149,8 +148,7 @@ public class ShardBlockEntity extends BlockEntity {
 			Identifier shardId = ShardBlockEntity.this.getShardId();
 
 			boolean wasCollected = this.collected;
-			ShardCollectionComponent shards =
-					ScatteredShardsComponents.getShardCollection(MinecraftClient.getInstance().player);
+			ShardCollection shards = ScatteredShardsAPI.getClientCollection();
 
 			this.collected = shards.contains(shardId);
 

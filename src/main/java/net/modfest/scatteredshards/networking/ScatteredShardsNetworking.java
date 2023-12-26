@@ -23,11 +23,11 @@ import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
+import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
 import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.ScatteredShardsClient;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 
 public class ScatteredShardsNetworking {
 	
@@ -74,6 +74,12 @@ public class ScatteredShardsNetworking {
 			ServerPlayNetworking.send(player, ID, buf);
 		}
 		
+		public static void sendToAll(MinecraftServer server, Identifier shardId) {
+			for(var player : server.getPlayerManager().getPlayerList()) {
+				send(player, shardId);
+			}
+		}
+		
 		@Environment(EnvType.CLIENT)
 		public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
 			Identifier shardId = buf.readIdentifier();
@@ -102,15 +108,23 @@ public class ScatteredShardsNetworking {
 				b.writeCollection(collection, PacketByteBuf::writeIdentifier);
 			});
 			
+			ServerPlayNetworking.send(player, ID, buf);
+		}
+		
+		public static void sendToAll(MinecraftServer server) {
+			for(var player : server.getPlayerManager().getPlayerList()) {
+				send(player);
+			}
 		}
 		
 		@Environment(EnvType.CLIENT)
 		public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+			ScatteredShards.LOGGER.info("Received sync");
 			NbtCompound shardTypeNbt = buf.readNbt();
 			NbtCompound shardNbt = buf.readNbt();
 			
-			//Map<Identifier, NbtCompound> shardTypeNbt = buf.readMap(PacketByteBuf::readIdentifier, PacketByteBuf::readNbt);
-			//Map<Identifier, NbtCompound> shardNbt = buf.readMap(PacketByteBuf::readIdentifier, PacketByteBuf::readNbt);
+			ScatteredShards.LOGGER.info("  " + shardTypeNbt + " shardTypes to sync . . .");
+			
 			Map<Identifier, Set<Identifier>> shardSetMap = buf.readMap(
 					PacketByteBuf::readIdentifier,
 					(b) -> b.readCollection(HashSet::new, PacketByteBuf::readIdentifier)
@@ -135,6 +149,32 @@ public class ScatteredShardsNetworking {
 		}
 	}
 	
+	public static class S2CSyncCollection {
+		public static final Identifier ID = ScatteredShards.id("sync_collection");
+		
+		public static void send(ServerPlayerEntity player) {
+			PacketByteBuf buf = PacketByteBufs.create();
+			var collection = ScatteredShardsAPI.getServerCollection(player);
+			var imm = collection.toImmutableSet();
+			buf.writeCollection(imm, PacketByteBuf::writeIdentifier);
+			
+			ServerPlayNetworking.send(player, ID, buf);
+		}
+		
+		@Environment(EnvType.CLIENT)
+		public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+			HashSet<Identifier> data = buf.readCollection(HashSet::new, PacketByteBuf::readIdentifier);
+			
+			client.execute(() -> {
+				ScatteredShards.LOGGER.info("Syncing collection with " + data.size() + " shards.");
+				
+				var collection = ScatteredShardsAPI.getClientCollection();
+				collection.clear();
+				collection.addAll(data);
+			});
+		}
+	}
+	
 	/**
 	 * Syncs the addition of a shard to a Player's ShardCollection, and triggers the appropriate animation and toast.
 	 */
@@ -153,9 +193,7 @@ public class ScatteredShardsNetworking {
 
 			client.execute(() -> {
 				ScatteredShardsClient.triggerShardCollectAnimation(shardId);
-				
-				//TODO: Replace with client collection object
-				ScatteredShardsComponents.COLLECTION.get(client.player).addShard(shardId);
+				ScatteredShardsAPI.getClientCollection().add(shardId);
 			});
 		}
 	}
@@ -177,7 +215,7 @@ public class ScatteredShardsNetworking {
 			final Identifier shardId = buf.readIdentifier();
 
 			client.execute(() -> {
-				ScatteredShardsComponents.COLLECTION.get(client.player).removeShard(shardId);
+				ScatteredShardsAPI.getClientCollection().remove(shardId);
 			});
 		}
 	}
@@ -256,31 +294,24 @@ public class ScatteredShardsNetworking {
 
 	@Environment(EnvType.CLIENT)
 	public static void registerClient() {
-		/*
-		ClientPlayNetworking.registerGlobalReceiver(RELOAD_DATA, (client, handler, buf, responseSender) -> {
-			updateData(client, buf, ShardTypeLoader.MAP, ShardSetLoader.BY_SHARD_SET, ShardSetLoader.BY_ID);
-		});
-		ClientPlayNetworking.registerGlobalReceiver(UPDATE_DATA, (client, handler, buf, responseSender) -> {
-			updateData(client, buf, ScatteredShardsAPIImpl.shardTypes, ScatteredShardsAPIImpl.shardSets, ScatteredShardsAPIImpl.shardData);
-		});
-		*/
-		
 		ClientPlayNetworking.registerGlobalReceiver(S2CSyncShard.ID, S2CSyncShard::receive);
 		ClientPlayNetworking.registerGlobalReceiver(S2CDeleteShard.ID, S2CDeleteShard::receive);
 		ClientPlayNetworking.registerGlobalReceiver(S2CSyncLibrary.ID, S2CSyncLibrary::receive);
+		ClientPlayNetworking.registerGlobalReceiver(S2CSyncCollection.ID, S2CSyncCollection::receive);
 		
 		ClientPlayNetworking.registerGlobalReceiver(S2CCollectShard.ID, S2CCollectShard::receive);
 		ClientPlayNetworking.registerGlobalReceiver(S2CUncollectShard.ID, S2CUncollectShard::receive);
 		ClientPlayNetworking.registerGlobalReceiver(S2CModifyShardResult.ID, S2CModifyShardResult::receive);
-		
 	}
 
 	public static void register() {
 		ServerPlayNetworking.registerGlobalReceiver(C2SModifyShard.ID, C2SModifyShard::receive);
 		
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			//s2cUpdateData(Collections.singletonList(handler.player));
-			//TODO: Send the whole shard library to the player
+			ShardLibraryPersistentState.get(server); // Trigger the PersistentState load if it hasn't yet
+			S2CSyncLibrary.send(handler.getPlayer());
+			ShardCollectionPersistentState.get(server); // Trigger the PersistentState load if it hasn't yet
+			S2CSyncCollection.send(handler.getPlayer());
 		});
 		
 	}

@@ -28,7 +28,6 @@ import net.modfest.scatteredshards.client.screen.widget.WLayoutBox;
 import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
 import net.modfest.scatteredshards.client.screen.widget.WProtectableField;
 import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class ShardCreatorGuiDescription extends LightweightGuiDescription {
@@ -240,7 +239,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 
 		public static Screen editShard(Shard shard) {
-			Identifier shardId = ScatteredShardsComponents.getShardLibrary(MinecraftClient.getInstance().world).getId(shard);
+			Identifier shardId = ScatteredShardsAPI.getClientLibrary().shards().get(shard).orElse(Shard.MISSING_SHARD_SOURCE);
 			String modId = shardId.getNamespace();
 			return new Screen(shardId, shard, modId);
 		}

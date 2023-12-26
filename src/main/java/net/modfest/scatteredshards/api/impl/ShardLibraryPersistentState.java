@@ -39,19 +39,25 @@ public class ShardLibraryPersistentState extends PersistentState {
 		library.clearAll();
 		
 		NbtCompound shardTypes = tag.getCompound(SHARD_TYPES_KEY);
-		for(String id : shardTypes.getKeys()) {
-			try {
-				NbtCompound shardNbt = shardTypes.getCompound(id);
-				library.shardTypes().put(new Identifier(id), ShardType.fromNbt(shardNbt));
-				
-			} catch (Throwable t) {
-				ScatteredShards.LOGGER.error("Could not load shardType \""+id+"\": " + t.getMessage());
-			}
+		if (shardTypes.isEmpty() || (shardTypes.getSize() == 1 && shardTypes.contains(ShardType.MISSING_ID.toString()))) {
+			//Either the ShardTypes were completely empty, or the only ShardType present is the missing type.
 			
-			// Sneak the MISSING type in there if it wasn't saved
-			library.shardTypes().get(ShardType.MISSING_ID).ifPresentOrElse((it) -> {}, () -> {
-				library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
-			});
+			//TODO: Load shardTypes from resources
+			//For now, we're preloading with the default types if none are present.
+			library.shardTypes().put(ScatteredShards.id("visitor"), ShardType.VISITOR);
+			library.shardTypes().put(ScatteredShards.id("challenge"), ShardType.CHALLENGE);
+			library.shardTypes().put(ScatteredShards.id("secret"), ShardType.SECRET);
+			library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
+		} else {
+			for(String id : shardTypes.getKeys()) {
+				try {
+					NbtCompound shardNbt = shardTypes.getCompound(id);
+					library.shardTypes().put(new Identifier(id), ShardType.fromNbt(shardNbt));
+					
+				} catch (Throwable t) {
+					ScatteredShards.LOGGER.error("Could not load shardType \""+id+"\": " + t.getMessage());
+				}
+			}
 		}
 		
 		NbtCompound shards = tag.getCompound(SHARDS_KEY);
@@ -73,15 +79,11 @@ public class ShardLibraryPersistentState extends PersistentState {
 			}
 		}
 		
-		if (library.shardTypes().size() == 1) { // only the missing shardType that we may have snuck in earlier
-			if (library.shards().size() == 0 && library.shardSets().size() == 0) {
-				//TODO
-			} else {
-				ScatteredShards.LOGGER.warn("It looks like something went wrong, and there are no ShardTypes.");
-			}
+		if (library.shardTypes().size() == 1 && library.shardTypes().streamKeys().findFirst().get().equals(ShardType.MISSING_ID)) {
+			
 		}
 		
-		ScatteredShards.LOGGER.info("Finished loading " + library.shardTypes().size() + " shard types, " + library.shards() + " shards, and " + library.shardSets().size() + " shardSets.");
+		ScatteredShards.LOGGER.info("Finished loading " + library.shardTypes().size() + " shard types, " + library.shards().size() + " shards, and " + library.shardSets().size() + " shardSets.");
 		
 		return state;
 	}

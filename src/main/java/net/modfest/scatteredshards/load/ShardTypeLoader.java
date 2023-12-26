@@ -12,7 +12,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +48,8 @@ public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResou
 			}
 		}
 		ScatteredShards.LOGGER.info("Loaded " + successes + " shard type" + (successes == 1 ? "" : "s"));
-		ScatteredShardsAPIImpl.updateShardTypes();
+		//TODO: Sync this if we're live
+		//ScatteredShardsAPIImpl.updateShardTypes();
 	}
 
 	public static void register() {

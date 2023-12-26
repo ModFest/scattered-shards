@@ -12,7 +12,7 @@ import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 
 public class Node {
 	public static LiteralArgumentBuilder<ServerCommandSource> literal(String name) {
@@ -31,9 +31,9 @@ public class Node {
 	public static RequiredArgumentBuilder<ServerCommandSource, Identifier> shardId(String name) {
 		return identifier(name).suggests((source, builder) -> {
 			String prefix = builder.getRemaining();
-			for(Identifier id : ScatteredShardsComponents.getShardLibrary(source).getShardIds()) {
+			ScatteredShardsAPI.getServerLibrary().shards().forEach((id, shard) -> {
 				if (prefix.isBlank() || id.toString().startsWith(prefix)) builder.suggest(id.toString());
-			}
+			});
 			return builder.buildFuture();
 		});
 	}
@@ -49,7 +49,7 @@ public class Node {
 			if (player == null) return builder.buildFuture();
 			
 			String prefix = builder.getRemaining();
-			for (Identifier id : ScatteredShardsComponents.getShardCollection(player)) {
+			for(Identifier id : ScatteredShardsAPI.getServerCollection(player)) {
 				if (prefix.isBlank() || id.toString().startsWith(prefix)) builder.suggest(id.toString());
 			}
 			

@@ -159,10 +159,12 @@ public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> 
 		Registry.register(Registries.SOUND_EVENT, COLLECT_CHALLENGE_SOUND.getId(), COLLECT_CHALLENGE_SOUND);
 		Registry.register(Registries.SOUND_EVENT, COLLECT_SECRET_SOUND.getId(), COLLECT_SECRET_SOUND);
 		
+		/*
 		var shardTypes = ScatteredShardsAPI.getServerLibrary().shardTypes();
 		shardTypes.put(ScatteredShards.id("visitor"), VISITOR);
 		shardTypes.put(ScatteredShards.id("challenge"), CHALLENGE);
 		shardTypes.put(ScatteredShards.id("secret"), SECRET);
 		shardTypes.put(MISSING_ID, MISSING);
+		*/
 	}
 }

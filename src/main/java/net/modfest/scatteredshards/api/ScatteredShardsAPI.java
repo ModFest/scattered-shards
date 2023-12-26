@@ -1,28 +1,36 @@
 package net.modfest.scatteredshards.api;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Multimap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.jetbrains.annotations.ApiStatus;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
+import net.modfest.scatteredshards.api.impl.ShardCollectionImpl;
+import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
 import net.modfest.scatteredshards.api.impl.ShardLibraryImpl;
-import net.modfest.scatteredshards.api.shard.Shard;
-import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
+import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
+import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class ScatteredShardsAPI {
 	
 	public static final String MODIFY_SHARD_PERMISSION = ScatteredShards.permission("modify_shard");
 	
+	private static ShardLibraryPersistentState libraryPersistentState;
+	private static ShardCollectionPersistentState collectionPersistentState;
 	private static final ShardLibrary serverShardLibrary = new ShardLibraryImpl();
-	private static final ShardLibrary clientShardLibrary = null;
+	private static Map<UUID, ShardCollection> serverCollections = new HashMap<>();
+	private static ShardLibrary clientShardLibrary = null;
+	private static ShardCollection clientShardCollection = null;
 	private static Thread serverThread = null;
 	private static Thread clientThread = null;
+	
 	
 	public static ShardLibrary getServerLibrary() {
 		if (serverThread != null && !Thread.currentThread().equals(serverThread)) {
@@ -41,38 +49,61 @@ public class ScatteredShardsAPI {
 		return clientShardLibrary;
 	}
 	
-	@Deprecated(forRemoval = true)
-	public static Multimap<Identifier, Shard> getShardSets() {
-		return ScatteredShardsAPIImpl.shardSets;
+	public static ShardCollection getServerCollection(UUID uuid) {
+		var collection = serverCollections.get(uuid);
+		if (collection == null) {
+			collection = new ShardCollectionImpl();
+			serverCollections.put(uuid, collection);
+			if (collectionPersistentState != null) collectionPersistentState.markDirty();
+		}
+		return collection;
 	}
-
-	@Deprecated(forRemoval = true)
-	public static BiMap<Identifier, Shard> getShardData() {
-		return ScatteredShardsAPIImpl.shardData;
+	
+	public static ShardCollection getServerCollection(PlayerEntity player) {
+		return getServerCollection(player.getUuid());
 	}
-
-	@Deprecated(forRemoval = true)
-	public static BiMap<Identifier, ShardType> getShardTypes() {
-		return ScatteredShardsAPIImpl.shardTypes;
+	
+	@ApiStatus.Internal
+	public static Map<UUID, ShardCollection> exportServerCollections() {
+		return serverCollections;
 	}
-
-	@Deprecated(forRemoval = true)
-	public static void registerShardType(Identifier id, ShardType shardType) {
-		ScatteredShardsAPIImpl.REGISTERED_SHARD_TYPES.put(id, shardType);
+	
+	@Environment(EnvType.CLIENT)
+	public static ShardCollection getClientCollection() {
+		if (clientThread != null && !Thread.currentThread().equals(clientThread)) {
+			throw new IllegalStateException("getClientCollection called from thread '"+Thread.currentThread().getName()+"'. This method can only be accessed from the client thread.");
+		}
+		
+		return clientShardCollection;
 	}
-
-	/**
-	 * This just forwards the collect down to the ShardCollectionComponent
-	 * @see ShardCollectionComponent#addShard(Identifier)
-	 */
-	@Deprecated()
-	public static void triggerShardCollection(ServerPlayerEntity player, Identifier shardId) {
-		//TODO: Move to ShardCollection
-		ShardCollectionComponent collection = ScatteredShardsComponents.COLLECTION.get(player);
-		collection.addShard(shardId);
+	
+	
+	public static boolean triggerShardCollection(ServerPlayerEntity player, Identifier shardId) {
+		var collection = getServerCollection(player);
+		if (collection.add(shardId)) {
+			if (player.getServer() != null) ShardCollectionPersistentState.get(player.getServer()).markDirty();
+			ScatteredShardsNetworking.S2CCollectShard.send(player, shardId);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public static void init() {
-		
+		serverThread = Thread.currentThread();
+	}
+	
+	public static void initClient() {
+		clientThread = Thread.currentThread();
+		clientShardLibrary = new ShardLibraryImpl();
+		clientShardCollection = new ShardCollectionImpl();
+	}
+
+	public static void register(ShardCollectionPersistentState persistentState) {
+		ScatteredShardsAPI.collectionPersistentState = persistentState;
+	}
+	
+	public static void register(ShardLibraryPersistentState persistentState) {
+		ScatteredShardsAPI.libraryPersistentState = persistentState;
 	}
 }

@@ -10,21 +10,19 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.shard.Shard;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardLibraryComponent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 
 public class CollectCommand {
 	
 	public static int collect(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		Identifier id = ctx.getArgument("shard_id", Identifier.class);
 		
-		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
+		//Validate shard
+		ScatteredShardsAPI.getServerLibrary().shards().get(id)
+				.orElseThrow(() -> ShardCommand.INVALID_SHARD.create(id));
 		
-		Shard shard = library.getShard(id);
-		if (shard == Shard.MISSING_SHARD) throw ShardCommand.INVALID_SHARD.create(id);
-		
-		ScatteredShardsComponents.getShardCollection(ctx.getSource().getPlayer()).addShard(id);
+		//Validate that source is a player and collect it
+		ScatteredShardsAPI.triggerShardCollection(ctx.getSource().getPlayerOrThrow(), id);
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.collect", id), false);
 		
