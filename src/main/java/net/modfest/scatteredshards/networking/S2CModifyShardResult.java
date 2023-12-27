@@ -33,6 +33,7 @@ public class S2CModifyShardResult {
 
 		client.execute(() -> {
 			ScatteredShardsClient.triggerShardModificationToast(shardId, success);
+			client.setScreen(null);
 		});
 	}
 }

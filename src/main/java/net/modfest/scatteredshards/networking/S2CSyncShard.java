@@ -36,10 +36,10 @@ public class S2CSyncShard {
 		
 		client.execute(() -> {
 			Shard shard = Shard.fromNbt(compound);
-			ScatteredShards.LOGGER.info("Received SyncShard for " + shardId);
 			ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 			library.shards().put(shardId, shard);
 			library.shardSets().put(shard.sourceId(), shardId);
+			//ScatteredShards.LOGGER.info("Updated data for shard \"" + shardId + "\"");
 		});
 	}
 }

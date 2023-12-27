@@ -70,7 +70,6 @@ public class MiniRegistry<T> {
 	
 	public <U> void syncFrom(DynamicOps<U> sourceDataFlavor, U sourceData) {
 		mapCodec.parse(sourceDataFlavor, sourceData).result().ifPresent(it -> {
-			ScatteredShards.LOGGER.info("Syncing " + it.size() + " items: " + it);
 			data.clear();
 			data.putAll(it);
 		});

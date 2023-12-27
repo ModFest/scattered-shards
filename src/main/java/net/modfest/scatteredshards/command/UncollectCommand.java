@@ -13,6 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
 import net.modfest.scatteredshards.networking.S2CSyncCollection;
 import net.modfest.scatteredshards.networking.S2CUncollectShard;
 
@@ -34,6 +35,9 @@ public class UncollectCommand {
 		boolean success = ScatteredShardsAPI.getServerCollection(player).remove(id);
 		if (!success) throw NOT_IN_COLLECTION.create(id);
 		
+		var server = ctx.getSource().getServer();
+		ShardCollectionPersistentState.get(server).markDirty();
+		
 		S2CUncollectShard.send(player, id);
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect", id), false);
 		return Command.SINGLE_SUCCESS;
@@ -51,6 +55,9 @@ public class UncollectCommand {
 		int shardsToDelete = collection.size();
 		collection.clear();
 		S2CSyncCollection.send(player);
+		var server = ctx.getSource().getServer();
+		ShardCollectionPersistentState.get(server).markDirty();
+		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect.all", shardsToDelete), false);
 
 		return shardsToDelete;

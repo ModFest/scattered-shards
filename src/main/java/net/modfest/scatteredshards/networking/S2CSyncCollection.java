@@ -32,7 +32,7 @@ public class S2CSyncCollection {
 		HashSet<Identifier> data = buf.readCollection(HashSet::new, PacketByteBuf::readIdentifier);
 		
 		client.execute(() -> {
-			ScatteredShards.LOGGER.info("Syncing collection with " + data.size() + " shards.");
+			ScatteredShards.LOGGER.info("Syncing ShardCollection with " + data.size() + " shards collected.");
 			
 			var collection = ScatteredShardsAPI.getClientCollection();
 			collection.clear();

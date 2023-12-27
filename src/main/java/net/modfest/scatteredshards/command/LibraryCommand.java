@@ -13,6 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.S2CDeleteShard;
 import net.modfest.scatteredshards.networking.S2CSyncLibrary;
@@ -30,8 +31,9 @@ public class LibraryCommand {
 		shard.ifPresent(it -> {
 			library.shardSets().remove(it.sourceId(), shardId);
 		});
-		
-		S2CDeleteShard.sendToAll(ctx.getSource().getServer(), shardId);
+		var server = ctx.getSource().getServer();
+		ShardLibraryPersistentState.get(server).markDirty();
+		S2CDeleteShard.sendToAll(server, shardId);
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete", shardId), true);
 		
@@ -43,7 +45,9 @@ public class LibraryCommand {
 		int toDelete = library.shards().size();
 		library.shards().clear();
 		library.shardSets().clear();
-		S2CSyncLibrary.sendToAll(ctx.getSource().getServer());
+		var server = ctx.getSource().getServer();
+		ShardLibraryPersistentState.get(server).markDirty();
+		S2CSyncLibrary.sendToAll(server);
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete.all", toDelete), true);
 		

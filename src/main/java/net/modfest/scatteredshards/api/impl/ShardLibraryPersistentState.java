@@ -1,7 +1,5 @@
 package net.modfest.scatteredshards.api.impl;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -27,9 +25,8 @@ public class ShardLibraryPersistentState extends PersistentState {
 	public static final String SHARD_SETS_KEY = "ShardSets";
 	
 	public static ShardLibraryPersistentState get(MinecraftServer server) {
-		ShardLibraryPersistentState result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE, ScatteredShards.ID+"_library");
-		System.out.println("PersistentState acquired: "+ScatteredShardsAPI.getServerLibrary().shards().size()+" shards.");
-		result.markDirty();
+		var result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE, ScatteredShards.ID+"_library");
+		ScatteredShardsAPI.register(result);
 		return result;
 	}
 	
@@ -60,6 +57,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 			//TODO: Load shardTypes from resources
 			//For now, we're preloading with the default types if none are present.
 			addDefaultShardTypes();
+			state.markDirty();
 		} else {
 			for(String id : shardTypes.getKeys()) {
 				try {
@@ -105,7 +103,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 			
 		}
 		
-		ScatteredShards.LOGGER.info("Finished loading " + library.shardTypes().size() + " shard types, " + library.shards().size() + " shards, and " + library.shardSets().size() + " shardSets.");
+		ScatteredShards.LOGGER.info("Loaded " + library.shardTypes().size() + " shard types, " + library.shards().size() + " shards, and " + library.shardSets().size() + " shardSets.");
 		
 		return state;
 	}
@@ -114,7 +112,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 	@Override
 	public NbtCompound writeNbt(NbtCompound tag) {
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
-		System.out.println("Saving " + library.shards().size() + " shards to NBT!");
+		ScatteredShards.LOGGER.info("Saving the ShardLibrary with " + library.shardTypes().size() + " shard types, " + library.shards().size() + " shards, and " + library.shardSets().size() + " shardSets...");
 		
 		tag.put(SHARD_TYPES_KEY, library.shardTypes().toNbt());
 		tag.put(SHARDS_KEY, library.shards().toNbt());
@@ -128,6 +126,8 @@ public class ShardLibraryPersistentState extends PersistentState {
 			
 		});
 		tag.put(SHARD_SETS_KEY, shardSets);
+		
+		ScatteredShards.LOGGER.info("ShardLibrary saved.");
 		
 		return tag;
 	}

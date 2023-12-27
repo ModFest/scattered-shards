@@ -30,6 +30,7 @@ public class ShardCollectionPersistentState extends PersistentState {
 	
 	public static ShardCollectionPersistentState createFromNbt(NbtCompound tag) {
 		ShardCollectionPersistentState state = new ShardCollectionPersistentState();
+		ScatteredShards.LOGGER.info("Loading shard collections for " + tag.getSize() + " players...");
 		
 		for(String s : tag.getKeys()) {
 			try {
@@ -47,17 +48,19 @@ public class ShardCollectionPersistentState extends PersistentState {
 				ScatteredShards.LOGGER.error("Could not load collection for uuid \"" + s + "\": " + t.getLocalizedMessage());
 			}
 		}
-		/* TODO: Load data in. Later we can go user by user if things get mega laggy, but in the grand scheme of things,
-		 * even for a thousand or two users, it's not that much data compared to one chest full of forestry saplings. */
+		/* Later we can go user by user if things get mega laggy. But in the grand scheme of things, even for a thousand
+		 * or two users, it's not that much data compared to one chest full of forestry saplings. */
+		
+		ScatteredShards.LOGGER.info("Collections loaded.");
 		
 		return state;
 	}
 	
 	@Override
 	public NbtCompound writeNbt(NbtCompound tag) {
-		ScatteredShards.LOGGER.info("Saving shard collections...");
-		
 		Map<UUID, ShardCollection> collections = ScatteredShardsAPI.exportServerCollections();
+		ScatteredShards.LOGGER.info("Saving ShardCollections for " + collections.size() + " players...");
+		
 		collections.forEach((id, collection) -> {
 			NbtList list = new NbtList();
 			for(Identifier i : collection) {
@@ -66,6 +69,7 @@ public class ShardCollectionPersistentState extends PersistentState {
 			tag.put(id.toString(), list);
 		});
 		
+		ScatteredShards.LOGGER.info("ShardCollections saved.");
 		return tag;
 	}
 

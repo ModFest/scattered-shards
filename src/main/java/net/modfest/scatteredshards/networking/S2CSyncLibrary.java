@@ -49,11 +49,9 @@ public class S2CSyncLibrary {
 	
 	@Environment(EnvType.CLIENT)
 	public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-		ScatteredShards.LOGGER.info("Received sync");
+		ScatteredShards.LOGGER.info("Syncing ShardLibrary...");
 		NbtCompound shardTypeNbt = buf.readNbt();
 		NbtCompound shardNbt = buf.readNbt();
-		
-		ScatteredShards.LOGGER.info("  " + shardTypeNbt + " shardTypes to sync . . .");
 		
 		Map<Identifier, Set<Identifier>> shardSetMap = buf.readMap(
 				PacketByteBuf::readIdentifier,
@@ -75,6 +73,8 @@ public class S2CSyncLibrary {
 			if (library.shardTypes().get(ShardType.MISSING_ID) == null) {
 				library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
 			}
+			
+			ScatteredShards.LOGGER.info("Sync complete. ShardLibrary has " + library.shardTypes().size() + " shard types, " + library.shards().size() + " shards, and " + library.shardSets().size() + " shardSets.");
 		});
 	}
 }

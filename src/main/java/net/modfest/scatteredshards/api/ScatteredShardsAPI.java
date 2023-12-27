@@ -59,6 +59,10 @@ public class ScatteredShardsAPI {
 		return collection;
 	}
 	
+	public static void markServerLibraryDirty() {
+		if (libraryPersistentState != null) libraryPersistentState.markDirty();
+	}
+	
 	public static ShardCollection getServerCollection(PlayerEntity player) {
 		return getServerCollection(player.getUuid());
 	}
