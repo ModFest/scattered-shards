@@ -18,13 +18,6 @@ repositories {
 			includeGroup "io.github.cottonmc"
 		}
 	}
-	maven {
-		name = 'Ladysnake Mods'
-		url = 'https://maven.ladysnake.org/releases'
-		content {
-			includeGroup "dev.onyxstudios.cardinal-components-api"
-		}
-	}
 	maven { 
 		url 'https://oss.sonatype.org/content/repositories/snapshots' 
 	}
@@ -41,12 +34,6 @@ dependencies {
 
 	// LibGui
 	modImplementation include("io.github.cottonmc:LibGui:${project.libgui_version}")
-
-	// Include all the CCA components we'll need
-	modImplementation include("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}")
-	modImplementation include("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cca_version}")
-	modImplementation include("dev.onyxstudios.cardinal-components-api:cardinal-components-world:${project.cca_version}")
-	modImplementation include("dev.onyxstudios.cardinal-components-api:cardinal-components-level:${project.cca_version}")
 
 	// Fabric Permissions API
 	modImplementation include("me.lucko:fabric-permissions-api:${project.fabric_permissions_version}")
@@ -65,9 +52,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_17

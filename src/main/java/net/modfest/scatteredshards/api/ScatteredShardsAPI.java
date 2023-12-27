@@ -89,10 +89,14 @@ public class ScatteredShardsAPI {
 		}
 	}
 	
+	@ApiStatus.Internal
+	@Environment(EnvType.SERVER)
 	public static void init() {
 		serverThread = Thread.currentThread();
 	}
 	
+	@ApiStatus.Internal
+	@Environment(EnvType.CLIENT)
 	public static void initClient() {
 		clientThread = Thread.currentThread();
 		clientShardLibrary = new ShardLibraryImpl();
