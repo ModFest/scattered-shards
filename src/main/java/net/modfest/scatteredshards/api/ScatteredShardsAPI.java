@@ -16,7 +16,7 @@ import net.modfest.scatteredshards.api.impl.ShardCollectionImpl;
 import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
 import net.modfest.scatteredshards.api.impl.ShardLibraryImpl;
 import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
-import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
+import net.modfest.scatteredshards.networking.S2CCollectShard;
 
 public class ScatteredShardsAPI {
 	
@@ -82,7 +82,7 @@ public class ScatteredShardsAPI {
 		var collection = getServerCollection(player);
 		if (collection.add(shardId)) {
 			if (player.getServer() != null) ShardCollectionPersistentState.get(player.getServer()).markDirty();
-			ScatteredShardsNetworking.S2CCollectShard.send(player, shardId);
+			S2CCollectShard.send(player, shardId);
 			return true;
 		} else {
 			return false;

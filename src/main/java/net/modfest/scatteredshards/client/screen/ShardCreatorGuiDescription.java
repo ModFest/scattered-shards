@@ -28,7 +28,7 @@ import net.modfest.scatteredshards.client.screen.widget.WLayoutBox;
 import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
 import net.modfest.scatteredshards.client.screen.widget.WProtectableField;
 import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
-import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
+import net.modfest.scatteredshards.networking.C2SModifyShard;
 
 public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public static final String BASE_KEY = "gui.scattered_shards.creator.";
@@ -122,7 +122,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	
 	public WButton saveButton = new WButton(SAVE_TEXT)
 		.setOnClick(() -> {
-			ScatteredShardsNetworking.C2SModifyShard.send(shardId, shard);
+			C2SModifyShard.send(shardId, shard);
 		});
 	
 	private Item item = null;

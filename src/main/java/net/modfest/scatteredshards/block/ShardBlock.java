@@ -37,7 +37,7 @@ import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
+import net.modfest.scatteredshards.networking.S2CCollectShard;
 
 public class ShardBlock extends Block implements BlockEntityProvider {
 	public static final VoxelShape SHAPE = VoxelShapes.cuboid(4/16f, 3/16f, 4/16f, 12/16f, 13/16f, 12/16f);
@@ -90,7 +90,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		ShardCollection shardCollection = ScatteredShardsAPI.getServerCollection(player);
 		
 		if (shardCollection.add(be.shardId) && player instanceof ServerPlayerEntity serverPlayer) {
-			ScatteredShardsNetworking.S2CCollectShard.send(serverPlayer, be.shardId);
+			S2CCollectShard.send(serverPlayer, be.shardId);
 			
 			return true;
 		} else {

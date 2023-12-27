@@ -13,7 +13,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
-import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
+import net.modfest.scatteredshards.networking.S2CSyncCollection;
+import net.modfest.scatteredshards.networking.S2CUncollectShard;
 
 public class UncollectCommand {
 	public static final DynamicCommandExceptionType NOT_IN_COLLECTION = new DynamicCommandExceptionType(
@@ -33,7 +34,7 @@ public class UncollectCommand {
 		boolean success = ScatteredShardsAPI.getServerCollection(player).remove(id);
 		if (!success) throw NOT_IN_COLLECTION.create(id);
 		
-		ScatteredShardsNetworking.S2CUncollectShard.send(player, id);
+		S2CUncollectShard.send(player, id);
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect", id), false);
 		return Command.SINGLE_SUCCESS;
 	}
@@ -49,7 +50,7 @@ public class UncollectCommand {
 		var collection = ScatteredShardsAPI.getServerCollection(player);
 		int shardsToDelete = collection.size();
 		collection.clear();
-		ScatteredShardsNetworking.S2CSyncCollection.send(player);
+		S2CSyncCollection.send(player);
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect.all", shardsToDelete), false);
 
 		return shardsToDelete;
