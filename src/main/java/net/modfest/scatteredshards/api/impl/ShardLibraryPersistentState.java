@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.api.impl;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -31,6 +33,18 @@ public class ShardLibraryPersistentState extends PersistentState {
 		return result;
 	}
 	
+	public ShardLibraryPersistentState() {
+		addDefaultShardTypes();
+	}
+	
+	private static void addDefaultShardTypes() {
+		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
+		library.shardTypes().put(ScatteredShards.id("visitor"), ShardType.VISITOR);
+		library.shardTypes().put(ScatteredShards.id("challenge"), ShardType.CHALLENGE);
+		library.shardTypes().put(ScatteredShards.id("secret"), ShardType.SECRET);
+		library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
+	}
+	
 	public static ShardLibraryPersistentState createFromNbt(NbtCompound tag) {
 		ScatteredShards.LOGGER.info("Loading shard library...");
 		ShardLibraryPersistentState state = new ShardLibraryPersistentState();
@@ -45,10 +59,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 			
 			//TODO: Load shardTypes from resources
 			//For now, we're preloading with the default types if none are present.
-			library.shardTypes().put(ScatteredShards.id("visitor"), ShardType.VISITOR);
-			library.shardTypes().put(ScatteredShards.id("challenge"), ShardType.CHALLENGE);
-			library.shardTypes().put(ScatteredShards.id("secret"), ShardType.SECRET);
-			library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
+			addDefaultShardTypes();
 		} else {
 			for(String id : shardTypes.getKeys()) {
 				try {

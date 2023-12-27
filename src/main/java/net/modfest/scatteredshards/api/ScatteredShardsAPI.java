@@ -90,7 +90,6 @@ public class ScatteredShardsAPI {
 	}
 	
 	@ApiStatus.Internal
-	@Environment(EnvType.SERVER)
 	public static void init() {
 		serverThread = Thread.currentThread();
 	}
