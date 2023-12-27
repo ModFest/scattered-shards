@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -23,16 +24,11 @@ public class ShardCollectionPersistentState extends PersistentState {
 	
 	public static ShardCollectionPersistentState get(MinecraftServer server) {
 		var result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE, ScatteredShards.ID+"_collections");
-		ScatteredShards.LOGGER.info("Collection PersistentState acquired.");
 		ScatteredShardsAPI.register(result);
 		return result;
 	}
 	
 	public static ShardCollectionPersistentState createFromNbt(NbtCompound tag) {
-		ScatteredShards.LOGGER.info("Loading shard collections...");
-		if (tag.contains(ShardLibraryPersistentState.SHARDS_KEY)) {
-			System.out.println("*** PersistentState collision detected.");
-		}
 		ShardCollectionPersistentState state = new ShardCollectionPersistentState();
 		
 		for(String s : tag.getKeys()) {
@@ -43,12 +39,12 @@ public class ShardCollectionPersistentState extends PersistentState {
 				
 				for(NbtElement elem : tag.getList(s, NbtElement.STRING_TYPE)) {
 					if (elem instanceof NbtString str) {
-						Identifier shardId = new Identifier(str.toString());
+						Identifier shardId = new Identifier(str.asString());
 						coll.add(shardId);
 					}
 				};
 			} catch (Throwable t) {
-				ScatteredShards.LOGGER.error("Could not load collection for uuid \""+s+"\"");
+				ScatteredShards.LOGGER.error("Could not load collection for uuid \"" + s + "\": " + t.getLocalizedMessage());
 			}
 		}
 		/* TODO: Load data in. Later we can go user by user if things get mega laggy, but in the grand scheme of things,
@@ -62,6 +58,13 @@ public class ShardCollectionPersistentState extends PersistentState {
 		ScatteredShards.LOGGER.info("Saving shard collections...");
 		
 		Map<UUID, ShardCollection> collections = ScatteredShardsAPI.exportServerCollections();
+		collections.forEach((id, collection) -> {
+			NbtList list = new NbtList();
+			for(Identifier i : collection) {
+				list.add(NbtString.of(i.toString()));
+			}
+			tag.put(id.toString(), list);
+		});
 		
 		return tag;
 	}
