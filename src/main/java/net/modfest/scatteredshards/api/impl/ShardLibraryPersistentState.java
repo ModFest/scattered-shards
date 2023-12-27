@@ -25,7 +25,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 	public static final String SHARD_SETS_KEY = "ShardSets";
 	
 	public static ShardLibraryPersistentState get(MinecraftServer server) {
-		ShardLibraryPersistentState result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE, ScatteredShards.ID);
+		ShardLibraryPersistentState result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE, ScatteredShards.ID+"_library");
 		System.out.println("PersistentState acquired: "+ScatteredShardsAPI.getServerLibrary().shards().size()+" shards.");
 		result.markDirty();
 		return result;
