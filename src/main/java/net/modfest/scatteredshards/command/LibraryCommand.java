@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.command;
 
+import java.util.Optional;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -11,6 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class LibraryCommand {
@@ -21,7 +24,12 @@ public class LibraryCommand {
 		var library = ScatteredShardsAPI.getServerLibrary();
 		library.shards().get(shardId).orElseThrow(() -> ShardCommand.INVALID_SHARD.create(shardId));
 		
+		Optional<Shard> shard = library.shards().get(shardId);
 		library.shards().remove(shardId);
+		shard.ifPresent(it -> {
+			library.shardSets().remove(it.sourceId(), shardId);
+		});
+		
 		ScatteredShardsNetworking.S2CDeleteShard.sendToAll(ctx.getSource().getServer(), shardId);
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete", shardId), true);
@@ -33,6 +41,7 @@ public class LibraryCommand {
 		var library = ScatteredShardsAPI.getServerLibrary();
 		int toDelete = library.shards().size();
 		library.shards().clear();
+		library.shardSets().clear();
 		ScatteredShardsNetworking.S2CSyncLibrary.sendToAll(ctx.getSource().getServer());
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete.all", toDelete), true);

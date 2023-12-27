@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResourceReloadListener {
 
 	public static final String TYPE = "shard_type";

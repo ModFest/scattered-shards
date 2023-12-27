@@ -1,6 +1,7 @@
 package net.modfest.scatteredshards.api.impl;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
@@ -64,7 +65,11 @@ public class ShardLibraryPersistentState extends PersistentState {
 		for(String id : shards.getKeys()) {
 			try {
 				NbtCompound shardNbt = shards.getCompound(id);
-				library.shards().put(new Identifier(id), Shard.fromNbt(shardNbt));
+				Identifier shardId = new Identifier(id);
+				Shard shard = Shard.fromNbt(shardNbt);
+				
+				library.shards().put(shardId, shard);
+				library.shardSets().put(shard.sourceId(), shardId);
 			} catch (Throwable t) {
 				ScatteredShards.LOGGER.error("Could not load shard \""+id+"\": " + t.getMessage());
 			}
@@ -73,7 +78,13 @@ public class ShardLibraryPersistentState extends PersistentState {
 		NbtCompound shardSets = tag.getCompound(SHARD_SETS_KEY);
 		for(String id : shardSets.getKeys()) {
 			try {
-				
+				Identifier setId = new Identifier(id);
+				NbtList ids = shardSets.getList(id, NbtElement.STRING_TYPE);
+				for(NbtElement elem : ids) {
+					if (elem instanceof NbtString str) {
+						library.shardSets().put(setId, new Identifier(str.asString()));
+					}
+				}
 			} catch (Throwable t) {
 				ScatteredShards.LOGGER.error("Could not load shardSet \""+id+"\": " + t.getMessage());
 			}

@@ -2,6 +2,7 @@ package net.modfest.scatteredshards.networking;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -58,6 +59,7 @@ public class ScatteredShardsNetworking {
 				ScatteredShards.LOGGER.info("Received SyncShard for " + shardId);
 				ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 				library.shards().put(shardId, shard);
+				library.shardSets().put(shard.sourceId(), shardId);
 			});
 		}
 	}
@@ -86,7 +88,11 @@ public class ScatteredShardsNetworking {
 			
 			client.execute(() -> {
 				ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
-				if (library != null) library.shards().remove(shardId);
+				Optional<Shard> shard = library.shards().get(shardId);
+				library.shards().remove(shardId);
+				shard.ifPresent(it -> {
+					library.shardSets().remove(it.sourceId(), shardId);
+				});
 			});
 		}
 	}
@@ -278,6 +284,7 @@ public class ScatteredShardsNetworking {
 				if (success) {
 					//Update our serverside library
 					ScatteredShardsAPI.getServerLibrary().shards().put(shardId, shard);
+					ScatteredShardsAPI.getServerLibrary().shardSets().put(shard.sourceId(), shardId);
 					
 					//Make sure the NBT gets written on next world-save
 					ShardLibraryPersistentState.get(server).markDirty();
