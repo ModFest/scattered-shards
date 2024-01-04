@@ -11,10 +11,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.shard.Shard;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
-import net.modfest.scatteredshards.component.ShardLibraryComponent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 
 public class AwardCommand {
 	
@@ -22,14 +19,12 @@ public class AwardCommand {
 		EntitySelector target = ctx.getArgument("players", EntitySelector.class);
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 		
-		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
-		Shard shard = library.getShard(shardId);
-		if (shard == Shard.MISSING_SHARD) throw ShardCommand.INVALID_SHARD.create(shardId);
+		var library = ScatteredShardsAPI.getServerLibrary();
+		library.shards().get(shardId).orElseThrow(() -> ShardCommand.INVALID_SHARD.create(shardId)); //Validate shardId
 		
 		int i = 0;
 		for(ServerPlayerEntity player : target.getPlayers(ctx.getSource())) {
-			ShardCollectionComponent collection = ScatteredShardsComponents.getShardCollection(player);
-			if (collection.addShard(shardId)) {
+			if (ScatteredShardsAPI.triggerShardCollection(player, shardId)) {
 				i++;
 			}
 		}

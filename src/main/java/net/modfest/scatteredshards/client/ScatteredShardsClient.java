@@ -6,17 +6,15 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.toast.SystemToast;
 import net.minecraft.client.toast.Toast;
 
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.client.command.ClientShardCommand;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 import net.modfest.scatteredshards.ScatteredShardsContent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
-
-import java.util.Optional;
 
 public class ScatteredShardsClient implements ClientModInitializer {
 
@@ -27,24 +25,28 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		ClientShardCommand.register();
 		ScatteredShardsNetworking.registerClient();
 		ScatteredShardsContent.registerClient();
+		ScatteredShardsAPI.initClient();
 	}
-
-	@SuppressWarnings("resource")
+	
 	public static void triggerShardCollectAnimation(Identifier shardId) {
-		var library = ScatteredShardsComponents.getShardLibrary(MinecraftClient.getInstance().world);
-		var collection = ScatteredShardsComponents.COLLECTION.get(MinecraftClient.getInstance().player);
+		var library = ScatteredShardsAPI.getClientLibrary();
+		var collection = ScatteredShardsAPI.getClientCollection();
 		
-		Shard shard = library.getShard(shardId);
+		Shard shard = library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
 		if (shard == null) {
 			ScatteredShards.LOGGER.warn("Received shard collection event with ID '" + shardId + "' but it does not exist on this client");
 			return;
 		}
 		
-		collection.addShard(shardId);
+		collection.add(shardId);
 		ScatteredShards.LOGGER.info("Collected shard '" + shardId.toString() + "'!");
 
-		Optional<SoundEvent> collectSound = shard.getShardType().collectSound();
-		collectSound.ifPresent((it) -> MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(it, 1.0F, 0.8F)));
+		library.shardTypes()
+			.get(shard.shardTypeId())
+			.flatMap(ShardType::collectSound)
+			.ifPresent((sound) -> {
+				MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(sound, 1.0F, 0.8F));
+			});
 
 		Toast toast = new ShardToast(shard);
 		MinecraftClient.getInstance().getToastManager().add(toast);

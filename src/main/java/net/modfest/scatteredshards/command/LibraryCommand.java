@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.command;
 
+import java.util.Optional;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -10,18 +12,28 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardLibraryComponent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
+import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.networking.S2CDeleteShard;
+import net.modfest.scatteredshards.networking.S2CSyncLibrary;
 
 public class LibraryCommand {
 	
 	public static int delete(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 		
-		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
-		if (!library.contains(shardId)) throw ShardCommand.INVALID_SHARD.create(shardId);
+		var library = ScatteredShardsAPI.getServerLibrary();
+		library.shards().get(shardId).orElseThrow(() -> ShardCommand.INVALID_SHARD.create(shardId));
 		
-		library.deleteShard(shardId, ctx.getSource().getWorld(), ctx.getSource());
+		Optional<Shard> shard = library.shards().get(shardId);
+		library.shards().remove(shardId);
+		shard.ifPresent(it -> {
+			library.shardSets().remove(it.sourceId(), shardId);
+		});
+		var server = ctx.getSource().getServer();
+		ShardLibraryPersistentState.get(server).markDirty();
+		S2CDeleteShard.sendToAll(server, shardId);
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete", shardId), true);
 		
@@ -29,9 +41,13 @@ public class LibraryCommand {
 	}
 	
 	public static int deleteAll(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(ctx);
-		int toDelete = library.size();
-		library.clear(ctx.getSource().getWorld());
+		var library = ScatteredShardsAPI.getServerLibrary();
+		int toDelete = library.shards().size();
+		library.shards().clear();
+		library.shardSets().clear();
+		var server = ctx.getSource().getServer();
+		ShardLibraryPersistentState.get(server).markDirty();
+		S2CSyncLibrary.sendToAll(server);
 		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete.all", toDelete), true);
 		

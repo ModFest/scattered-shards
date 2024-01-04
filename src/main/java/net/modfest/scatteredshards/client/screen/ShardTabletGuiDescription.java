@@ -1,11 +1,7 @@
 package net.modfest.scatteredshards.client.screen;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-
-import com.google.common.base.Strings;
 
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
@@ -17,25 +13,25 @@ import io.github.cottonmc.cotton.gui.widget.WScrollBar;
 import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.api.ShardCollection;
+import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
 import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
 import net.modfest.scatteredshards.client.screen.widget.WShardSetPanel;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
-import net.modfest.scatteredshards.component.ShardLibraryComponent;
 
 public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	public static final int ROWS_PER_SCREEN = 5;
 	
-	protected final ShardCollectionComponent collection;
-	protected final ShardLibraryComponent library;
+	protected final ShardCollection collection;
+	protected final ShardLibrary library;
 	
 	WShardPanel shardPanel = new WShardPanel();
 	WPlainPanel selectorPanel = new WPlainPanel();
 	WScrollBar shardSelectorScrollBar = new WScrollBar(Axis.VERTICAL);
 	WListPanel<Identifier, WShardSetPanel> shardSelector;
 	
-	public ShardTabletGuiDescription(ShardCollectionComponent collection, ShardLibraryComponent library) {
+	public ShardTabletGuiDescription(ShardCollection collection, ShardLibrary library) {
 		this.collection = collection;
 		this.library = library;
 		
@@ -43,7 +39,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		shardPanel.setHidden(true);
 		
 		List<Identifier> ids = new ArrayList<>();
-		ids.addAll(this.library.getShardSources());
+		ids.addAll(this.library.shardSets().keySet());
 		ids.sort((a, b) -> a.getNamespace().compareTo(b.getNamespace()));
 		
 		shardSelector = new WListPanel<Identifier, WShardSetPanel>(ids, WShardSetPanel::new, this::configurePanel);
@@ -78,7 +74,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	}
 	
 	public static class Screen extends CottonClientScreen {
-		public Screen(ShardCollectionComponent collection, ShardLibraryComponent library) {
+		public Screen(ShardCollection collection, ShardLibrary library) {
 			super(new ShardTabletGuiDescription(collection, library));
 		}
 	}

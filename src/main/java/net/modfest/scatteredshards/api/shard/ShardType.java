@@ -1,7 +1,14 @@
 package net.modfest.scatteredshards.api.shard;
 
+import java.util.Optional;
+
 import com.google.gson.JsonObject;
-import net.minecraft.network.PacketByteBuf;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
@@ -9,14 +16,17 @@ import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.ScatteredShardsAPI;
-
-import java.util.Optional;
 
 public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> collectParticle, Optional<SoundEvent> collectSound) {
-
+	
+	public static final Codec<ShardType> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			Codec.INT.fieldOf("textColor").forGetter(ShardType::textColor),
+			Codec.INT.fieldOf("glowColor").forGetter(ShardType::glowColor),
+			Codec.optionalField("collectParticle", Registries.PARTICLE_TYPE.getCodec()).forGetter(ShardType::collectParticle),
+			Codec.optionalField("collectSound", SoundEvent.CODEC).forGetter(ShardType::collectSound)
+		).apply(instance, ShardType::new));
+	
 	public static final SoundEvent COLLECT_VISITOR_SOUND = SoundEvent.of(ScatteredShards.id("collect_visitor"));
 	public static final SoundEvent COLLECT_CHALLENGE_SOUND = SoundEvent.of(ScatteredShards.id("collect_challenge"));
 	public static final SoundEvent COLLECT_SECRET_SOUND = SoundEvent.of(ScatteredShards.id("collect_secret"));
@@ -27,77 +37,54 @@ public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> 
 	public static final ShardType MISSING = new ShardType(0xFFFFFF, 0xFF00FF, Optional.empty(), Optional.empty());
 
 	public static final Identifier MISSING_ID = ScatteredShards.id("missing");
-
-	public Identifier getId() {
-		return ScatteredShardsAPI.getShardTypes().inverse().get(this);
-	}
 	
-	public Identifier createModId(String modId) {
-		return new Identifier(modId, getId().toUnderscoreSeparatedString());
+	public static Identifier createModId(Identifier shardTypeId, String modId) {
+		return new Identifier(modId, shardTypeId.toUnderscoreSeparatedString());
 	}
 
-	private Identifier getTexture(String name) {
-		Identifier id = getId();
+	private static Identifier getTexture(Identifier id, String name) {
 		return id.withPath("textures/gui/shards/" + id.getPath() + "_" + name + ".png");
 	}
 
-	public Identifier getBackingTexture() {
-		return getTexture("backing");
+	public static Identifier getBackingTexture(Identifier id) {
+		return getTexture(id, "backing");
 	}
 
-	public Identifier getFrontTexture() {
-		return getTexture("front");
+	public static Identifier getFrontTexture(Identifier id) {
+		return getTexture(id, "front");
 	}
 	
-	public Identifier getMiniFrontTexture() {
-		return getTexture("mini_front");
+	public static Identifier getMiniFrontTexture(Identifier id) {
+		return getTexture(id, "mini_front");
 	}
 	
-	public Identifier getMiniBackTexture() {
-		return getTexture("mini_back");
+	public static Identifier getMiniBackTexture(Identifier id) {
+		return getTexture(id, "mini_back");
 	}
 
-	public Text getDescription() {
-		return Text.translatable(getId().toTranslationKey("shard_type", "description"));
+	public static Text getDescription(Identifier id) {
+		return Text.translatable(id.toTranslationKey("shard_type", "description"));
 	}
-
-	public void write(PacketByteBuf buf) {
-		buf.writeInt(textColor);
-		buf.writeInt(glowColor);
-		buf.writeOptional(collectParticle, (b, t) -> b.writeRegistryValue(Registries.PARTICLE_TYPE, t));
-		buf.writeOptional(collectSound, (b, t) -> t.writeBuf(b));
+	
+	public NbtCompound toNbt() {
+		return (NbtCompound) CODEC.encodeStart(NbtOps.INSTANCE, this).result().orElseThrow();
 	}
-
-	public static ShardType read(PacketByteBuf buf) {
-		return new ShardType(
-				buf.readInt(),
-				buf.readInt(),
-				buf.readOptional(b -> b.readRegistryValue(Registries.PARTICLE_TYPE)),
-				buf.readOptional(SoundEvent::fromBuf));
+	
+	public JsonObject toJson() {
+		return (JsonObject) CODEC.encodeStart(JsonOps.INSTANCE, this).result().orElseThrow();
 	}
-
+	
+	public static ShardType fromNbt(NbtCompound tag) {
+		return CODEC.parse(NbtOps.INSTANCE, tag).result().orElseThrow();
+	}
+	
 	public static ShardType fromJson(JsonObject obj) {
-		int textColor = JsonHelper.getInt(obj, "text_color");
-
-		int glowColor = JsonHelper.getInt(obj, "glow_color");
-
-		String particleId = JsonHelper.getString(obj, "particle", null);
-		Optional<ParticleType<?>> particle = Optional.ofNullable(particleId).map(Identifier::new).map(Registries.PARTICLE_TYPE::get);
-
-		String soundId = JsonHelper.getString(obj, "sound", null);
-		Optional<SoundEvent> sound = (soundId == null) ? Optional.empty() : Optional.of(Registries.SOUND_EVENT.get(new Identifier(soundId)));
-		
-		return new ShardType(textColor, glowColor, particle, sound);
+		return CODEC.parse(JsonOps.INSTANCE, obj).result().orElseThrow();
 	}
 
 	public static void register() {
 		Registry.register(Registries.SOUND_EVENT, COLLECT_VISITOR_SOUND.getId(), COLLECT_VISITOR_SOUND);
 		Registry.register(Registries.SOUND_EVENT, COLLECT_CHALLENGE_SOUND.getId(), COLLECT_CHALLENGE_SOUND);
 		Registry.register(Registries.SOUND_EVENT, COLLECT_SECRET_SOUND.getId(), COLLECT_SECRET_SOUND);
-		
-		ScatteredShardsAPI.registerShardType(ScatteredShards.id("visitor"), VISITOR);
-		ScatteredShardsAPI.registerShardType(ScatteredShards.id("challenge"), CHALLENGE);
-		ScatteredShardsAPI.registerShardType(ScatteredShards.id("secret"), SECRET);
-		ScatteredShardsAPI.registerShardType(MISSING_ID, MISSING);
 	}
 }

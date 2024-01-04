@@ -1,5 +1,9 @@
 package net.modfest.scatteredshards.block;
 
+import java.util.Optional;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockRenderType;
@@ -15,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -27,12 +32,12 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.modfest.scatteredshards.ScatteredShardsContent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardCollection;
+import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
-import net.modfest.scatteredshards.component.ShardLibraryComponent;
-import org.jetbrains.annotations.Nullable;
+import net.modfest.scatteredshards.networking.S2CCollectShard;
 
 public class ShardBlock extends Block implements BlockEntityProvider {
 	public static final VoxelShape SHAPE = VoxelShapes.cuboid(4/16f, 3/16f, 4/16f, 12/16f, 13/16f, 12/16f);
@@ -75,12 +80,22 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 
 	public static boolean tryCollect(World world, PlayerEntity player, ShardBlockEntity be) {
 		// Make sure the shard exists and the player doesn't have it before awarding it!
-		ShardLibraryComponent library = ScatteredShardsComponents.getShardLibrary(world);
-		if (!library.contains(be.shardId)) {
+		ShardLibrary library = ScatteredShardsAPI.getServerLibrary(); 
+		Optional<Shard> toCollect = library.shards().get(be.shardId);
+		if (toCollect.isEmpty()) {
 			return false;
 		}
-		ShardCollectionComponent collection = ScatteredShardsComponents.COLLECTION.get(player);
-		return collection.addShard(be.shardId);
+		
+		//TODO: Implement new shard collection
+		ShardCollection shardCollection = ScatteredShardsAPI.getServerCollection(player);
+		
+		if (shardCollection.add(be.shardId) && player instanceof ServerPlayerEntity serverPlayer) {
+			S2CCollectShard.send(serverPlayer, be.shardId);
+			
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
@@ -108,7 +123,11 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		}
 	}
 	
-	public static ItemStack createShardBlock(ShardLibraryComponent library, Identifier shardId, boolean canInteract, float glowSize, float glowStrength) {
+	/**
+	 * Creates a shard block
+	 * @return the shard block
+	 */
+	public static ItemStack createShardBlock(ShardLibrary library, Identifier shardId, boolean canInteract, float glowSize, float glowStrength) {
 		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
 		
 		NbtCompound blockEntityTag = stack.getOrCreateSubNbt("BlockEntityTag");
@@ -116,12 +135,12 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		NbtCompound displayTag = stack.getOrCreateSubNbt("display");
 		
 		//Fill in name / lore
-		Shard shard = library.getShard(shardId);
+		Shard shard = library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
 		displayTag.putString("Name", Text.Serialization.toJsonString(shard.name()));
 		NbtList loreTag = new NbtList();
 		displayTag.put("Lore", loreTag);
-		ShardType shardType = shard.getShardType();
-		Text shardTypeDesc = shardType.getDescription().copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
+		ShardType shardType = library.shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
+		Text shardTypeDesc = ShardType.getDescription(shard.shardTypeId()).copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
 		loreTag.add(NbtString.of(
 				Text.Serialization.toJsonString(shardTypeDesc)
 				));

@@ -15,13 +15,14 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.impl.ScatteredShardsAPIImpl;
 import net.modfest.scatteredshards.api.shard.Shard;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class ShardSetLoader extends JsonDataLoader implements IdentifiableResourceReloadListener {
 
 	public static final String TYPE = "shard_set";
@@ -60,7 +61,10 @@ public class ShardSetLoader extends JsonDataLoader implements IdentifiableResour
 			}
 		}
 		ScatteredShards.LOGGER.info("Loaded " + successes + " shard" + (successes == 1 ? "" : "s"));
-		ScatteredShardsAPIImpl.updateShards();
+		
+		//TODO: Sync this?
+		//ScatteredShardsNetworking.S2CSyncLibrary.sendToAll(null);
+		//ScatteredShardsAPIImpl.updateShards();
 	}
 
 	public static void register() {

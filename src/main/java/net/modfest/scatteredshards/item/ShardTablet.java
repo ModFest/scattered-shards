@@ -11,8 +11,8 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 
 public class ShardTablet extends Item {
 
@@ -24,10 +24,11 @@ public class ShardTablet extends Item {
 	// TODO: sneak interact on another player opens their collection
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-		final var library = ScatteredShardsComponents.getShardLibrary(world);
-		final var collection = ScatteredShardsComponents.getShardCollection(user);
 		final var client = MinecraftClient.getInstance();
 		client.send(() -> {
+			final var library = ScatteredShardsAPI.getClientLibrary();
+			final var collection = ScatteredShardsAPI.getClientCollection();
+			
 			client.setScreen(new ShardTabletGuiDescription.Screen(collection, library));
 			client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f));
 		});

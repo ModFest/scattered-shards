@@ -20,6 +20,7 @@ import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.WAlternativeToggle;
@@ -27,8 +28,7 @@ import net.modfest.scatteredshards.client.screen.widget.WLayoutBox;
 import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
 import net.modfest.scatteredshards.client.screen.widget.WProtectableField;
 import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
+import net.modfest.scatteredshards.networking.C2SModifyShard;
 
 public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public static final String BASE_KEY = "gui.scattered_shards.creator.";
@@ -122,7 +122,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	
 	public WButton saveButton = new WButton(SAVE_TEXT)
 		.setOnClick(() -> {
-			ScatteredShardsNetworking.c2sModifyShard(shardId, shard);
+			C2SModifyShard.send(shardId, shard);
 		});
 	
 	private Item item = null;
@@ -230,15 +230,16 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 
 		public static Screen newShard(String modId, ShardType shardType) {
+			Identifier shardTypeId = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardType).orElse(ShardType.MISSING_ID);
 			return new Screen(
-				shardType.createModId(modId),
-				Shard.emptyOfType(shardType),
+				ShardType.createModId(shardTypeId, modId),
+				Shard.emptyOfType(shardTypeId),
 				modId
 			);
 		}
 
 		public static Screen editShard(Shard shard) {
-			Identifier shardId = ScatteredShardsComponents.getShardLibrary(MinecraftClient.getInstance().world).getId(shard);
+			Identifier shardId = ScatteredShardsAPI.getClientLibrary().shards().get(shard).orElse(Shard.MISSING_SHARD_SOURCE);
 			String modId = shardId.getNamespace();
 			return new Screen(shardId, shard, modId);
 		}

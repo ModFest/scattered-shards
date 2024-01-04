@@ -21,7 +21,6 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -34,13 +33,14 @@ public class ClientShardCommand {
 	}
 
 	private static final DynamicCommandExceptionType INVALID_SET_ID = createInvalidException("set_id");
-	private static final DynamicCommandExceptionType INVALID_MOD_ID = createInvalidException("mod_id");
+	//We've removed checks for invalid modid's so people can use shards not related to them
+	//private static final DynamicCommandExceptionType INVALID_MOD_ID = createInvalidException("mod_id");
 	private static final DynamicCommandExceptionType INVALID_SHARD_TYPE = createInvalidException("shard_type");
 	private static final DynamicCommandExceptionType INVALID_SHARD_ID = createInvalidException("shard_id");
 
 	public static int view(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		Identifier id = context.getArgument("set_id", Identifier.class);
-		var shards = ScatteredShardsAPI.getShardSets().get(id);
+		var shards = ScatteredShardsAPI.getClientLibrary().shardSets().get(id);
 		if (shards.isEmpty()) {
 			throw INVALID_SET_ID.create(id);
 		}
@@ -49,14 +49,10 @@ public class ClientShardCommand {
 
 	public static int creatorNew(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		String modId = StringArgumentType.getString(context, "mod_id");
-		//if (!QuiltLoader.isModLoaded(modId)) {
-		//	throw INVALID_MOD_ID.create(modId);
-		//}
 		Identifier shardTypeId = context.getArgument("shard_type", Identifier.class);
-		ShardType shardType = ScatteredShardsAPI.getShardTypes().get(shardTypeId);
-		if (shardType == null) {
-			throw INVALID_SHARD_TYPE.create(shardTypeId);
-		}
+		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardTypeId)
+				.orElseThrow(() -> INVALID_SHARD_TYPE.create(shardTypeId));
+		
 		var client = context.getSource().getClient();
 		client.send(() -> client.setScreen(ShardCreatorGuiDescription.Screen.newShard(modId, shardType)));
 		return Command.SINGLE_SUCCESS;
@@ -64,10 +60,9 @@ public class ClientShardCommand {
 
 	public static int creatorEdit(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		Identifier shardId = context.getArgument("shard_id", Identifier.class);
-		Shard shard = ScatteredShardsComponents.getShardLibrary(context.getSource().getWorld()).getShard(shardId);
-		if (shard == Shard.MISSING_SHARD) {
-			throw INVALID_SHARD_ID.create(shardId);
-		}
+		Shard shard = ScatteredShardsAPI.getClientLibrary().shards().get(shardId)
+				.orElseThrow(() -> INVALID_SHARD_ID.create(shardId));
+		
 		var client = context.getSource().getClient();
 		client.send(() -> client.setScreen(ShardCreatorGuiDescription.Screen.editShard(shard)));
 		return Command.SINGLE_SUCCESS;
@@ -75,8 +70,8 @@ public class ClientShardCommand {
 
 	public static int shards(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		var client = context.getSource().getClient();
-		var collection = ScatteredShardsComponents.getShardCollection(context.getSource().getPlayer());
-		var library = ScatteredShardsComponents.getShardLibrary(context.getSource().getWorld());
+		var library = ScatteredShardsAPI.getClientLibrary();
+		var collection = ScatteredShardsAPI.getClientCollection();
 
 		client.send(() -> client.setScreen(new ShardTabletGuiDescription.Screen(collection, library)));
 
@@ -84,23 +79,23 @@ public class ClientShardCommand {
 	}
 
 	public static CompletableFuture<Suggestions> suggestShardSets(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
-		for (var id : ScatteredShardsAPI.getShardSets().keySet()) {
+		for (var id : ScatteredShardsAPI.getClientLibrary().shardSets().keySet()) {
 			builder.suggest(id.toString());
 		}
 		return builder.buildFuture();
 	}
 
 	public static CompletableFuture<Suggestions> suggestShards(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
-		for (var id : ScatteredShardsComponents.getShardLibrary(context.getSource().getWorld()).getShardIds()) {
+		ScatteredShardsAPI.getClientLibrary().shards().forEach((id, shard) -> {
 			builder.suggest(id.toString());
-		}
+		});
 		return builder.buildFuture();
 	}
 
 	public static CompletableFuture<Suggestions> suggestShardTypes(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
-		for (var id : ScatteredShardsAPI.getShardTypes().keySet()) {
+		ScatteredShardsAPI.getClientLibrary().shardTypes().forEach((id, shardSet) -> {
 			builder.suggest(id.toString());
-		}
+		});
 		return builder.buildFuture();
 	}
 

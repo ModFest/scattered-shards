@@ -8,11 +8,14 @@ import com.mojang.brigadier.tree.CommandNode;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.component.ScatteredShardsComponents;
-import net.modfest.scatteredshards.component.ShardCollectionComponent;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
+import net.modfest.scatteredshards.networking.S2CSyncCollection;
+import net.modfest.scatteredshards.networking.S2CUncollectShard;
 
 public class UncollectCommand {
 	public static final DynamicCommandExceptionType NOT_IN_COLLECTION = new DynamicCommandExceptionType(
@@ -27,9 +30,15 @@ public class UncollectCommand {
 	 */
 	public static int uncollect(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		Identifier id = ctx.getArgument("shard_id", Identifier.class);
-		boolean success = ScatteredShardsComponents.getShardCollection(ctx.getSource().getPlayer()).removeShard(id);
+		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+		
+		boolean success = ScatteredShardsAPI.getServerCollection(player).remove(id);
 		if (!success) throw NOT_IN_COLLECTION.create(id);
 		
+		var server = ctx.getSource().getServer();
+		ShardCollectionPersistentState.get(server).markDirty();
+		
+		S2CUncollectShard.send(player, id);
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect", id), false);
 		return Command.SINGLE_SUCCESS;
 	}
@@ -41,9 +50,14 @@ public class UncollectCommand {
 	 * @throws CommandSyntaxException if there was a problem executing the command.
 	 */
 	public static int uncollectAll(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-		ShardCollectionComponent collection = ScatteredShardsComponents.getShardCollection(ctx.getSource().getPlayer());
+		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+		var collection = ScatteredShardsAPI.getServerCollection(player);
 		int shardsToDelete = collection.size();
 		collection.clear();
+		S2CSyncCollection.send(player);
+		var server = ctx.getSource().getServer();
+		ShardCollectionPersistentState.get(server).markDirty();
+		
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect.all", shardsToDelete), false);
 
 		return shardsToDelete;

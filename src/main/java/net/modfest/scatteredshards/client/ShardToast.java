@@ -8,6 +8,7 @@ import net.minecraft.client.toast.ToastManager;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 
@@ -34,7 +35,7 @@ public class ShardToast implements Toast {
 		TextRenderer textRenderer = manager.getClient().textRenderer;
 		
 		if (shard == null) return Toast.Visibility.HIDE;
-		ShardType shardType = shard.getShardType();
+		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
 		
 		List<OrderedText> lines = manager.getClient().textRenderer.wrapLines(shard.name(), 125); // 160 is the total toast width so this is reasonable
 		if (lines.size() == 1) {

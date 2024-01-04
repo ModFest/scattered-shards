@@ -1,31 +1,43 @@
 package net.modfest.scatteredshards.api.shard;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.modfest.scatteredshards.ScatteredShards;
-import net.modfest.scatteredshards.api.ScatteredShardsAPI;
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class Shard {
-
+	public static final Codec<Either<ItemStack, Identifier>> ICON_CODEC = Codec.either(ItemStack.CODEC, Identifier.CODEC);
+	
+	public static final Codec<Shard> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			Identifier.CODEC.fieldOf("shardTypeId").forGetter(Shard::shardTypeId),
+			TextCodecs.CODEC.fieldOf("name").forGetter(Shard::name),
+			TextCodecs.CODEC.fieldOf("lore").forGetter(Shard::lore),
+			TextCodecs.CODEC.fieldOf("hint").forGetter(Shard::hint),
+			TextCodecs.CODEC.fieldOf("source").forGetter(Shard::source),
+			Identifier.CODEC.fieldOf("sourceId").forGetter(Shard::sourceId),
+			ICON_CODEC.fieldOf("icon").forGetter(Shard::icon)
+		).apply(instance, Shard::new));
+	
 	public static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(new Identifier("scattered_shards:textures/gui/shards/missing_icon.png"));
 	public static final Identifier MISSING_SHARD_SOURCE = ScatteredShards.id("missing");
 	public static final Identifier LOST_AND_FOUND_SHARD_SOURCE = ScatteredShards.id("lost_and_found");
@@ -38,7 +50,7 @@ public class Shard {
 	protected Text source;
 	protected Identifier sourceId;
 	protected Either<ItemStack, Identifier> icon;
-
+	
 	public Shard(Identifier shardTypeId, Text name, Text lore, Text hint, Text source, Identifier sourceId, Either<ItemStack, Identifier> icon) {
 		Stream.of(name, lore, hint, source, icon).forEach(Objects::requireNonNull);
 		this.shardTypeId = shardTypeId;
@@ -53,10 +65,10 @@ public class Shard {
 	public Identifier shardTypeId() {
 		return shardTypeId;
 	}
-
+	/*
 	public ShardType getShardType() {
 		return ScatteredShardsAPI.getShardTypes().get(shardTypeId);
-	}
+	}*/
 
 	public Text name() {
 		return name;
@@ -85,10 +97,6 @@ public class Shard {
 	public Shard setShardType(Identifier shardTypeId) {
 		this.shardTypeId = shardTypeId;
 		return this;
-	}
-
-	public Shard setShardType(ShardType shardType) {
-		return setShardType(shardType.getId());
 	}
 
 	public Shard setName(Text value) {
@@ -131,6 +139,7 @@ public class Shard {
 		return this;
 	}
 	
+	/*
 	private static Either<ItemStack, Identifier> iconFromNbt(NbtElement nbt) {
 		if (nbt instanceof NbtString str) {
 			return Either.right(new Identifier(str.asString()));
@@ -139,9 +148,11 @@ public class Shard {
 		} else {
 			return MISSING_ICON;
 		}
-	}
+	}*/
 
 	public static Shard fromNbt(NbtCompound nbt) {
+		return CODEC.parse(NbtOps.INSTANCE, nbt).result().orElseThrow();
+		/*
 		Identifier shardTypeId = new Identifier(nbt.getString("ShardType"));
 		Text name = Text.Serialization.fromLenientJson(nbt.getString("Name"));
 		Text lore = Text.Serialization.fromLenientJson(nbt.getString("Lore"));
@@ -153,10 +164,12 @@ public class Shard {
 						LOST_AND_FOUND_SHARD_SOURCE.toString()
 				);
 		var icon = iconFromNbt(nbt.get("Icon"));
-		return new Shard(shardTypeId, name, lore, hint, source, sourceId, icon);
+		return new Shard(shardTypeId, name, lore, hint, source, sourceId, icon);*/
 	}
 
-	public NbtCompound writeNbt(NbtCompound nbt) {
+	public NbtCompound toNbt() {
+		return (NbtCompound) CODEC.encodeStart(NbtOps.INSTANCE, this).result().orElseThrow();
+		/*
 		nbt.putString("ShardType", shardTypeId.toString());
 		nbt.putString("Name", Text.Serialization.toJsonString(name));
 		nbt.putString("Lore", Text.Serialization.toJsonString(lore));
@@ -171,7 +184,7 @@ public class Shard {
 			nbt.putString("Icon", texture.toString());
 		});
 
-		return nbt;
+		return nbt;*/
 	}
 
 	public JsonObject toJson() {
@@ -197,7 +210,7 @@ public class Shard {
 
 		return result;
 	}
-
+	/*
 	public void write(PacketByteBuf buf) {
 		buf.writeIdentifier(shardTypeId);
 		buf.writeString(Text.Serialization.toJsonString(name));
@@ -217,7 +230,7 @@ public class Shard {
 		Identifier sourceId = buf.readIdentifier();
 		var icon = buf.readEither(PacketByteBuf::readItemStack, PacketByteBuf::readIdentifier);
 		return new Shard(shardTypeId, name, lore, hint, source, sourceId, icon);
-	}
+	}*/
 	
 	public Shard copy() {
 		Either<ItemStack, Identifier> icon = icon().mapBoth(stack -> stack, id -> id);
@@ -249,9 +262,14 @@ public class Shard {
 		return toJson().toString();
 	}
 	
+	public static Shard emptyOfType(Identifier id) {
+		return MISSING_SHARD.copy().setShardType(id);
+	}
+	
+	/*
 	public static Shard emptyOfType(ShardType shardType) {
 		return MISSING_SHARD.copy().setShardType(shardType);
-	}
+	}*/
 
 	private static ItemStack loadItemStack(JsonElement elem) {
 		if (elem instanceof JsonObject obj) {
