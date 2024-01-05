@@ -10,28 +10,29 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.particle.ParticleType;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.impl.ColorCodec;
 
-public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> collectParticle, Optional<SoundEvent> collectSound) {
+public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> collectParticle, Optional<SoundEvent> collectSound, int listOrder) {
 	
 	public static final Codec<ShardType> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			Codec.INT.fieldOf("textColor").forGetter(ShardType::textColor),
-			Codec.INT.fieldOf("glowColor").forGetter(ShardType::glowColor),
-			Codec.optionalField("collectParticle", Registries.PARTICLE_TYPE.getCodec()).forGetter(ShardType::collectParticle),
-			Codec.optionalField("collectSound", SoundEvent.CODEC).forGetter(ShardType::collectSound)
+			ColorCodec.CODEC.fieldOf("text_color").forGetter(ShardType::textColor),
+			ColorCodec.CODEC.fieldOf("glow_color").forGetter(ShardType::glowColor),
+			Codec.optionalField("collect_particle", Registries.PARTICLE_TYPE.getCodec()).forGetter(ShardType::collectParticle),
+			Codec.optionalField("collect_sound", SoundEvent.CODEC).forGetter(ShardType::collectSound),
+			Codec.INT.fieldOf("list_order").forGetter(ShardType::listOrder)
 		).apply(instance, ShardType::new));
 	
 	public static final SoundEvent COLLECT_VISITOR_SOUND = SoundEvent.of(ScatteredShards.id("collect_visitor"));
 	public static final SoundEvent COLLECT_CHALLENGE_SOUND = SoundEvent.of(ScatteredShards.id("collect_challenge"));
 	public static final SoundEvent COLLECT_SECRET_SOUND = SoundEvent.of(ScatteredShards.id("collect_secret"));
 
-	public static final ShardType MISSING = new ShardType(0xFFFFFF, 0xFF00FF, Optional.empty(), Optional.empty());
+	public static final ShardType MISSING = new ShardType(0xFFFFFF, 0xFF00FF, Optional.empty(), Optional.empty(), -1);
 	public static final Identifier MISSING_ID = ScatteredShards.id("missing");
 	
 	public static Identifier createModId(Identifier shardTypeId, String modId) {

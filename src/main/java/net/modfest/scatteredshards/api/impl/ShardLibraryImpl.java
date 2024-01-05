@@ -21,8 +21,7 @@ public class ShardLibraryImpl implements ShardLibrary {
 	public void clearAll() {
 		shards.clear();
 		shardSets.clear();
-		// Manually cleared by ShardTypeLoader for now
-		//shardTypes.clear();
+		shardTypes.clear();
 	}
 	
 	@Override

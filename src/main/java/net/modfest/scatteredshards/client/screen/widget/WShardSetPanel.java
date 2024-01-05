@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
 
 import java.util.List;
@@ -52,7 +53,21 @@ public class WShardSetPanel extends WPanelWithInsets {
 	public void setShardSet(Identifier setId, ShardLibrary library, ShardCollection collection) {
 		List<Identifier> shardSet = new ArrayList<>();
 		shardSet.addAll(library.shardSets().get(setId));
-		shardSet.sort(WShardSetPanel::shardComparator);
+		shardSet.sort((a, b) -> {
+			int aPriority = library.shards().get(a)
+					.map(it -> it.shardTypeId())
+					.flatMap(library.shardTypes()::get)
+					.map(ShardType::listOrder)
+					.orElse(Integer.MAX_VALUE);
+			
+			int bPriority = library.shards().get(b)
+					.map(it -> it.shardTypeId())
+					.flatMap(library.shardTypes()::get)
+					.map(ShardType::listOrder)
+					.orElse(Integer.MAX_VALUE);
+			
+			return Integer.compare(aPriority, bPriority);
+		});
 		
 		//Add/dump MiniShards till we have the same number of card icons as the shardSet has cards
 		while(shards.size() > shardSet.size()) shards.remove(shards.size()-1);
@@ -81,6 +96,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		if (host != null) this.validate(host);
 	}
 	
+	/*
 	//TODO: Replace with json / ShardType field
 	private static int shardPriority(String path) {
 		return switch(path) {
@@ -92,6 +108,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 	}
 	
 	private static int shardComparator(Identifier a, Identifier b) {
+		
 		return Integer.compare(shardPriority(a.getPath()), shardPriority(b.getPath()));
-	}
+	}*/
 }

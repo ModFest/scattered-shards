@@ -1,8 +1,0 @@
-{
-  "textColor": 5338344,
-  "glowColor": 9983,
-  "collectParticle": "minecraft:glow",
-  "collectSound": {
-    "sound_id": "scattered_shards:collect_challenge"
-  }
-}
