@@ -36,9 +36,5 @@ public class ScatteredShards implements ModInitializer {
 		ShardCommand.register();
 		ScatteredShardsNetworking.register();
 		ScatteredShardsContent.register();
-		FabricLoader.getInstance().getModContainer(ID).ifPresent(mod -> {
-			ResourceManagerHelper.registerBuiltinResourcePack(ScatteredShards.id("bc23-assets"), mod, ResourcePackActivationType.NORMAL);
-			ResourceManagerHelper.registerBuiltinResourcePack(ScatteredShards.id("bc23-data"), mod, ResourcePackActivationType.NORMAL);
-		});
 	}
 }
