@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards;
 
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.load.ShardTypeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +30,9 @@ public class ScatteredShards implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ScatteredShardsAPI.init();
 		ShardType.register();
-		//ShardTypeLoader.register();
-		//ShardSetLoader.register();
+		ShardTypeLoader.register();
 		ShardCommand.register();
 		ScatteredShardsNetworking.register();
 		ScatteredShardsContent.register();

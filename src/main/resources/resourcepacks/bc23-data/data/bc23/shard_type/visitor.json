@@ -1,0 +1,6 @@
+{
+  "textColor": 7202897,
+  "glowColor": 65352,
+  "collectParticle": "minecraft:totem_of_undying",
+  "collectSound": "scattered_shards:collect_visitor"
+}
