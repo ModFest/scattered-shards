@@ -20,7 +20,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 			null
 			);
 	
-	public static final String SHARD_TYPES_KEY = "ShardTypes";
+	//public static final String SHARD_TYPES_KEY = "ShardTypes";
 	public static final String SHARDS_KEY = "Shards";
 	public static final String SHARD_SETS_KEY = "ShardSets";
 	
@@ -31,13 +31,13 @@ public class ShardLibraryPersistentState extends PersistentState {
 	}
 	
 	public ShardLibraryPersistentState() {
-		addDefaultShardTypes();
+		//addDefaultShardTypes();
 	}
 	
-	private static void addDefaultShardTypes() {
+	/*private static void addDefaultShardTypes() {
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
-	}
+	}*/
 	
 	public static ShardLibraryPersistentState createFromNbt(NbtCompound tag) {
 		ScatteredShards.LOGGER.info("Loading shard library...");
@@ -47,7 +47,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		library.clearAll();
 		
-		NbtCompound shardTypes = tag.getCompound(SHARD_TYPES_KEY);
+		/*NbtCompound shardTypes = tag.getCompound(SHARD_TYPES_KEY);
 		if (shardTypes.isEmpty() || (shardTypes.getSize() == 1 && shardTypes.contains(ShardType.MISSING_ID.toString()))) {
 			//Either the ShardTypes were completely empty, or the only ShardType present is the missing type.
 			
@@ -65,7 +65,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 					ScatteredShards.LOGGER.error("Could not load shardType \""+id+"\": " + t.getMessage());
 				}
 			}
-		}
+		}*/
 		
 		NbtCompound shards = tag.getCompound(SHARDS_KEY);
 		for(String id : shards.getKeys()) {
@@ -96,11 +96,11 @@ public class ShardLibraryPersistentState extends PersistentState {
 			}
 		}
 		
-		if (library.shardTypes().size() == 1 && library.shardTypes().streamKeys().findFirst().get().equals(ShardType.MISSING_ID)) {
-			
-		}
+		/*if (library.shardTypes().size() == 1 && library.shardTypes().streamKeys().findFirst().get().equals(ShardType.MISSING_ID)) {
+
+		}*/
 		
-		ScatteredShards.LOGGER.info("Loaded " + library.shardTypes().size() + " shard types, " + library.shards().size() + " shards, and " + library.shardSets().size() + " shardSets.");
+		ScatteredShards.LOGGER.info("Loaded " /*+ library.shardTypes().size() + " shard types, "*/ + library.shards().size() + " shards, and " + library.shardSets().size() + " shardSets.");
 		
 		return state;
 	}
@@ -111,7 +111,7 @@ public class ShardLibraryPersistentState extends PersistentState {
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		ScatteredShards.LOGGER.info("Saving the ShardLibrary with " + library.shardTypes().size() + " shard types, " + library.shards().size() + " shards, and " + library.shardSets().size() + " shardSets...");
 		
-		tag.put(SHARD_TYPES_KEY, library.shardTypes().toNbt());
+		//tag.put(SHARD_TYPES_KEY, library.shardTypes().toNbt());
 		tag.put(SHARDS_KEY, library.shards().toNbt());
 		
 		NbtCompound shardSets = new NbtCompound();
