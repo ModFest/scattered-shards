@@ -58,7 +58,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		var toast = new SystemToast(
 				SystemToast.Type.PERIODIC_NOTIFICATION,
 				Text.translatable(SHARD_MODIFY_TOAST_KEY + ".title"),
-				Text.translatable(SHARD_MODIFY_TOAST_KEY + "." + (success ? "success" : "fail"), shardId)
+				Text.stringifiedTranslatable(SHARD_MODIFY_TOAST_KEY + "." + (success ? "success" : "fail"), shardId)
 		);
 		MinecraftClient.getInstance().getToastManager().add(toast);
 	}

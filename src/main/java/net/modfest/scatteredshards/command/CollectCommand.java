@@ -24,7 +24,7 @@ public class CollectCommand {
 		//Validate that source is a player and collect it
 		ScatteredShardsAPI.triggerShardCollection(ctx.getSource().getPlayerOrThrow(), id);
 		
-		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.collect", id), false);
+		ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.collect", id), false);
 		
 		return Command.SINGLE_SUCCESS;
 	}

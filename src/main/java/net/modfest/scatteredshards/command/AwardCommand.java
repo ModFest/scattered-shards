@@ -31,9 +31,9 @@ public class AwardCommand {
 		final int collected = i;
 		
 		if (collected == 0) {
-			ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.award.none", shardId), false);
+			ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.award.none", shardId), false);
 		} else {
-			ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.award", shardId, collected), false);
+			ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.award", shardId, collected), false);
 		}
 		
 		return collected;

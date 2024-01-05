@@ -7,7 +7,7 @@ import net.minecraft.text.Text;
 public class ShardCommand {
 	
 	public static final DynamicCommandExceptionType INVALID_SHARD = new DynamicCommandExceptionType(
-			it -> Text.translatable("error.scattered_shards.invalid_shard_id", it)
+			it -> Text.stringifiedTranslatable("error.scattered_shards.invalid_shard_id", it)
 			);
 	
 	public static final DynamicCommandExceptionType NO_ROOM_FOR_ITEM = new DynamicCommandExceptionType(

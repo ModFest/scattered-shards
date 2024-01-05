@@ -19,7 +19,7 @@ import net.modfest.scatteredshards.networking.S2CUncollectShard;
 
 public class UncollectCommand {
 	public static final DynamicCommandExceptionType NOT_IN_COLLECTION = new DynamicCommandExceptionType(
-			it -> Text.translatable("error.scattered_shards.shard_not_in_collection", it)
+			it -> Text.stringifiedTranslatable("error.scattered_shards.shard_not_in_collection", it)
 			);
 	
 	/**
@@ -39,7 +39,7 @@ public class UncollectCommand {
 		ShardCollectionPersistentState.get(server).markDirty();
 		
 		S2CUncollectShard.send(player, id);
-		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect", id), false);
+		ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.uncollect", id), false);
 		return Command.SINGLE_SUCCESS;
 	}
 	

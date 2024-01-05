@@ -28,7 +28,7 @@ public class ClientShardCommand {
 
 	private static DynamicCommandExceptionType createInvalidException(String item) {
 		return new DynamicCommandExceptionType(
-				obj -> Text.translatable("error.scattered_shards.invalid_" + item, obj)
+				obj -> Text.stringifiedTranslatable("error.scattered_shards.invalid_" + item, obj)
 		);
 	}
 
