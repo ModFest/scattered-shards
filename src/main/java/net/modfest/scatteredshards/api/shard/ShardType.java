@@ -30,12 +30,8 @@ public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> 
 	public static final SoundEvent COLLECT_VISITOR_SOUND = SoundEvent.of(ScatteredShards.id("collect_visitor"));
 	public static final SoundEvent COLLECT_CHALLENGE_SOUND = SoundEvent.of(ScatteredShards.id("collect_challenge"));
 	public static final SoundEvent COLLECT_SECRET_SOUND = SoundEvent.of(ScatteredShards.id("collect_secret"));
-	
-	public static final ShardType VISITOR = new ShardType(0x6DE851, 0x00FF48, Optional.of(ParticleTypes.TOTEM_OF_UNDYING), Optional.of(COLLECT_VISITOR_SOUND));
-	public static final ShardType CHALLENGE = new ShardType(0x5174E8, 0x0026FF, Optional.of(ParticleTypes.GLOW), Optional.of(COLLECT_CHALLENGE_SOUND));
-	public static final ShardType SECRET = new ShardType(0xEB4034, 0xFF0088, Optional.of(ParticleTypes.WITCH), Optional.of(COLLECT_SECRET_SOUND));
-	public static final ShardType MISSING = new ShardType(0xFFFFFF, 0xFF00FF, Optional.empty(), Optional.empty());
 
+	public static final ShardType MISSING = new ShardType(0xFFFFFF, 0xFF00FF, Optional.empty(), Optional.empty());
 	public static final Identifier MISSING_ID = ScatteredShards.id("missing");
 	
 	public static Identifier createModId(Identifier shardTypeId, String modId) {
@@ -58,8 +54,8 @@ public record ShardType(int textColor, int glowColor, Optional<ParticleType<?>> 
 		return getTexture(id, "mini_front");
 	}
 	
-	public static Identifier getMiniBackTexture(Identifier id) {
-		return getTexture(id, "mini_back");
+	public static Identifier getMiniBackingTexture(Identifier id) {
+		return getTexture(id, "mini_backing");
 	}
 
 	public static Text getDescription(Identifier id) {

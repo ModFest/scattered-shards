@@ -36,9 +36,6 @@ public class ShardLibraryPersistentState extends PersistentState {
 	
 	private static void addDefaultShardTypes() {
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
-		library.shardTypes().put(ScatteredShards.id("visitor"), ShardType.VISITOR);
-		library.shardTypes().put(ScatteredShards.id("challenge"), ShardType.CHALLENGE);
-		library.shardTypes().put(ScatteredShards.id("secret"), ShardType.SECRET);
 		library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
 	}
 	
