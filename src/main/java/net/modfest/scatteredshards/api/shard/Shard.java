@@ -29,12 +29,12 @@ public class Shard {
 	public static final Codec<Either<ItemStack, Identifier>> ICON_CODEC = Codec.either(ItemStack.CODEC, Identifier.CODEC);
 	
 	public static final Codec<Shard> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			Identifier.CODEC.fieldOf("shardTypeId").forGetter(Shard::shardTypeId),
+			Identifier.CODEC.fieldOf("shard_type_id").forGetter(Shard::shardTypeId),
 			TextCodecs.CODEC.fieldOf("name").forGetter(Shard::name),
 			TextCodecs.CODEC.fieldOf("lore").forGetter(Shard::lore),
 			TextCodecs.CODEC.fieldOf("hint").forGetter(Shard::hint),
 			TextCodecs.CODEC.fieldOf("source").forGetter(Shard::source),
-			Identifier.CODEC.fieldOf("sourceId").forGetter(Shard::sourceId),
+			Identifier.CODEC.fieldOf("source_id").forGetter(Shard::sourceId),
 			ICON_CODEC.fieldOf("icon").forGetter(Shard::icon)
 		).apply(instance, Shard::new));
 	

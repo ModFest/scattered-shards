@@ -35,7 +35,7 @@ public class BlockCommand {
 
 		if (!player.giveItemStack(stack)) throw ShardCommand.NO_ROOM_FOR_ITEM.create(ScatteredShardsContent.SHARD_BLOCK_ITEM.getName());
 		
-		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.block", shardId), false);
+		ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.block", shardId), false);
 		return Command.SINGLE_SUCCESS;
 	}
 	

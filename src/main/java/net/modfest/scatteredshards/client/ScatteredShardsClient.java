@@ -6,6 +6,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.toast.SystemToast;
 import net.minecraft.client.toast.Toast;
 
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
@@ -14,6 +15,7 @@ import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
+import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class ScatteredShardsClient implements ClientModInitializer {
@@ -56,8 +58,19 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		var toast = new SystemToast(
 				SystemToast.Type.PERIODIC_NOTIFICATION,
 				Text.translatable(SHARD_MODIFY_TOAST_KEY + ".title"),
-				Text.translatable(SHARD_MODIFY_TOAST_KEY + "." + (success ? "success" : "fail"), shardId)
+				Text.stringifiedTranslatable(SHARD_MODIFY_TOAST_KEY + "." + (success ? "success" : "fail"), shardId)
 		);
 		MinecraftClient.getInstance().getToastManager().add(toast);
+	}
+
+	public static void openShardTablet() {
+		final var client = MinecraftClient.getInstance();
+		client.send(() -> {
+			final var library = ScatteredShardsAPI.getClientLibrary();
+			final var collection = ScatteredShardsAPI.getClientCollection();
+
+			client.setScreen(new ShardTabletGuiDescription.Screen(collection, library));
+			client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f));
+		});
 	}
 }

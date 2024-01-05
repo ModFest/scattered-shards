@@ -35,7 +35,7 @@ public class LibraryCommand {
 		ShardLibraryPersistentState.get(server).markDirty();
 		S2CDeleteShard.sendToAll(server, shardId);
 		
-		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete", shardId), true);
+		ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.library.delete", shardId), true);
 		
 		return Command.SINGLE_SUCCESS;
 	}
@@ -49,7 +49,7 @@ public class LibraryCommand {
 		ShardLibraryPersistentState.get(server).markDirty();
 		S2CSyncLibrary.sendToAll(server);
 		
-		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.library.delete.all", toDelete), true);
+		ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.library.delete.all", toDelete), true);
 		
 		return toDelete;
 	}

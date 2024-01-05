@@ -28,13 +28,11 @@ public class ClientShardCommand {
 
 	private static DynamicCommandExceptionType createInvalidException(String item) {
 		return new DynamicCommandExceptionType(
-				obj -> Text.translatable("error.scattered_shards.invalid_" + item, obj)
+				obj -> Text.stringifiedTranslatable("error.scattered_shards.invalid_" + item, obj)
 		);
 	}
 
 	private static final DynamicCommandExceptionType INVALID_SET_ID = createInvalidException("set_id");
-	//We've removed checks for invalid modid's so people can use shards not related to them
-	//private static final DynamicCommandExceptionType INVALID_MOD_ID = createInvalidException("mod_id");
 	private static final DynamicCommandExceptionType INVALID_SHARD_TYPE = createInvalidException("shard_type");
 	private static final DynamicCommandExceptionType INVALID_SHARD_ID = createInvalidException("shard_id");
 
@@ -94,7 +92,9 @@ public class ClientShardCommand {
 
 	public static CompletableFuture<Suggestions> suggestShardTypes(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
 		ScatteredShardsAPI.getClientLibrary().shardTypes().forEach((id, shardSet) -> {
-			builder.suggest(id.toString());
+			if (!id.equals(ShardType.MISSING_ID)) {
+				builder.suggest(id.toString());
+			}
 		});
 		return builder.buildFuture();
 	}

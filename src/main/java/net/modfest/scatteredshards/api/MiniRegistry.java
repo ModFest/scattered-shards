@@ -1,5 +1,7 @@
 package net.modfest.scatteredshards.api;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -47,9 +49,17 @@ public class MiniRegistry<T> {
 	public void put(Identifier id, T value) {
 		data.put(id, value);
 	}
+
+	public void putAll(Map<Identifier, T> values) {
+		data.putAll(values);
+	}
 	
 	public void remove(Identifier id) {
 		data.remove(id);
+	}
+
+	public void removeAll(Collection<Identifier> ids) {
+		data.keySet().removeAll(ids);
 	}
 	
 	public void clear() {
