@@ -64,7 +64,7 @@ public class LibraryCommand {
 					Permissions.require(ScatteredShards.permission("command.library.delete.all"), 4)
 				)
 				.build();
-		library.addChild(deleteAllCommand);
+		deleteCommand.addChild(deleteAllCommand);
 		
 		parent.addChild(library);
 	}
