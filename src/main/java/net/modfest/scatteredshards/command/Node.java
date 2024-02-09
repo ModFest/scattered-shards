@@ -1,11 +1,18 @@
 package net.modfest.scatteredshards.command;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
@@ -13,6 +20,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.shard.ShardType;
 
 public class Node {
 	public static LiteralArgumentBuilder<ServerCommandSource> literal(String name) {
@@ -68,6 +76,10 @@ public class Node {
 	public static RequiredArgumentBuilder<ServerCommandSource, Boolean> booleanValue(String name) {
 		return RequiredArgumentBuilder.argument(name, BoolArgumentType.bool());
 	}
+
+	public static RequiredArgumentBuilder<ServerCommandSource, String> stringArgument(String name) {
+		return RequiredArgumentBuilder.<ServerCommandSource, String>argument(name, StringArgumentType.string());
+	}
 	
 	/**
 	 * Creates literal nodes as necessary to extend a command path to include the desired command node, and returns the
@@ -89,5 +101,21 @@ public class Node {
 		}
 		
 		return cur;
+	}
+
+	public static CompletableFuture<Suggestions> suggestModIds(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+		for (var mod : FabricLoader.getInstance().getAllMods()) {
+			builder.suggest(mod.getMetadata().getId());
+		}
+		return builder.buildFuture();
+	}
+
+	public static CompletableFuture<Suggestions> suggestShardTypes(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+		ScatteredShardsAPI.getServerLibrary().shardTypes().forEach((id, shardSet) -> {
+			if (!id.equals(ShardType.MISSING_ID)) {
+				builder.suggest(id.toString());
+			}
+		});
+		return builder.buildFuture();
 	}
 }
