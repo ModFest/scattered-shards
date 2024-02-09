@@ -16,6 +16,7 @@
   "commands.scattered_shards.shard.uncollect.all": "Un-Collected %s shards",
   "commands.scattered_shards.shard.library.delete": "Deleted shard '%s' from the library",
   "commands.scattered_shards.shard.library.delete.all": "Deleted %s shards from the library",
+  "commands.scattered_shards.shard.library.migrate": "Migrated shard %s to %s",
   "gui.scattered_shards.creator.title": "Shard Creator",
   "gui.scattered_shards.creator.field.name": "Name...",
   "gui.scattered_shards.creator.field.lore": "Lore...",

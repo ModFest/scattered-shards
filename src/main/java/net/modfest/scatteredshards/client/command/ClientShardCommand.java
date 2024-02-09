@@ -21,6 +21,7 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
+import net.modfest.scatteredshards.command.ShardCommand;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -33,7 +34,6 @@ public class ClientShardCommand {
 	}
 
 	private static final DynamicCommandExceptionType INVALID_SET_ID = createInvalidException("set_id");
-	private static final DynamicCommandExceptionType INVALID_SHARD_TYPE = createInvalidException("shard_type");
 	private static final DynamicCommandExceptionType INVALID_SHARD_ID = createInvalidException("shard_id");
 
 	public static int view(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
@@ -49,7 +49,7 @@ public class ClientShardCommand {
 		String modId = StringArgumentType.getString(context, "mod_id");
 		Identifier shardTypeId = context.getArgument("shard_type", Identifier.class);
 		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardTypeId)
-				.orElseThrow(() -> INVALID_SHARD_TYPE.create(shardTypeId));
+				.orElseThrow(() -> ShardCommand.INVALID_SHARD_TYPE.create(shardTypeId));
 		
 		var client = context.getSource().getClient();
 		client.send(() -> client.setScreen(ShardCreatorGuiDescription.Screen.newShard(modId, shardType)));
