@@ -177,11 +177,11 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		float ypx = 1/32f * cardHeight;
 
 		shard.icon().ifLeft( stack -> {
-			matrices.translate(0, 4*ypx, -0.01f); //extra -0.002 here to prevent full-cubes from zfighting the card
-			matrices.scale(0.5f, 0.5f, 0.01f /*0.6f*/);
+			matrices.translate(0, 4*ypx, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			matrices.scale(-0.38f, 0.38f, 0.001f /*0.6f*/);
 			
 
-			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.FIXED, actualLight, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
+			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, actualLight, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
 		});
 
 		shard.icon().ifRight( texId -> {
@@ -250,9 +250,9 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			float g = ((color >> 8) & 0xFF) / 255f;
 			float b = (color & 0xFF) / 255f;
 
-			renderGlowingBillboard(matrices, vertexConsumers.getBuffer(RenderLayer.getBeaconBeam(DISTANCE_HALO_TEX, true)), r, g, b, distFadeAlpha);
-			matrices.translate(0, 0.01, 0);
-			renderGlowingBillboard(matrices, vertexConsumers.getBuffer(RenderLayer.getBeaconBeam(DISTANCE_GLOW_TEX, true)), 1f, 1f, 1f, distFadeAlpha);
+			renderGlowingBillboard(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(DISTANCE_HALO_TEX)), r, g, b, distFadeAlpha);
+			matrices.translate(0, -0.01, 0);
+			renderGlowingBillboard(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(DISTANCE_GLOW_TEX)), 1f, 1f, 1f, distFadeAlpha);
 
 			matrices.pop();
 		}
