@@ -36,5 +36,7 @@
   "toast.scattered_shards.shard_mod.fail": "Failed to modify '%s'",
   "block.scattered_shards.shard_block": "Shard",
   "block.scattered_shards.shard_block.pickup_fail": "Shard already collected!",
-  "item.scattered_shards.shard_tablet": "Shard Tablet"
+  "item.scattered_shards.shard_tablet": "Shard Tablet",
+  "category.scattered_shards.scattered_shards": "Scattered Shards",
+  "key.scattered_shards.shards": "Open Shard Collection"
 }

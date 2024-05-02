@@ -28,6 +28,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		ClientShardCommand.register();
 		ScatteredShardsNetworking.registerClient();
 		ScatteredShardsContent.registerClient();
+		ScatteredShardsKeybindings.registerClient();
 	}
 
 	@SuppressWarnings("resource")
