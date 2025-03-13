@@ -30,6 +30,7 @@ public class ShardCommand {
 			AwardCommand.register(shardNode);
 			UncollectCommand.register(shardNode);
 			BlockCommand.register(shardNode);
+			ItemCommand.register(shardNode);
 			LibraryCommand.register(shardNode);
 		});
 	}

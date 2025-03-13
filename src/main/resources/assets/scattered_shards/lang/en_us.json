@@ -2,11 +2,14 @@
 	"block.scattered_shards.shard_block": "Shard",
 
 	"item.scattered_shards.shard_tablet": "Shard Tablet",
+	"item.scattered_shards.shard_item": "Shard",
+	"item.scattered_shards.shard_item.description": "Awards shard when used",
 
 	"commands.scattered_shards.shard.collect": "Collected shard '%s'",
 	"commands.scattered_shards.shard.award": "Awarded shard '%s' to %s players",
 	"commands.scattered_shards.shard.award.none": "Tried to award shard '%s' but no players are eligible",
 	"commands.scattered_shards.shard.block": "Shard-block '%s' added to inventory",
+	"commands.scattered_shards.shard.item": "Shard '%s' added to inventory",
 	"commands.scattered_shards.shard.uncollect": "Un-Collected shard '%s'",
 	"commands.scattered_shards.shard.uncollect.all": "Un-Collected %s shards",
 	"commands.scattered_shards.shard.library.delete": "Deleted shard '%s' from the library",
