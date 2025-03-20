@@ -13,7 +13,7 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.command.ShardCommand;
 import net.modfest.scatteredshards.command.ShardCommandNodeHelper;
-import net.modfest.scatteredshards.networking.C2SModifyShard;
+import net.modfest.scatteredshards.networking.C2SCreateShardInstant;
 import net.modfest.scatteredshards.util.ModMetaUtil;
 
 import static net.modfest.scatteredshards.client.command.ClientShardCommand.identifierArgument;
@@ -51,7 +51,7 @@ public class CreateInstantCommand {
 		shard.setIcon(modIcon);
 		shard.setSourceId(Identifier.of(modId, "shard_pack"));
 
-		ClientPlayNetworking.send(new C2SModifyShard(shardId, shard));
+		ClientPlayNetworking.send(new C2SCreateShardInstant(shardId, shard));
 
 		source.sendFeedback(Text.translatable("commands.scattered_shards.shard.create_instant", shardId.toString()));
 
