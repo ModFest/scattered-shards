@@ -83,6 +83,10 @@ public class ShardCommandNodeHelper {
 		return RequiredArgumentBuilder.argument(name, StringArgumentType.string());
 	}
 
+	public static RequiredArgumentBuilder<ServerCommandSource, Identifier> identifierArgument(String name) {
+		return RequiredArgumentBuilder.argument(name, IdentifierArgumentType.identifier());
+	}
+
 	/**
 	 * Creates literal nodes as necessary to extend a command path to include the desired command node, and returns the
 	 * node. If the node already exists, just find and return it.
@@ -106,7 +110,7 @@ public class ShardCommandNodeHelper {
 		return cur;
 	}
 
-	public static CompletableFuture<Suggestions> suggestModIds(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+	public static CompletableFuture<Suggestions> suggestModIds(CommandContext<?> context, SuggestionsBuilder builder) {
 		for (ModContainer mod : FabricLoader.getInstance().getAllMods()) {
 			builder.suggest(mod.getMetadata().getId());
 		}

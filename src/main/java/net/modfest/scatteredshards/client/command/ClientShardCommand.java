@@ -13,8 +13,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -28,6 +26,7 @@ import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.ShardCreatorGuiDescription;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
 import net.modfest.scatteredshards.command.ShardCommand;
+import net.modfest.scatteredshards.command.ShardCommandNodeHelper;
 
 import java.util.Optional;
 import java.util.Set;
@@ -95,19 +94,19 @@ public class ClientShardCommand {
 		return Command.SINGLE_SUCCESS;
 	}
 
-	public static CompletableFuture<Suggestions> suggestShardSets(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
+	private static CompletableFuture<Suggestions> suggestShardSets(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
 		for (Identifier id : ScatteredShardsAPI.getClientLibrary().shardSets().keySet()) {
 			builder.suggest(id.toString());
 		}
 		return builder.buildFuture();
 	}
 
-	public static CompletableFuture<Suggestions> suggestShards(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
+	private static CompletableFuture<Suggestions> suggestShards(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
 		ScatteredShardsAPI.getClientLibrary().shards().forEach((id, shard) -> builder.suggest(id.toString()));
 		return builder.buildFuture();
 	}
 
-	public static CompletableFuture<Suggestions> suggestShardTypes(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
+	static CompletableFuture<Suggestions> suggestShardTypes(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
 		ScatteredShardsAPI.getClientLibrary().shardTypes().forEach((id, shardSet) -> {
 			if (!id.equals(ShardType.MISSING_ID)) {
 				builder.suggest(id.toString());
@@ -116,22 +115,15 @@ public class ClientShardCommand {
 		return builder.buildFuture();
 	}
 
-	public static CompletableFuture<Suggestions> suggestModIds(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
-		for (ModContainer mod : FabricLoader.getInstance().getAllMods()) {
-			builder.suggest(mod.getMetadata().getId());
-		}
-		return builder.buildFuture();
-	}
-
-	private static LiteralArgumentBuilder<FabricClientCommandSource> literal(String name) {
+	static LiteralArgumentBuilder<FabricClientCommandSource> literal(String name) {
 		return LiteralArgumentBuilder.literal(name);
 	}
 
-	private static RequiredArgumentBuilder<FabricClientCommandSource, Identifier> identifierArgument(String name) {
+	static RequiredArgumentBuilder<FabricClientCommandSource, Identifier> identifierArgument(String name) {
 		return RequiredArgumentBuilder.argument(name, IdentifierArgumentType.identifier());
 	}
 
-	private static RequiredArgumentBuilder<FabricClientCommandSource, String> stringArgument(String name) {
+	static RequiredArgumentBuilder<FabricClientCommandSource, String> stringArgument(String name) {
 		return RequiredArgumentBuilder.argument(name, StringArgumentType.string());
 	}
 
@@ -151,7 +143,7 @@ public class ClientShardCommand {
 			CommandNode<FabricClientCommandSource> creator = literal("creator").requires((source) -> source.hasPermissionLevel(2)).build();
 			CommandNode<FabricClientCommandSource> creatorNew = literal("new").build();
 			CommandNode<FabricClientCommandSource> modId = stringArgument("mod_id")
-				.suggests(ClientShardCommand::suggestModIds)
+				.suggests(ShardCommandNodeHelper::suggestModIds)
 				.build();
 			CommandNode<FabricClientCommandSource> shardType = identifierArgument("shard_type")
 				.suggests(ClientShardCommand::suggestShardTypes)
@@ -175,6 +167,8 @@ public class ClientShardCommand {
 			modId.addChild(shardType);
 			creator.addChild(creatorEdit);
 			creatorEdit.addChild(shardId);
+
+			CreateInstantCommand.register(creator);
 
 			dispatcher.getRoot().addChild(shardsCommand);
 		});
