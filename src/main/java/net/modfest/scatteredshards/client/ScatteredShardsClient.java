@@ -15,6 +15,8 @@ import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardCollection;
+import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.command.ClientShardCommand;
@@ -76,13 +78,12 @@ public class ScatteredShardsClient implements ClientModInitializer {
 	}
 
 	public static void openShardTablet() {
-		final var client = MinecraftClient.getInstance();
-		client.send(() -> {
-			final var library = ScatteredShardsAPI.getClientLibrary();
-			final var collection = ScatteredShardsAPI.getClientCollection();
+		MinecraftClient.getInstance().send(() -> {
+			final ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
+			final ShardCollection collection = ScatteredShardsAPI.getClientCollection();
 
-			client.setScreen(new ShardTabletGuiDescription.Screen(collection, library));
-			client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f));
+			MinecraftClient.getInstance().setScreen(new ShardTabletGuiDescription.Screen(collection, library));
+			MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f));
 		});
 	}
 

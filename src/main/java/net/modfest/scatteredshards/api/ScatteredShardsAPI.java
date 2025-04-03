@@ -55,7 +55,7 @@ public class ScatteredShardsAPI {
 	}
 
 	public static ShardCollection getServerCollection(UUID uuid) {
-		var collection = serverCollections.get(uuid);
+		ShardCollection collection = serverCollections.get(uuid);
 		if (collection == null) {
 			collection = new ShardCollectionImpl();
 			serverCollections.put(uuid, collection);
@@ -74,8 +74,8 @@ public class ScatteredShardsAPI {
 
 	public static void calculateShardProgress() {
 		if (serverGlobalCollection != null) return;
-		var shardCountMap = new HashMap<Identifier, Integer>();
-		var totalCount = serverCollections.size();
+		HashMap<Identifier, Integer> shardCountMap = new HashMap<>();
+		int totalCount = serverCollections.size();
 
 		serverCollections.forEach(((uuid, identifiers) -> identifiers.forEach(identifier -> shardCountMap.compute(identifier, (k, count) -> count != null ? 1 + count : 1))));
 
@@ -117,7 +117,7 @@ public class ScatteredShardsAPI {
 	}
 
 	public static boolean triggerShardCollection(ServerPlayerEntity player, Identifier shardId) {
-		var collection = getServerCollection(player);
+		ShardCollection collection = getServerCollection(player);
 		if (collection.add(shardId)) {
 			if (player.getServer() != null) collectionPersistentState.markDirty();
 
@@ -130,7 +130,7 @@ public class ScatteredShardsAPI {
 	}
 
 	public static boolean triggerShardUncollection(ServerPlayerEntity player, Identifier shardId) {
-		var collection = getServerCollection(player);
+		ShardCollection collection = getServerCollection(player);
 		if (collection.remove(shardId)) {
 			if (player.getServer() != null) collectionPersistentState.markDirty();
 

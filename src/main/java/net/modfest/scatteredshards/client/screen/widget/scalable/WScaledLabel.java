@@ -102,11 +102,10 @@ public class WScaledLabel extends WScalableWidget {
 
 	@Override
 	public void paintScaled(DrawContext context, int width, int height, int mouseX, int mouseY) {
-		MinecraftClient mc = MinecraftClient.getInstance();
-		TextRenderer renderer = mc.textRenderer;
+		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 		int yOffset = switch (verticalAlignment) {
-			case CENTER -> height / 2 - renderer.fontHeight / 2;
-			case BOTTOM -> height - renderer.fontHeight;
+			case CENTER -> height / 2 - textRenderer.fontHeight / 2;
+			case BOTTOM -> height - textRenderer.fontHeight;
 			case TOP -> 0;
 		};
 
@@ -116,9 +115,8 @@ public class WScaledLabel extends WScalableWidget {
 	}
 
 	public static void drawScrollableString(DrawContext context, OrderedText text, HorizontalAlignment alignment, int x, int y, int width, int color, boolean shadow, boolean scroll) {
-		MinecraftClient mc = MinecraftClient.getInstance();
-		TextRenderer font = mc.textRenderer;
-		int textWidth = font.getWidth(text);
+		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		int textWidth = textRenderer.getWidth(text);
 		int xofs = 0;
 
 		if (textWidth > width && scroll) {

@@ -10,12 +10,14 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.JsonDataLoader;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardDisplaySettings;
+import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.networking.S2CSyncLibrary;
 import org.jetbrains.annotations.NotNull;
@@ -38,13 +40,13 @@ public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResou
 
 	@Override
 	protected void apply(Map<Identifier, JsonElement> cache, ResourceManager manager, Profiler profiler) {
-		var library = ScatteredShardsAPI.getServerLibrary();
+		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 
 		library.shardTypes().clear();
 		library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
 
 		int successes = 0;
-		for (var entry : cache.entrySet()) {
+		for (Map.Entry<Identifier, JsonElement> entry : cache.entrySet()) {
 			try {
 				JsonObject root = JsonHelper.asObject(entry.getValue(), "root element");
 
@@ -60,7 +62,7 @@ public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResou
 					library.shardTypes().put(entry.getKey(), ShardType.fromJson(root));
 					successes++;
 				} else {
-					for (var shardEntry : root.entrySet()) {
+					for (Map.Entry<String, JsonElement> shardEntry : root.entrySet()) {
 						JsonObject shardTypeObj = JsonHelper.asObject(shardEntry.getValue(), "shard-type object");
 						library.shardTypes().put(Identifier.of(shardEntry.getKey()), ShardType.fromJson(shardTypeObj));
 						successes++;
@@ -77,8 +79,8 @@ public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResou
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ShardTypeLoader());
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
 			if (server != null) {
-				var syncLibrary = new S2CSyncLibrary(ScatteredShardsAPI.getServerLibrary());
-				for (var player : server.getPlayerManager().getPlayerList()) {
+				S2CSyncLibrary syncLibrary = new S2CSyncLibrary(ScatteredShardsAPI.getServerLibrary());
+				for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
 					ServerPlayNetworking.send(player, syncLibrary);
 				}
 			}

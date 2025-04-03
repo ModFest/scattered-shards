@@ -24,7 +24,7 @@ public class ShardCollectionPersistentState extends PersistentState {
 	);
 
 	public static ShardCollectionPersistentState get(MinecraftServer server) {
-		var result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE, ScatteredShards.ID + "_collections");
+		ShardCollectionPersistentState result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE, ScatteredShards.ID + "_collections");
 		ScatteredShardsAPI.register(result);
 		return result;
 	}

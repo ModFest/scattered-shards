@@ -15,6 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.GlobalCollection;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardIconOffsets;
@@ -100,7 +101,7 @@ public class WMiniShard extends WWidget {
 		}
 		tooltip.add(ShardType.getDescription(shard.shardTypeId()).copy().withColor(shardType.textColor()));
 		if (ScatteredShardsClient.hasShiftDown()) {
-			var globalCollection = ScatteredShardsAPI.getClientGlobalCollection();
+			GlobalCollection globalCollection = ScatteredShardsAPI.getClientGlobalCollection();
 			if (globalCollection != null) {
 				tooltip.add(Text.translatable("gui.scattered_shards.tablet.tooltip.global_collection", "%.1f%%".formatted(100 * globalCollection.getCount(shardId) / (float) globalCollection.totalPlayers())).formatted(Formatting.GRAY));
 			}

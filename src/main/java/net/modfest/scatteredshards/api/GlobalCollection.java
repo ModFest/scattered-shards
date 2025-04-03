@@ -6,6 +6,7 @@ import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class GlobalCollection {
 	int totalPlayers;
@@ -31,8 +32,7 @@ public class GlobalCollection {
 	);
 
 	public int getCount(Identifier shard) {
-		var count = collectionTracker.get(shard);
-		return count != null ? count : 0;
+		return Objects.requireNonNullElse(collectionTracker.get(shard), 0);
 	}
 
 	public void update(Identifier shard, int change, int playerCount) {

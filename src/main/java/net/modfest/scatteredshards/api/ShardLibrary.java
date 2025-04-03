@@ -11,7 +11,9 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -41,14 +43,14 @@ public interface ShardLibrary {
 		PacketCodecs.map(HashMap::new, Identifier.PACKET_CODEC, PacketCodecs.collection(ArrayList::new, Identifier.PACKET_CODEC)).xmap(
 			map -> {
 				SetMultimap<Identifier, Identifier> multimap = MultimapBuilder.hashKeys().hashSetValues(3).build();
-				for (var entry : map.entrySet()) {
+				for (Map.Entry<Identifier, ArrayList<Identifier>> entry : map.entrySet()) {
 					multimap.putAll(entry.getKey(), entry.getValue());
 				}
 				return multimap;
 			},
 			multimap -> {
 				HashMap<Identifier, ArrayList<Identifier>> map = new HashMap<>();
-				for (var entry : multimap.asMap().entrySet()) {
+				for (Map.Entry<Identifier, Collection<Identifier>> entry : multimap.asMap().entrySet()) {
 					map.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 				}
 				return map;

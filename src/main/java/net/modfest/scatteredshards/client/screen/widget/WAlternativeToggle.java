@@ -10,6 +10,7 @@ import juuxel.libninepatch.NinePatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
@@ -148,7 +149,7 @@ public class WAlternativeToggle extends WWidget {
 		int hoverX = (isRight) ? 0 : halfWidth - 1;
 		boolean hovered = (mouseX >= hoverX && mouseY >= 0 && mouseX < hoverX + halfWidth && mouseY < getHeight());
 
-		var matrices = context.getMatrices();
+		MatrixStack matrices = context.getMatrices();
 		matrices.push();
 		matrices.translate(x, y, 0);
 		NinePatch<Identifier> leftButton = map(recessedButton, button);

@@ -47,23 +47,22 @@ public class BlockCommand {
 
 	public static void register(CommandNode<ServerCommandSource> parent) {
 		//Usage: /shard block <shard_id>
-		var blockCommand = Node.literal("block")
-			.requires(
-				Permissions.require(ScatteredShards.permission("command.block"), 2)
-			)
+		CommandNode<ServerCommandSource> blockCommand = ShardCommandNodeHelper.literal("block")
+			.requires(Permissions.require(ScatteredShards.permission("command.block"), 2))
 			.build();
-		var blockIdArgument = Node.shardId("shard_id")
+		CommandNode<ServerCommandSource> blockIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(BlockCommand::block)
 			.build();
-		var blockInteractArgument = Node.booleanValue("can_interact").build();
-		var blockGlowSizeArgument = Node.floatValue("glow_size").build();
-		var blockGlowStrengthArgument = Node.floatValue("glow_strength")
+		CommandNode<ServerCommandSource> blockInteractArgument = ShardCommandNodeHelper.booleanValue("can_interact").build();
+		CommandNode<ServerCommandSource> blockGlowSizeArgument = ShardCommandNodeHelper.floatValue("glow_size").build();
+		CommandNode<ServerCommandSource> blockGlowStrengthArgument = ShardCommandNodeHelper.floatValue("glow_strength")
 			.executes(BlockCommand::blockOptions)
 			.build(); //Already governed by "/shard block" permission
-		blockGlowSizeArgument.addChild(blockGlowStrengthArgument);
-		blockInteractArgument.addChild(blockGlowSizeArgument);
-		blockIdArgument.addChild(blockInteractArgument);
-		blockCommand.addChild(blockIdArgument);
+
 		parent.addChild(blockCommand);
+		blockCommand.addChild(blockIdArgument);
+		blockIdArgument.addChild(blockInteractArgument);
+		blockInteractArgument.addChild(blockGlowSizeArgument);
+		blockGlowSizeArgument.addChild(blockGlowStrengthArgument);
 	}
 }

@@ -99,7 +99,7 @@ public class MiniRegistry<T> {
 	public static <T> PacketCodec<RegistryByteBuf, MiniRegistry<T>> createPacketCodec(Codec<T> valueCodec) {
 		return PacketCodecs.map(HashMap::new, Identifier.PACKET_CODEC, PacketCodecs.codec(valueCodec)).xmap(
 			map -> {
-				var registry = new MiniRegistry<>(valueCodec);
+				MiniRegistry<T> registry = new MiniRegistry<>(valueCodec);
 				registry.putAll(map);
 				return registry;
 			},

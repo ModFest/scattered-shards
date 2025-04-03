@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardLibrary;
 
 public class AwardCommand {
 
@@ -18,7 +19,7 @@ public class AwardCommand {
 		EntitySelector target = ctx.getArgument("players", EntitySelector.class);
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 
-		var library = ScatteredShardsAPI.getServerLibrary();
+		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		library.shards().get(shardId).orElseThrow(() -> ShardCommand.INVALID_SHARD.create(shardId)); //Validate shardId
 
 		int i = 0;
@@ -39,17 +40,15 @@ public class AwardCommand {
 	}
 
 	public static void register(CommandNode<ServerCommandSource> parent) {
-		var awardCommand = Node.literal("award")
-			.requires(
-				Permissions.require(ScatteredShards.permission("command.award"), 2)
-			)
+		CommandNode<ServerCommandSource> awardCommand = ShardCommandNodeHelper.literal("award")
+			.requires(Permissions.require(ScatteredShards.permission("command.award"), 2))
 			.build();
-		var awardPlayerArgument = Node.players("players").build();
-		var awardIdArgument = Node.shardId("shard_id")
+		CommandNode<ServerCommandSource> awardPlayerArgument = ShardCommandNodeHelper.players("players").build();
+		CommandNode<ServerCommandSource> awardIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(AwardCommand::award)
 			.build();
+		parent.addChild(awardCommand);
 		awardCommand.addChild(awardPlayerArgument);
 		awardPlayerArgument.addChild(awardIdArgument);
-		parent.addChild(awardCommand);
 	}
 }

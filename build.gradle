@@ -32,6 +32,10 @@ dependencies {
 	include libs.fpapi
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/${modId}.accesswidener")
+}
+
 processResources {
 	final Map<String, String> meta = [
 		version       : version,

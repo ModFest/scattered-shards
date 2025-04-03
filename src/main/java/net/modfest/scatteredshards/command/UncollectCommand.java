@@ -6,12 +6,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
 import net.modfest.scatteredshards.networking.S2CSyncCollection;
 
@@ -47,11 +49,11 @@ public class UncollectCommand {
 	 */
 	public static int uncollectAll(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-		var collection = ScatteredShardsAPI.getServerCollection(player);
+		ShardCollection collection = ScatteredShardsAPI.getServerCollection(player);
 		int shardsToDelete = collection.size();
 		collection.clear();
 		ServerPlayNetworking.send(player, new S2CSyncCollection(collection));
-		var server = ctx.getSource().getServer();
+		MinecraftServer server = ctx.getSource().getServer();
 		ShardCollectionPersistentState.get(server).markDirty();
 
 		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect.all", shardsToDelete), false);
@@ -60,26 +62,25 @@ public class UncollectCommand {
 	}
 
 	public static void register(CommandNode<ServerCommandSource> parent) {
-		var uncollectCommand = Node.literal("uncollect")
-			.requires(
-				Permissions.require(ScatteredShards.permission("command.uncollect"), 2)
-			)
+		CommandNode<ServerCommandSource> uncollectCommand = ShardCommandNodeHelper.literal("uncollect")
+			.requires(Permissions.require(ScatteredShards.permission("command.uncollect"), 2))
 			.build();
-		parent.addChild(uncollectCommand);
 
 		//syntax: uncollect <shard_id>
-		var uncollectIdArgument = Node.collectedShardId("shard_id")
+		CommandNode<ServerCommandSource> uncollectIdArgument = ShardCommandNodeHelper.collectedShardId("shard_id")
 			.executes(UncollectCommand::uncollect)
 			.build();
-		uncollectCommand.addChild(uncollectIdArgument);
 
 		//syntax: uncollect all
-		var uncollectAllCommand = Node.literal("all")
+		CommandNode<ServerCommandSource> uncollectAllCommand = ShardCommandNodeHelper.literal("all")
+			.executes(UncollectCommand::uncollectAll)
 			.requires(
 				Permissions.require(ScatteredShards.permission("command.uncollect.all"), 2)
 			)
-			.executes(UncollectCommand::uncollectAll)
 			.build();
+
+		parent.addChild(uncollectCommand);
+		uncollectCommand.addChild(uncollectIdArgument);
 		uncollectCommand.addChild(uncollectAllCommand);
 	}
 }

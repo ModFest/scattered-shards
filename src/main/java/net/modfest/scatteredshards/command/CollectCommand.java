@@ -29,15 +29,13 @@ public class CollectCommand {
 	}
 
 	public static void register(CommandNode<ServerCommandSource> parent) {
-		var collectCommand = Node.literal("collect")
-			.requires(
-				Permissions.require(ScatteredShards.permission("command.collect"), 2)
-			)
+		CommandNode<ServerCommandSource> collectCommand = ShardCommandNodeHelper.literal("collect")
+			.requires(Permissions.require(ScatteredShards.permission("command.collect"), 2))
 			.build();
-		var collectIdArgument = Node.shardId("shard_id")
+		CommandNode<ServerCommandSource> collectIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(CollectCommand::collect)
 			.build();
-		collectCommand.addChild(collectIdArgument);
 		parent.addChild(collectCommand);
+		collectCommand.addChild(collectIdArgument);
 	}
 }

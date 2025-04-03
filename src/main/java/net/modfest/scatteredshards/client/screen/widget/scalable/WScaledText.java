@@ -99,12 +99,11 @@ public class WScaledText extends WScalableWidget {
 
 	@Override
 	public void paintScaled(DrawContext context, int width, int height, int mouseX, int mouseY) {
-		MinecraftClient mc = MinecraftClient.getInstance();
-		TextRenderer renderer = mc.textRenderer;
+		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 		int frameColor = color.getAsInt();
-		List<OrderedText> lines = renderer.wrapLines(text.get(), width);
+		List<OrderedText> lines = textRenderer.wrapLines(text.get(), width);
 
-		int totalHeight = renderer.fontHeight * lines.size();
+		int totalHeight = textRenderer.fontHeight * lines.size();
 
 		int yOffset = switch (verticalAlignment) {
 			case CENTER -> height / 2 - totalHeight / 2;
@@ -113,7 +112,7 @@ public class WScaledText extends WScalableWidget {
 		};
 
 		for (int i = 0; i < lines.size(); i++) {
-			int lineY = renderer.fontHeight * i;
+			int lineY = textRenderer.fontHeight * i;
 			if (shadow) {
 				ScreenDrawing.drawStringWithShadow(context, lines.get(i), horizontalAlignment, 0, yOffset + lineY, width, frameColor);
 			} else {

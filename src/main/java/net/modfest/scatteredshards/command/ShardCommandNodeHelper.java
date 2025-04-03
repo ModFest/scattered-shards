@@ -10,6 +10,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
@@ -21,7 +22,7 @@ import net.modfest.scatteredshards.api.shard.ShardType;
 
 import java.util.concurrent.CompletableFuture;
 
-public class Node {
+public class ShardCommandNodeHelper {
 	public static LiteralArgumentBuilder<ServerCommandSource> literal(String name) {
 		return LiteralArgumentBuilder.literal(name);
 	}
@@ -82,6 +83,10 @@ public class Node {
 		return RequiredArgumentBuilder.argument(name, StringArgumentType.string());
 	}
 
+	public static RequiredArgumentBuilder<ServerCommandSource, Identifier> identifierArgument(String name) {
+		return RequiredArgumentBuilder.argument(name, IdentifierArgumentType.identifier());
+	}
+
 	/**
 	 * Creates literal nodes as necessary to extend a command path to include the desired command node, and returns the
 	 * node. If the node already exists, just find and return it.
@@ -94,7 +99,7 @@ public class Node {
 	public CommandNode<ServerCommandSource> getOrCreate(CommandNode<ServerCommandSource> root, String... path) {
 		CommandNode<ServerCommandSource> cur = root;
 		for (String pathElement : path) {
-			var maybeChild = cur.getChild(pathElement);
+			CommandNode<ServerCommandSource> maybeChild = cur.getChild(pathElement);
 			if (maybeChild == null) {
 				maybeChild = literal(pathElement).build();
 				cur.addChild(maybeChild);
@@ -105,8 +110,8 @@ public class Node {
 		return cur;
 	}
 
-	public static CompletableFuture<Suggestions> suggestModIds(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-		for (var mod : FabricLoader.getInstance().getAllMods()) {
+	public static CompletableFuture<Suggestions> suggestModIds(CommandContext<?> context, SuggestionsBuilder builder) {
+		for (ModContainer mod : FabricLoader.getInstance().getAllMods()) {
 			builder.suggest(mod.getMetadata().getId());
 		}
 		return builder.buildFuture();

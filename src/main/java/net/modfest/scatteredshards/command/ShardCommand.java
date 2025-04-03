@@ -1,7 +1,9 @@
 package net.modfest.scatteredshards.command;
 
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 public class ShardCommand {
@@ -16,14 +18,20 @@ public class ShardCommand {
 
 	public static void register() {
 		CommandRegistrationCallback.EVENT.register((dispatcher, context, environment) -> {
-			var shardRoot = Node.literal("shard").build();
-			dispatcher.getRoot().addChild(shardRoot);
+			/*
+			I'm not setting a permission for this one because the "subcommands" have their own unique permission settings
+			- SkyNotTheLimit
+			 */
+			CommandNode<ServerCommandSource> shardNode = ShardCommandNodeHelper.literal("shard").build();
 
-			CollectCommand.register(shardRoot);
-			AwardCommand.register(shardRoot);
-			UncollectCommand.register(shardRoot);
-			BlockCommand.register(shardRoot);
-			LibraryCommand.register(shardRoot);
+			dispatcher.getRoot().addChild(shardNode);
+
+			CollectCommand.register(shardNode);
+			AwardCommand.register(shardNode);
+			UncollectCommand.register(shardNode);
+			BlockCommand.register(shardNode);
+			ItemCommand.register(shardNode);
+			LibraryCommand.register(shardNode);
 		});
 	}
 }

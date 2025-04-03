@@ -1,6 +1,7 @@
 package net.modfest.scatteredshards.client.screen.widget;
 
 import com.mojang.datafixers.util.Either;
+import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WSprite;
@@ -10,6 +11,7 @@ import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.OrderedText;
@@ -188,10 +190,10 @@ public class WShardPanel extends WPlainPanel {
 			return;
 		}
 
-		var backgroundPainter = this.getBackgroundPainter();
+		BackgroundPainter backgroundPainter = this.getBackgroundPainter();
 		if (backgroundPainter != null) backgroundPainter.paintBackground(context, x, y, this);
 
-		var textRenderer = MinecraftClient.getInstance().textRenderer;
+		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 		List<OrderedText> lines = textRenderer.wrapLines(hideText, 108);
 		int yOffset = 30;
 		int layoutWidth = this.getWidth() - this.getInsets().left() - this.getInsets().right();

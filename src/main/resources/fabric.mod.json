@@ -27,6 +27,7 @@
 		"libgui": ">=${libgui}",
 		"fabric-permissions-api-v0": ">=${fpapi}"
 	},
+	"accessWidener": "${modId}.accesswidener",
 	"entrypoints": {
 		"main": [
 			"net.modfest.scatteredshards.ScatteredShards"
