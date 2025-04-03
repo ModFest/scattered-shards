@@ -23,7 +23,6 @@ import java.util.List;
 public class ShardCollectedToast implements Toast {
 	public static final int TITLE_COLOR = 0xFF_FFFF00;
 	public static final Text TITLE = Text.translatable("toast.scattered_shards.collected");
-	public static final Text HINT = Text.translatable("toast.scattered_shards.collected.prompt", Text.keybind(ScatteredShardsClient.VIEW_COLLECTION.getTranslationKey()).formatted(Formatting.GOLD).formatted(Formatting.BOLD));
 	private static final Identifier TEXTURE = Identifier.ofVanilla("toast/advancement");
 	public static final int DURATION = 5000;
 
@@ -33,9 +32,24 @@ public class ShardCollectedToast implements Toast {
 	private final int height;
 
 	public ShardCollectedToast(Shard shard) {
+		
+		Text hint;
+		
+		if (ScatteredShardsClient.VIEW_COLLECTION.isUnbound()) {
+			hint = Text.translatable(
+					"toast.scattered_shards.collected.prompt_without_key",
+					Text.literal("/shards").formatted(Formatting.AQUA).formatted(Formatting.BOLD)
+					);
+		} else {
+			hint = Text.translatable(
+					"toast.scattered_shards.collected.prompt",
+					Text.keybind(ScatteredShardsClient.VIEW_COLLECTION.getTranslationKey()).formatted(Formatting.GOLD).formatted(Formatting.BOLD)
+					);
+		}
+		
 		this.icon = shard.icon();
 		this.descLines = wrap(List.of(shard.name().copy().withColor(ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING).textColor())));
-		this.hintLines = wrap(List.of(HINT));
+		this.hintLines = wrap(List.of(hint));
 		this.height = 32 + Math.max(0, Math.max(this.descLines.size(), this.hintLines.size()) - 1) * 11;
 		icon.ifRight(ModMetaUtil::touchIconTexture);
 	}

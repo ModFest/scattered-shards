@@ -26,7 +26,7 @@ import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 public class ScatteredShardsClient implements ClientModInitializer {
 	public static final KeyBinding VIEW_COLLECTION = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 		"key.scattered_shards.collection",
-		InputUtil.GLFW_KEY_J,
+		InputUtil.UNKNOWN_KEY.getCode(),
 		"key.categories.scattered_shards"
 	));
 

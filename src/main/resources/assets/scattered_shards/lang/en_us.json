@@ -34,6 +34,7 @@
 
 	"toast.scattered_shards.collected": "Shard Collected!",
 	"toast.scattered_shards.collected.prompt": "Press [%s] to view",
+	"toast.scattered_shards.collected.prompt_without_key": "Use %s to view",
 	"toast.scattered_shards.shard_mod.title": "Shard Modification",
 	"toast.scattered_shards.shard_mod.success": "Successfully modified '%s'",
 	"toast.scattered_shards.shard_mod.fail": "Failed to modify '%s'",
