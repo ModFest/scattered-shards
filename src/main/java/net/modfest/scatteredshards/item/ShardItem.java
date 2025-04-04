@@ -1,5 +1,6 @@
 package net.modfest.scatteredshards.item;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -40,25 +41,17 @@ public class ShardItem extends Item {
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-		var itemStack = player.getStackInHand(hand);
-		var id = itemStack.get(ScatteredShardsContent.SHARD_ID_COMPONENT);
+	public void inventoryTick(ItemStack itemStack, World world, Entity entity, int slot, boolean selected) {
+		if (world.isClient || !(entity instanceof ServerPlayerEntity player) || player.isInCreativeMode()) return;
 
-		if (world.isClient) {
-			return TypedActionResult.consume(itemStack);
-		}
-
-		itemStack.decrementUnlessCreative(1, player);
+		Identifier id = itemStack.get(ScatteredShardsContent.SHARD_ID_COMPONENT);
+		player.getInventory().setStack(slot, ItemStack.EMPTY);
 
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		Optional<Shard> toCollect = library.shards().get(id);
+		if (toCollect.isEmpty()) return;
 
-		if (toCollect.isEmpty() || !(player instanceof ServerPlayerEntity serverPlayer)) {
-			return TypedActionResult.fail(itemStack);
-		}
-
-		ScatteredShardsAPI.triggerShardCollection(serverPlayer, id);
-		return TypedActionResult.consume(itemStack);
+		ScatteredShardsAPI.triggerShardCollection(player, id);
 	}
 
 	@Override
