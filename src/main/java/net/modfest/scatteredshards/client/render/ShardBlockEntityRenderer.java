@@ -20,7 +20,9 @@ import net.minecraft.util.math.RotationAxis;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
+import net.modfest.scatteredshards.api.shard.ShardDisplaySettings;
 import net.modfest.scatteredshards.api.shard.ShardIconOffsets;
+import net.modfest.scatteredshards.api.shard.ShardTextureSettings;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.block.ShardBlockEntity;
 import net.modfest.scatteredshards.util.ModMetaUtil;
@@ -72,8 +74,9 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		 * The card is 24 x 32, meaning it's 0.75 x as wide as it is tall.
 		 * 0.75 x 0.75 == 0.5625 or 18/32 is the card's proper width
 		 */
-		float cardHeight = 24 / 32f;
-		float cardWidth = 18 / 32f;
+		ShardTextureSettings.Size size = shardType.getTextureSettings().getSize();
+		float cardHeight = size.height() / 32f;
+		float cardWidth = size.width() / 32f;
 
 		float halfHeight = cardHeight / 2f;
 		float halfWidth = cardWidth / 2f;
@@ -167,7 +170,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		 * (in card-image pixels) for the card-icon texture
 		 *
 		 */
-		float xpx = 1 / 24f * cardWidth;
+		float xpx = 1 / 32f * cardWidth;
 		float ypx = 1 / 32f * cardHeight;
 
 		ShardIconOffsets.Offset offset = shardType.getOffsets().getNormal();

@@ -19,6 +19,7 @@ import net.modfest.scatteredshards.api.GlobalCollection;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardIconOffsets;
+import net.modfest.scatteredshards.api.shard.ShardTextureSettings;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.ScatteredShardsClient;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
@@ -34,6 +35,8 @@ public class WMiniShard extends WWidget {
 	protected ShardType shardType = null;
 	protected boolean isCollected = false;
 	protected Identifier shardId;
+	private int width = (int)ShardTextureSettings.Size.DEFAULT_MINI.width();
+	private int height = (int)ShardTextureSettings.Size.DEFAULT_MINI.height();
 
 	protected Consumer<Shard> shardConsumer = (it) -> {
 	};
@@ -47,6 +50,9 @@ public class WMiniShard extends WWidget {
 		this.shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
 		this.isCollected = collected;
 		this.shardId = shardId;
+		ShardTextureSettings.Size size = shardType.getTextureSettings().getMiniSize();
+		this.width = (int)size.width();
+		this.height = (int)size.height();
 
 		return this;
 	}
@@ -62,7 +68,7 @@ public class WMiniShard extends WWidget {
 		Identifier tex = (isCollected) ? ShardType.getMiniFrontTexture(shard.shardTypeId()) : ShardType.getMiniBackingTexture(shard.shardTypeId());
 		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
 		float opacity = (isCollected) ? 1.0f : 0.6f;
-		ScreenDrawing.texturedRect(context, x, y, 12, 16, tex, color, opacity);
+		ScreenDrawing.texturedRect(context, x, y, getWidth(), getHeight(), tex, color, opacity);
 		if (isCollected && ScatteredShardsAPI.getClientLibrary().shardDisplaySettings().drawMiniIcons()) {
 			//Maybe draw a teeny tiny icon
 
@@ -80,7 +86,7 @@ public class WMiniShard extends WWidget {
 
 		boolean hovered = (mouseX >= 0 && mouseY >= 0 && mouseX < getWidth() && mouseY < getHeight());
 		if (hovered) {
-			ScreenDrawing.texturedRect(context, x - 2, y - 2, 16, 20, MINI_OUTLINE, 0, 0, 1, 1, 0xFF_FFFFFF);
+			ScreenDrawing.texturedRect(context, x - 2, y - 2, getWidth()+4, getHeight()+4, MINI_OUTLINE, 0, 0, 1, 1, 0xFF_FFFFFF);
 
 			renderTooltip(context, x, y, mouseX, mouseY);
 		} else if ( // Awful bullshit write real code later
@@ -89,7 +95,7 @@ public class WMiniShard extends WWidget {
 				&& wlrp.rightPanel instanceof WShardPanel wsp
 				&& wsp.getShard() == shard
 		) {
-			ScreenDrawing.texturedRect(context, x - 2, y - 2, 16, 20, MINI_OUTLINE_SLIGHT, 0, 0, 1, 1, 0xFF_FFFFFF);
+			ScreenDrawing.texturedRect(context, x - 2, y - 2, getWidth()+4, getHeight()+4, MINI_OUTLINE_SLIGHT, 0, 0, 1, 1, 0xFF_FFFFFF);
 		}
 	}
 
@@ -123,11 +129,11 @@ public class WMiniShard extends WWidget {
 
 	@Override
 	public int getWidth() {
-		return 12;
+		return width;
 	}
 
 	@Override
 	public int getHeight() {
-		return 16;
+		return height;
 	}
 }

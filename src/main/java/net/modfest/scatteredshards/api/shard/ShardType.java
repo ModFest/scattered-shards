@@ -20,12 +20,12 @@ import net.modfest.scatteredshards.api.impl.ColorCodec;
 
 import java.util.Optional;
 
-public record ShardType(int textColor, int glowColor, Optional<ShardIconOffsets> offsets, Optional<ParticleType<?>> collectParticle, Optional<SoundEvent> collectSound, int listOrder) {
+public record ShardType(int textColor, int glowColor, Optional<ShardDisplaySettings> displaySettings, Optional<ParticleType<?>> collectParticle, Optional<SoundEvent> collectSound, int listOrder) {
 
 	public static final Codec<ShardType> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		ColorCodec.CODEC.fieldOf("text_color").forGetter(ShardType::textColor),
 		ColorCodec.CODEC.fieldOf("glow_color").forGetter(ShardType::glowColor),
-		Codec.optionalField("icon_offsets", ShardIconOffsets.CODEC, false).forGetter(ShardType::offsets),
+		Codec.optionalField("display", ShardDisplaySettings.CODEC, false).forGetter(ShardType::displaySettings),
 		Codec.optionalField("collect_particle", Registries.PARTICLE_TYPE.getCodec(), false).forGetter(ShardType::collectParticle),
 		Codec.optionalField("collect_sound", SoundEvent.CODEC, false).forGetter(ShardType::collectSound),
 		Codec.INT.fieldOf("list_order").forGetter(ShardType::listOrder)
@@ -34,7 +34,7 @@ public record ShardType(int textColor, int glowColor, Optional<ShardIconOffsets>
 	public static final PacketCodec<RegistryByteBuf, ShardType> PACKET_CODEC = PacketCodec.tuple(
 		PacketCodecs.INTEGER, ShardType::textColor,
 		PacketCodecs.INTEGER, ShardType::glowColor,
-		PacketCodecs.optional(ShardIconOffsets.PACKET_CODEC), ShardType::offsets,
+		PacketCodecs.optional(ShardDisplaySettings.PACKET_CODEC), ShardType::displaySettings,
 		PacketCodecs.optional(PacketCodecs.registryCodec(Registries.PARTICLE_TYPE.getCodec())), ShardType::collectParticle,
 		PacketCodecs.optional(SoundEvent.PACKET_CODEC), ShardType::collectSound,
 		PacketCodecs.INTEGER, ShardType::listOrder,
@@ -76,8 +76,14 @@ public record ShardType(int textColor, int glowColor, Optional<ShardIconOffsets>
 		return Text.translatable(id.toTranslationKey("shard_type", "description"));
 	}
 
+	public ShardDisplaySettings getDisplaySettings() {
+		return this.displaySettings.orElse(ShardDisplaySettings.DEFAULT);
+	}
 	public ShardIconOffsets getOffsets() {
-		return this.offsets.orElse(ShardIconOffsets.DEFAULT);
+		return this.getDisplaySettings().getOffsets();
+	}
+	public ShardTextureSettings getTextureSettings() {
+		return this.getDisplaySettings().getTextureSettings();
 	}
 
 	public NbtCompound toNbt() {

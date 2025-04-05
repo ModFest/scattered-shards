@@ -24,6 +24,7 @@ import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardDisplaySettings;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardIconOffsets;
+import net.modfest.scatteredshards.api.shard.ShardTextureSettings;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledText;
@@ -128,6 +129,10 @@ public class WShardPanel extends WPlainPanel {
 		setLore(shard::lore, WHITE);
 		setHint(shard::hint, WHITE);
 
+		int cardScale = 2;
+		ShardTextureSettings.Size size = shardType.getTextureSettings().getSize();
+		backing.setSize((int)size.width() * cardScale, (int)size.height() * cardScale);
+
 		return this;
 	}
 
@@ -158,7 +163,9 @@ public class WShardPanel extends WPlainPanel {
 
 		int cardScale = 2;
 		int cardX = ((this.getLayoutWidth()) / 2) - (12 * cardScale);
-		add(backing, cardX, 40, 24 * cardScale, 32 * cardScale);
+
+		ShardTextureSettings.Size size = shardType.getTextureSettings().getSize();
+		add(backing, cardX, 40, (int)size.width() * cardScale, (int)size.height() * cardScale);
 
 		ShardIconOffsets.Offset offset = this.shardType.getOffsets().getNormal();
 		add(icon, cardX + (offset.left() * cardScale), 40 + (offset.up() * cardScale), 16 * cardScale, 16 * cardScale);
