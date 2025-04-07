@@ -33,7 +33,7 @@ dependencies {
 }
 
 loom {
-	accessWidenerPath = file("src/main/resources/${modId}.accesswidener")
+	accessWidenerPath = file("src/main/resources/scattered_shards.accesswidener")
 }
 
 processResources {

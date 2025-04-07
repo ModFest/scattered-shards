@@ -15,28 +15,28 @@ logoFile = "assets/scattered_shards/icon.png"
 [properties]
 "connector:placeholder" = true
 
-[[dependencies.${ modId }]]
+[[dependencies.scattered_shards]]
 modId = "connector"
 type = "required"
 versionRange = "*"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ modId }]]
+[[dependencies.scattered_shards]]
 modId = "neoforge"
 type = "required"
 versionRange = "*"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ modId }]]
+[[dependencies.scattered_shards]]
 modId = "minecraft"
 type = "required"
 versionRange = "[${mc},)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ modId }]]
+[[dependencies.scattered_shards]]
 modId = "fabric_api"
 type = "required"
 versionRange = "[${fapi},)"
