@@ -4,13 +4,13 @@ license = "${license}"
 issueTrackerURL = "${issues}"
 
 [[mods]]
-modId = "${modId}"
+modId = "scattered_shards"
 version = "${version}"
 displayName = "${modName}"
 description = '''${modDescription}'''
 authors = "${members}"
 displayURL = "${homepage}"
-logoFile = "assets/${modId}/icon.png"
+logoFile = "assets/scattered_shards/icon.png"
 
 [properties]
 "connector:placeholder" = true

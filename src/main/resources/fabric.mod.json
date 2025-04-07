@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "${modId}",
+	"id": "scattered_shards",
 	"version": "${version}",
 	"name": "${modName}",
 	"description": "${modDescription}",
@@ -16,9 +16,9 @@
 		"sources": "${sources}"
 	},
 	"license": "${license}",
-	"icon": "assets/${modId}/icon.png",
+	"icon": "assets/scattered_shards/icon.png",
 	"mixins": [
-		"${modId}.mixins.json"
+		"scattered_shards.mixins.json"
 	],
 	"depends": {
 		"minecraft": ">=${mc}",
@@ -27,7 +27,7 @@
 		"libgui": ">=${libgui}",
 		"fabric-permissions-api-v0": ">=${fpapi}"
 	},
-	"accessWidener": "${modId}.accesswidener",
+	"accessWidener": "scattered_shards.accesswidener",
 	"entrypoints": {
 		"main": [
 			"net.modfest.scatteredshards.ScatteredShards"
