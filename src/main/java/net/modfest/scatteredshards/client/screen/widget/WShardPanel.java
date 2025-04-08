@@ -24,7 +24,6 @@ import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardDisplaySettings;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardIconOffsets;
-import net.modfest.scatteredshards.api.shard.ShardTextureSettings;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledLabel;
 import net.modfest.scatteredshards.client.screen.widget.scalable.WScaledText;
@@ -64,18 +63,37 @@ public class WShardPanel extends WPlainPanel {
 		.setShadow(true)
 		.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
+	public void updateDimensionsAndBacking() {
+		if (shardType == null || shard == null) return;
+		
+		int cardScale = 2;
+		int halfLayoutWidth = this.getLayoutWidth() / 2;
+		int halfShardWidth = (int) (shardType.getTextureSettings().getSize().width() * cardScale) / 2;
+		
+		int cardX = this.insets.left() + (halfLayoutWidth - halfShardWidth); // Center the shard
+		int cardY = this.insets.top() + 40; // Arbitrary Y-offset to dodge text
+		
+		backing.setLocation(cardX, cardY);
+		backing.setImage(ShardType.getFrontTexture(shard.shardTypeId()));
+		backing.setSize((int) shardType.getTextureSettings().getSize().width() * cardScale, (int) shardType.getTextureSettings().getSize().height() * cardScale);
+		
+		ShardIconOffsets.Offset offset = this.shardType.getOffsets().getNormal();
+		
+		int iconX = cardX + (offset.left() * cardScale);
+		int iconY = cardY + (offset.up() * cardScale);
+		
+		icon.setLocation(iconX, iconY);
+		icon.setSize(16 * cardScale, 16 * cardScale);
+	}
+	
 	/**
 	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
 	 */
 	public WShardPanel setType(Identifier shardTypeId, ShardType value) {
 		this.shardType = value;
-
-		int cardScale = 2;
-		int cardX = ((this.getLayoutWidth()) / 2) - (12 * cardScale);
-		ShardIconOffsets.Offset offset = this.shardType.getOffsets().getNormal();
-		this.icon.setLocation(this.insets.left() + cardX + (offset.left() * cardScale), this.insets.top() + 40 + (offset.up() * cardScale));
-
-		backing.setImage(ShardType.getFrontTexture(shardTypeId));
+		
+		updateDimensionsAndBacking();
+		
 		typeDescription.setText(ShardType.getDescription(shardTypeId));
 		typeDescription.setColor(value::textColor);
 		return this;
@@ -128,10 +146,8 @@ public class WShardPanel extends WPlainPanel {
 		setSource(() -> Shard.getSourceForSourceId(shard.sourceId()), WHITE);
 		setLore(shard::lore, WHITE);
 		setHint(shard::hint, WHITE);
-
-		int cardScale = 2;
-		ShardTextureSettings.Size size = shardType.getTextureSettings().getSize();
-		backing.setSize((int)size.width() * cardScale, (int)size.height() * cardScale);
+		
+		updateDimensionsAndBacking();
 
 		return this;
 	}
@@ -163,12 +179,10 @@ public class WShardPanel extends WPlainPanel {
 
 		int cardScale = 2;
 		int cardX = ((this.getLayoutWidth()) / 2) - (12 * cardScale);
-
-		ShardTextureSettings.Size size = shardType.getTextureSettings().getSize();
-		add(backing, cardX, 40, (int)size.width() * cardScale, (int)size.height() * cardScale);
-
-		ShardIconOffsets.Offset offset = this.shardType.getOffsets().getNormal();
-		add(icon, cardX + (offset.left() * cardScale), 40 + (offset.up() * cardScale), 16 * cardScale, 16 * cardScale);
+		
+		add(backing, 0, 0, 32, 32);
+		
+		add(icon, 0, 0, 16, 16); //sizing set later in updateDimensionsAndBacking()
 
 
 		add(lore, 0, 113, getLayoutWidth(), 32);

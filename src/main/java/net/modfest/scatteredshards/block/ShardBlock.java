@@ -27,6 +27,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -114,13 +115,31 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 			tryCollect(world, player, be);
 		}
 	}
-
+	
+	@Override
+	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
+		
+		BlockEntity entity = world.getBlockEntity(pos);
+		if (world.isClient() && entity instanceof ShardBlockEntity shardEntity) {
+			Identifier shardId = shardEntity.getShardId();
+			ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
+			return createShardBlock(library, shardId, shardEntity.canInteract(), shardEntity.getGlowSize(), shardEntity.getGlowStrength());
+		} else {
+			
+			return super.getPickStack(world, pos, state);
+		}
+	}
+	
 	/**
 	 * Creates a shard block
 	 *
 	 * @return the shard block
 	 */
 	public static ItemStack createShardBlock(ShardLibrary library, Identifier shardId, boolean canInteract, float glowSize, float glowStrength) {
+		Shard shard = library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
+		ShardType shardType = library.shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
+		return createShardBlock(shardType, shardId, shard, canInteract, glowSize, glowStrength);
+		/*
 		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
 
 		NbtCompound blockEntityTag = new NbtCompound();
@@ -131,6 +150,31 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		Shard shard = library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
 		stack.set(DataComponentTypes.ITEM_NAME, shard.name());
 		ShardType shardType = library.shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
+		Text shardTypeDesc = ShardType.getDescription(shard.shardTypeId()).copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
+		LoreComponent lore = new LoreComponent(List.of(shardTypeDesc));
+		stack.set(DataComponentTypes.LORE, lore);
+
+		blockEntityTag.putBoolean("CanInteract", canInteract);
+
+		NbtCompound glowTag = new NbtCompound();
+		glowTag.putFloat("size", glowSize);
+		glowTag.putFloat("strength", glowStrength);
+		blockEntityTag.put("Glow", glowTag);
+
+		stack.set(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.of(blockEntityTag));
+
+		return stack;*/
+	}
+	
+	public static ItemStack createShardBlock(ShardType shardType, Identifier shardId, Shard shard, boolean canInteract, float glowSize, float glowStrength) {
+		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
+		
+		NbtCompound blockEntityTag = new NbtCompound();
+		blockEntityTag.putString("id", ScatteredShardsContent.SHARD_BLOCK_ID.toString()); // required, see NbtComponent.CODEC_WITH_ID
+		blockEntityTag.putString("Shard", shardId.toString());
+
+		//Fill in name / lore
+		stack.set(DataComponentTypes.ITEM_NAME, shard.name());
 		Text shardTypeDesc = ShardType.getDescription(shard.shardTypeId()).copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
 		LoreComponent lore = new LoreComponent(List.of(shardTypeDesc));
 		stack.set(DataComponentTypes.LORE, lore);

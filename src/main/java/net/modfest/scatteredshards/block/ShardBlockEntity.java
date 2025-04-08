@@ -80,6 +80,10 @@ public class ShardBlockEntity extends BlockEntity {
 	public float getGlowStrength() {
 		return glowStrength;
 	}
+	
+	public boolean canInteract() {
+		return canInteract;
+	}
 
 	@Override
 	protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
