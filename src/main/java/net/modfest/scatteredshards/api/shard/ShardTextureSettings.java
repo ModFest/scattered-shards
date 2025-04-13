@@ -34,7 +34,7 @@ public record ShardTextureSettings (Optional<Size> size, Optional<Size> miniSize
 			ShardTextureSettings.Size::new
 		);
 
-		public static final Size DEFAULT = new Size(18, 24);
+		public static final Size DEFAULT = new Size(24, 32);
 		public static final Size DEFAULT_MINI = new Size(12, 16);
 	}
 

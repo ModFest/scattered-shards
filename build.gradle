@@ -33,13 +33,12 @@ dependencies {
 }
 
 loom {
-	accessWidenerPath = file("src/main/resources/${modId}.accesswidener")
+	accessWidenerPath = file("src/main/resources/scattered_shards.accesswidener")
 }
 
 processResources {
 	final Map<String, String> meta = [
 		version       : version,
-		modId         : modId,
 		modName       : modName,
 		modDescription: modDescription,
 		homepage      : "https://modrinth.com/mod/${slug}",

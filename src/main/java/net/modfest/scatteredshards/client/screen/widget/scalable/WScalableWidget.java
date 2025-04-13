@@ -13,6 +13,7 @@ public abstract class WScalableWidget extends WWidget {
 	@Override
 	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
 		context.getMatrices().push();
+		
 		context.getMatrices().translate(x, y, 0);
 		context.getMatrices().scale(scale, scale, 1.0f);
 

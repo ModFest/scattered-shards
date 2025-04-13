@@ -27,11 +27,14 @@ import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.block.ShardBlockEntity;
 import net.modfest.scatteredshards.util.ModMetaUtil;
 import org.joml.AxisAngle4f;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
 public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity> {
+	public static final float BLOCK_SCALE = 0.75f;
+	
 	private static final Identifier DISTANCE_GLOW_TEX = ScatteredShards.id("textures/entity/shard_distance_glow.png");
 	private static final Identifier DISTANCE_HALO_TEX = ScatteredShards.id("textures/entity/shard_distance_halo.png");
 
@@ -70,13 +73,16 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		/*
 		 * A note about scale here:
-		 * 0.75m or 24/32 == 32px on the card face.
-		 * The card is 24 x 32, meaning it's 0.75 x as wide as it is tall.
-		 * 0.75 x 0.75 == 0.5625 or 18/32 is the card's proper width
+		 * Cards are about 0.75m in their largest dimension.
+		 * 
+		 * Pixel density is largestSize px / BLOCK_SCALE m
+		 * That defaults to 32/0.75 or 42.6 px/m, but can vary depending on the shard backing size.
 		 */
 		ShardTextureSettings.Size size = shardType.getTextureSettings().getSize();
-		float cardHeight = size.height() / 32f;
-		float cardWidth = size.width() / 32f;
+		float largestSize = Math.max(size.width(), size.height());
+		float metersPerPixel = BLOCK_SCALE / largestSize;
+		float cardHeight = size.height() * metersPerPixel;
+		float cardWidth = size.width() * metersPerPixel;
 
 		float halfHeight = cardHeight / 2f;
 		float halfWidth = cardWidth / 2f;
@@ -156,58 +162,47 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			.light(actualLight)
 			.normal(matrices.peek(), revNormal.x(), revNormal.y(), revNormal.z());
 
-		/*
-		 * Another note about scale:
-		 * because there are a different number of texels in each dimension, we need a separate pixel ratio for width
-		 * and height:
-		 *
-		 * For width, 1.0 equates to 24px, so the ratio is 1/24f
-		 * For height, 1.0 equates to 32px, so the ratio is 1/32f
-		 *
-		 * To translate this into distance units, we multiply by the size of the card in meters in that dimensions.
-		 *
-		 * Once that's done, with our {4, 4, 4, 12} insets, we arrive at a perfect 16px x 16px square
-		 * (in card-image pixels) for the card-icon texture
-		 *
-		 */
-		float xpx = 1 / 32f * cardWidth;
-		float ypx = 1 / 32f * cardHeight;
-
 		ShardIconOffsets.Offset offset = shardType.getOffsets().getNormal();
 
 		shard.icon().ifLeft(stack -> {
-			matrices.translate((4 - offset.left()) * xpx, (8 - offset.up()) * ypx, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			matrices.translate((offset.left() - 8) * metersPerPixel, (offset.up() - 8) * metersPerPixel, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
 			matrices.scale(-0.38f, 0.38f, 0.001f /*0.6f*/);
-
 
 			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, actualLight, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
 		});
 
 		shard.icon().ifRight(texId -> {
 			VertexConsumer v = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(texId));
+			
+			Matrix4f positionMatrix = matrices.peek().getPositionMatrix();
+			
+			int left = offset.left();
+			int top = offset.up();
+			int right = left + 16;
+			int bottom = top + 16;
 
-			v.vertex(matrices.peek().getPositionMatrix(), dl.x + (offset.right() * xpx), dl.y + (offset.down() * ypx), dl.z - 0.002f)
+			v.vertex(positionMatrix, ur.x - (right * metersPerPixel), ur.y - (bottom * metersPerPixel), ur.z - 0.002f)
 				.color(0xFF_FFFFFF)
 				.texture(1, 1)
 				.overlay(overlay)
 				.light(actualLight)
 				.normal(matrices.peek(), revNormal.x(), revNormal.y(), revNormal.z());
 
-			v.vertex(matrices.peek().getPositionMatrix(), ul.x + (offset.right() * xpx), ul.y - (offset.up() * ypx), ul.z - 0.002f)
+			v.vertex(positionMatrix, ur.x - (right * metersPerPixel), ur.y - (top * metersPerPixel), ur.z - 0.002f)
 				.color(0xFF_FFFFFF)
 				.texture(1, 0)
 				.overlay(overlay)
 				.light(actualLight)
 				.normal(matrices.peek(), revNormal.x(), revNormal.y(), revNormal.z());
 
-			v.vertex(matrices.peek().getPositionMatrix(), ur.x - (offset.left() * xpx), ur.y - (offset.up() * ypx), ur.z - 0.002f)
+			v.vertex(positionMatrix, ur.x - (left * metersPerPixel), ur.y - (top * metersPerPixel), ur.z - 0.002f)
 				.color(0xFF_FFFFFF)
 				.texture(0, 0)
 				.overlay(overlay)
 				.light(actualLight)
 				.normal(matrices.peek(), revNormal.x(), revNormal.y(), revNormal.z());
 
-			v.vertex(matrices.peek().getPositionMatrix(), dr.x - (offset.left() * xpx), dr.y + (offset.down() * ypx), dr.z - 0.002f)
+			v.vertex(positionMatrix, ur.x - (left * metersPerPixel), ur.y - (bottom * metersPerPixel), ur.z - 0.002f)
 				.color(0xFF_FFFFFF)
 				.texture(0, 1)
 				.overlay(overlay)
