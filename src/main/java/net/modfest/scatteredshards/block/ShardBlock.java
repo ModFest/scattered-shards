@@ -115,21 +115,26 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 			tryCollect(world, player, be);
 		}
 	}
-	
+
 	@Override
 	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
-		
+
 		BlockEntity entity = world.getBlockEntity(pos);
 		if (world.isClient() && entity instanceof ShardBlockEntity shardEntity) {
 			Identifier shardId = shardEntity.getShardId();
 			ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
+
+			if (shardId == null || library == null) {
+				return super.getPickStack(world, pos, state);
+			}
+
 			return createShardBlock(library, shardId, shardEntity.canInteract(), shardEntity.getGlowSize(), shardEntity.getGlowStrength());
 		} else {
-			
+
 			return super.getPickStack(world, pos, state);
 		}
 	}
-	
+
 	/**
 	 * Creates a shard block
 	 *
@@ -165,10 +170,10 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 
 		return stack;*/
 	}
-	
+
 	public static ItemStack createShardBlock(ShardType shardType, Identifier shardId, Shard shard, boolean canInteract, float glowSize, float glowStrength) {
 		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
-		
+
 		NbtCompound blockEntityTag = new NbtCompound();
 		blockEntityTag.putString("id", ScatteredShardsContent.SHARD_BLOCK_ID.toString()); // required, see NbtComponent.CODEC_WITH_ID
 		blockEntityTag.putString("Shard", shardId.toString());
