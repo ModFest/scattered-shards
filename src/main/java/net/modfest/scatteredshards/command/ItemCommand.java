@@ -11,6 +11,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
+import net.modfest.scatteredshards.api.ScatteredShardsAPI;
+import net.modfest.scatteredshards.api.ShardLibrary;
+import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.item.ShardItem;
 
 public class ItemCommand {
@@ -18,8 +21,11 @@ public class ItemCommand {
 	public static int item(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
+		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 
-		ItemStack stack = ShardItem.createShardItem(shardId);
+		var name = library.shards().get(shardId).map(Shard::name).orElse(null);
+
+		ItemStack stack = ShardItem.createShardItem(shardId, name);
 
 		player.getInventory().offerOrDrop(stack);
 
