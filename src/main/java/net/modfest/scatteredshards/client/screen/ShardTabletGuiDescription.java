@@ -46,7 +46,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		shardPanel.setShard(library.shards().get(INITIAL_SHARD).orElse(Shard.MISSING_SHARD));
 
 		List<Identifier> ids = new ArrayList<>(this.library.shardSets().keySet());
-		ids.sort(Comparator.comparing((setId) -> Shard.getSourceForSourceId(setId).getString()));
+		ids.sort(Comparator.comparing((setId) -> Shard.getSourceForSourceId(setId).getString().toLowerCase()));
 
 		shardSelector = new WListPanel<>(ids, WShardSetPanel::new, this::configurePanel);
 		shardSelector.getScrollBar().setScrollingSpeed(1);
