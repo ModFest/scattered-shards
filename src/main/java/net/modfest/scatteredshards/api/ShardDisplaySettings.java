@@ -26,7 +26,7 @@ public class ShardDisplaySettings {
 	).apply(instance, ShardDisplaySettings::new));
 
 	public static final PacketCodec<RegistryByteBuf, ShardDisplaySettings> PACKET_CODEC = PacketCodec.tuple(
-		PacketCodecs.BOOL, ShardDisplaySettings::drawMiniIcons,
+		PacketCodecs.BOOLEAN, ShardDisplaySettings::drawMiniIcons,
 		PacketCodecs.INTEGER, ShardDisplaySettings::libraryColor,
 		PacketCodecs.INTEGER, ShardDisplaySettings::librarySetNameColor,
 		PacketCodecs.INTEGER, ShardDisplaySettings::viewerTopColor,

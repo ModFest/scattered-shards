@@ -7,7 +7,6 @@ import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.tooltip.HoveredTooltipPositioner;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
@@ -88,14 +87,16 @@ public class WScaledLabel extends WScalableWidget {
 		//Paint background here because it's one pixel more accurate; results are validated for scaled painting already.
 		if (backgroundColor != 0) ScreenDrawing.coloredRect(context, x, y, getWidth(), getHeight(), backgroundColor);
 
-		Scissors.push(x, y, width, height);
+		context.enableScissor(x, y, x + width, y + height);
 		super.paint(context, x, y, mouseX, mouseY);
-		Scissors.pop();
+		context.disableScissor();
 
 		if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
 			List<OrderedText> tooltip = hover.get();
 			if (!tooltip.isEmpty()) {
-				context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltip, HoveredTooltipPositioner.INSTANCE, x + mouseX, y + mouseY);
+
+				context.drawTooltip(tooltip, x + mouseX, y + mouseY);
+
 			}
 		}
 	}
@@ -128,7 +129,7 @@ public class WScaledLabel extends WScalableWidget {
 			xofs = (int) MathHelper.lerp(t, 0.0, scrollWidth);
 		}
 
-		context.setShaderColor(1, 1, 1, 1);
+		//context.setShaderColor(1, 1, 1, 1);
 		if (shadow) {
 			ScreenDrawing.drawStringWithShadow(context, text, alignment, x - xofs, y, width, color);
 		} else {

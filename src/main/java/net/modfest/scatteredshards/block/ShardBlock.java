@@ -13,6 +13,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCollisionHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -28,6 +29,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -40,7 +42,7 @@ import java.util.Optional;
 
 public class ShardBlock extends Block implements BlockEntityProvider {
 	public static final VoxelShape SHAPE = VoxelShapes.cuboid(4 / 16f, 3 / 16f, 4 / 16f, 12 / 16f, 13 / 16f, 12 / 16f);
-	private static final Block.Settings SETTINGS = Block.Settings.create()
+	public static final Block.Settings SETTINGS = Block.Settings.create()
 		.dropsNothing()
 		.noCollision()
 		.nonOpaque()
@@ -48,8 +50,8 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		.strength(-1)
 		.mapColor(MapColor.EMERALD_GREEN);
 
-	public ShardBlock() {
-		super(SETTINGS);
+	public ShardBlock(Block.Settings settings) {
+		super(settings);
 	}
 
 	@Override
@@ -107,7 +109,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 	}
 
 	@Override
-	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
+	protected void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler) {
 		if (world.isClient || !(entity instanceof PlayerEntity player)) {
 			return;
 		}
@@ -117,21 +119,20 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 	}
 
 	@Override
-	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
-
+	protected ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
 		BlockEntity entity = world.getBlockEntity(pos);
 		if (world.isClient() && entity instanceof ShardBlockEntity shardEntity) {
 			Identifier shardId = shardEntity.getShardId();
 			ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 
 			if (shardId == null || library == null) {
-				return super.getPickStack(world, pos, state);
+				return super.getPickStack(world, pos, state, includeData);
 			}
 
 			return createShardBlock(library, shardId, shardEntity.canInteract(), shardEntity.getGlowSize(), shardEntity.getGlowStrength());
 		} else {
 
-			return super.getPickStack(world, pos, state);
+			return super.getPickStack(world, pos, state, includeData);
 		}
 	}
 
@@ -175,7 +176,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
 
 		NbtCompound blockEntityTag = new NbtCompound();
-		blockEntityTag.putString("id", ScatteredShardsContent.SHARD_BLOCK_ID.toString()); // required, see NbtComponent.CODEC_WITH_ID
+		blockEntityTag.putString("id", ScatteredShards.id("shard_block").toString()); // required, see NbtComponent.CODEC_WITH_ID
 		blockEntityTag.putString("Shard", shardId.toString());
 
 		//Fill in name / lore

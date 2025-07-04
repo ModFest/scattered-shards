@@ -11,19 +11,16 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
-import net.modfest.scatteredshards.api.shard.Shard;
-import net.modfest.scatteredshards.api.shard.ShardDisplaySettings;
-import net.modfest.scatteredshards.api.shard.ShardIconOffsets;
-import net.modfest.scatteredshards.api.shard.ShardTextureSettings;
-import net.modfest.scatteredshards.api.shard.ShardType;
+import net.modfest.scatteredshards.api.shard.*;
 import net.modfest.scatteredshards.block.ShardBlockEntity;
 import net.modfest.scatteredshards.util.ModMetaUtil;
 import org.joml.AxisAngle4f;
@@ -44,7 +41,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 
 	@Override
-	public void render(ShardBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+	public void render(ShardBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, Vec3d cameraPos) {
 		boolean collected = entity.getAnimations().collected();
 		final int actualLight = collected ? light : LightmapTextureManager.MAX_LIGHT_COORDINATE;
 
@@ -69,7 +66,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		float alpha = collected ? 0.5f : 1f;
 
-		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(ShardType.getBackingTexture(shard.shardTypeId())));
+		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ShardType.getBackingTexture(shard.shardTypeId())));
 
 		/*
 		 * A note about scale here:
@@ -129,7 +126,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		//Draw card front
 		Vector3f revNormal = normal.mul(-1, -1, -1);
-		buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(ShardType.getFrontTexture(shard.shardTypeId())));
+		buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ShardType.getFrontTexture(shard.shardTypeId())));
 		buf
 			.vertex(matrices.peek().getPositionMatrix(), dl.x, dl.y, dl.z)
 			.color(1, 1, 1, alpha)
@@ -168,7 +165,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			matrices.translate((offset.left() - 8) * metersPerPixel, (offset.up() - 8) * metersPerPixel, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
 			matrices.scale(-0.38f, 0.38f, 0.001f /*0.6f*/);
 
-			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, actualLight, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
+			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ItemDisplayContext.GUI, actualLight, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
 		});
 
 		shard.icon().ifRight(texId -> {

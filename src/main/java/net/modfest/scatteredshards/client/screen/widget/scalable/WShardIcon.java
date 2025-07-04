@@ -39,7 +39,6 @@ public class WShardIcon extends WScalableWidget {
 	@Override
 	public void paintScaled(DrawContext context, int width, int height, int mouseX, int mouseY) {
 		icon.get().ifLeft(it -> {
-			RenderSystem.enableDepthTest();
 			context.drawItemWithoutEntity(it, width / 2 - 8, height / 2 - 8);
 		});
 		icon.get().ifRight(it -> ScreenDrawing.texturedRect(context, 0, 0, width, height, it, 0xFF_FFFFFF));

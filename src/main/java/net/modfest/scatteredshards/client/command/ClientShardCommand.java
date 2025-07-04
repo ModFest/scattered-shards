@@ -140,7 +140,8 @@ public class ClientShardCommand {
 			//Usage: /shardc creator
 			//-> new <mod_id> <shard_type>
 			//-> edit <shard_id>
-			CommandNode<FabricClientCommandSource> creator = literal("creator").requires((source) -> source.hasPermissionLevel(2)).build();
+			// TODO CHeck
+			CommandNode<FabricClientCommandSource> creator = literal("creator").requires((source) -> source.getPlayer().hasPermissionLevel(2)).build();
 			CommandNode<FabricClientCommandSource> creatorNew = literal("new").build();
 			CommandNode<FabricClientCommandSource> modId = stringArgument("mod_id")
 				.suggests(ShardCommandNodeHelper::suggestModIds)

@@ -10,11 +10,11 @@ import juuxel.libninepatch.NinePatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3x2fStack;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -149,16 +149,16 @@ public class WAlternativeToggle extends WWidget {
 		int hoverX = (isRight) ? 0 : halfWidth - 1;
 		boolean hovered = (mouseX >= hoverX && mouseY >= 0 && mouseX < hoverX + halfWidth && mouseY < getHeight());
 
-		MatrixStack matrices = context.getMatrices();
-		matrices.push();
-		matrices.translate(x, y, 0);
+		Matrix3x2fStack matrices = context.getMatrices();
+		matrices.pushMatrix();
+		matrices.translate(x, y);
 		NinePatch<Identifier> leftButton = map(recessedButton, button);
 		NinePatch<Identifier> rightButton = map(button, recessedButton);
 		leftButton.draw(NinePatchTextureRendererImpl.INSTANCE, context, halfWidth, this.getHeight());
-		matrices.translate(halfWidth - 1, 0, 0);
+		matrices.translate(halfWidth - 1, 0);
 		rightButton.draw(NinePatchTextureRendererImpl.INSTANCE, context, halfWidth, this.getHeight());
 
-		matrices.pop();
+		matrices.popMatrix();
 
 		ScreenDrawing.drawStringWithShadow(context, leftLabel.asOrderedText(), HorizontalAlignment.CENTER, x + 2, y + 5, halfWidth - 4, 0xFF_FFFFFF);
 		ScreenDrawing.drawStringWithShadow(context, rightLabel.asOrderedText(), HorizontalAlignment.CENTER, x + 2 + halfWidth, y + 5, halfWidth - 4, 0xFF_FFFFFF);

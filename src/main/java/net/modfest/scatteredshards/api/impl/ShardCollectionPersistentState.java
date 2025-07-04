@@ -1,13 +1,14 @@
 package net.modfest.scatteredshards.api.impl;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.PersistentState;
+import net.minecraft.world.PersistentStateType;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
@@ -16,20 +17,23 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ShardCollectionPersistentState extends PersistentState {
-
-	public static PersistentState.Type<ShardCollectionPersistentState> TYPE = new PersistentState.Type<>(
-		ShardCollectionPersistentState::new,
+	public static final Codec<ShardCollectionPersistentState> CODEC = NbtCompound.CODEC.xmap(
 		ShardCollectionPersistentState::createFromNbt,
-		null
+		ShardCollectionPersistentState::writeNbt
 	);
 
+	private static final PersistentStateType<ShardCollectionPersistentState> TYPE = new PersistentStateType<>(ScatteredShards.ID + "_collections",
+		ShardCollectionPersistentState::new,
+		ShardCollectionPersistentState.CODEC,
+		null);
+
 	public static ShardCollectionPersistentState get(MinecraftServer server) {
-		ShardCollectionPersistentState result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE, ScatteredShards.ID + "_collections");
+		ShardCollectionPersistentState result = server.getOverworld().getPersistentStateManager().getOrCreate(TYPE);
 		ScatteredShardsAPI.register(result);
 		return result;
 	}
 
-	public static ShardCollectionPersistentState createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup) {
+	public static ShardCollectionPersistentState createFromNbt(NbtCompound tag) {
 		ShardCollectionPersistentState state = new ShardCollectionPersistentState();
 		ScatteredShards.LOGGER.info("Loading shard collections for {} players...", tag.getSize());
 
@@ -39,9 +43,9 @@ public class ShardCollectionPersistentState extends PersistentState {
 				ShardCollection coll = ScatteredShardsAPI.getServerCollection(uuid);
 				coll.clear();
 
-				for (NbtElement elem : tag.getList(s, NbtElement.STRING_TYPE)) {
+				for (NbtElement elem : tag.getList(s).get()) {
 					if (elem instanceof NbtString str) {
-						Identifier shardId = Identifier.of(str.asString());
+						Identifier shardId = Identifier.of(str.asString().get());
 						coll.add(shardId);
 					}
 				}
@@ -57,8 +61,8 @@ public class ShardCollectionPersistentState extends PersistentState {
 		return state;
 	}
 
-	@Override
-	public NbtCompound writeNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+	public NbtCompound writeNbt() {
+		NbtCompound tag = new NbtCompound();
 		Map<UUID, ShardCollection> collections = ScatteredShardsAPI.exportServerCollections();
 		ScatteredShards.LOGGER.info("Saving ShardCollections for {} players...", collections.size());
 

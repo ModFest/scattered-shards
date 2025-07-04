@@ -16,7 +16,7 @@ import net.modfest.scatteredshards.client.ScatteredShardsClient;
  */
 public record S2CModifyShardResult(Identifier shardId, boolean success) implements CustomPayload {
 	public static final Id<S2CModifyShardResult> PACKET_ID = new Id<>(ScatteredShards.id("modify_shard_result"));
-	public static final PacketCodec<RegistryByteBuf, S2CModifyShardResult> PACKET_CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, S2CModifyShardResult::shardId, PacketCodecs.BOOL, S2CModifyShardResult::success, S2CModifyShardResult::new);
+	public static final PacketCodec<RegistryByteBuf, S2CModifyShardResult> PACKET_CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, S2CModifyShardResult::shardId, PacketCodecs.BOOLEAN, S2CModifyShardResult::success, S2CModifyShardResult::new);
 
 	@Environment(EnvType.CLIENT)
 	public static void receive(S2CModifyShardResult payload, ClientPlayNetworking.Context context) {

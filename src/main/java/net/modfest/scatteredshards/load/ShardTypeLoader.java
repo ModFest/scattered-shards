@@ -1,6 +1,5 @@
 package net.modfest.scatteredshards.load;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -8,11 +7,13 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.JsonDataLoader;
+import net.minecraft.resource.ResourceFinder;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
+import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.profiler.Profiler;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
@@ -24,13 +25,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public class ShardTypeLoader extends JsonDataLoader implements IdentifiableResourceReloadListener {
+public class ShardTypeLoader extends JsonDataLoader<JsonElement> implements IdentifiableResourceReloadListener {
 
 	public static final String TYPE = "shard_type";
 	public static final Identifier ID = ScatteredShards.id(TYPE);
 
 	public ShardTypeLoader() {
-		super(new Gson(), TYPE);
+		super(Codecs.JSON_ELEMENT, ResourceFinder.json(TYPE));
 	}
 
 	@Override

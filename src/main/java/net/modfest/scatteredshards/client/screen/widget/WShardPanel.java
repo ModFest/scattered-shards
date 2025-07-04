@@ -36,7 +36,7 @@ import java.util.function.Supplier;
 
 public class WShardPanel extends WPlainPanel {
 
-	public static final IntSupplier WHITE = () -> 0xFFFFFF;
+	public static final IntSupplier WHITE = () -> 0xFF_FFFFFF;
 	public static final Style HINT_STYLE = Style.EMPTY.withFont(Identifier.of("minecraft:alt"));
 
 	private Shard shard = Shard.MISSING_SHARD.copy();
@@ -229,7 +229,7 @@ public class WShardPanel extends WPlainPanel {
 	public void addPainters() {
 		ShardDisplaySettings displaySettings = ScatteredShardsAPI.getClientLibrary().shardDisplaySettings();
 		this.setBackgroundPainter((context, left, top, panel) -> {
-			context.setShaderColor(1, 1, 1, 1);
+			//context.setShaderColor(1, 1, 1, 1);
 			ScreenDrawing.drawGuiPanel(context, left, top, panel.getWidth(), panel.getHeight());
 			ScreenDrawing.drawBeveledPanel(context, left + 4, top + 4, panel.getWidth() - 8, panel.getHeight() - 8);
 			context.fillGradient(

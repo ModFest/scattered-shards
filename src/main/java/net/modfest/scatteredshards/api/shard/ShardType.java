@@ -103,8 +103,8 @@ public record ShardType(int textColor, int glowColor, Optional<ShardDisplaySetti
 	}
 
 	public static void register() {
-		Registry.register(Registries.SOUND_EVENT, COLLECT_VISITOR_SOUND.getId(), COLLECT_VISITOR_SOUND);
-		Registry.register(Registries.SOUND_EVENT, COLLECT_CHALLENGE_SOUND.getId(), COLLECT_CHALLENGE_SOUND);
-		Registry.register(Registries.SOUND_EVENT, COLLECT_SECRET_SOUND.getId(), COLLECT_SECRET_SOUND);
+		Registry.register(Registries.SOUND_EVENT, COLLECT_VISITOR_SOUND.id(), COLLECT_VISITOR_SOUND);
+		Registry.register(Registries.SOUND_EVENT, COLLECT_CHALLENGE_SOUND.id(), COLLECT_CHALLENGE_SOUND);
+		Registry.register(Registries.SOUND_EVENT, COLLECT_SECRET_SOUND.id(), COLLECT_SECRET_SOUND);
 	}
 }

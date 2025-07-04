@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
@@ -30,23 +31,26 @@ public class ShardCollectedToast implements Toast {
 	List<OrderedText> descLines;
 	List<OrderedText> hintLines;
 	private final int height;
+	private double displayTimeMultiplier = 1;
+
+	Visibility visibility = Visibility.HIDE;
+
 
 	public ShardCollectedToast(Shard shard) {
-		
 		Text hint;
-		
+
 		if (ScatteredShardsClient.VIEW_COLLECTION.isUnbound()) {
 			hint = Text.translatable(
-					"toast.scattered_shards.collected.prompt_without_key",
-					Text.literal("/shards").formatted(Formatting.AQUA).formatted(Formatting.BOLD)
-					);
+				"toast.scattered_shards.collected.prompt_without_key",
+				Text.literal("/shards").formatted(Formatting.AQUA).formatted(Formatting.BOLD)
+			);
 		} else {
 			hint = Text.translatable(
-					"toast.scattered_shards.collected.prompt",
-					Text.keybind(ScatteredShardsClient.VIEW_COLLECTION.getTranslationKey()).formatted(Formatting.GOLD).formatted(Formatting.BOLD)
-					);
+				"toast.scattered_shards.collected.prompt",
+				Text.keybind(ScatteredShardsClient.VIEW_COLLECTION.getTranslationKey()).formatted(Formatting.GOLD).formatted(Formatting.BOLD)
+			);
 		}
-		
+
 		this.icon = shard.icon();
 		this.descLines = wrap(List.of(shard.name().copy().withColor(ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING).textColor())));
 		this.hintLines = wrap(List.of(hint));
@@ -54,34 +58,43 @@ public class ShardCollectedToast implements Toast {
 		icon.ifRight(ModMetaUtil::touchIconTexture);
 	}
 
-	@Override
-	public Visibility draw(DrawContext graphics, ToastManager manager, long startTime) {
-		graphics.drawGuiTexture(TEXTURE, 0, 0, this.getWidth(), this.getHeight());
-		TextRenderer textRenderer = manager.getClient().textRenderer;
+	private List<OrderedText> wrap(List<Text> messages) {
+		List<OrderedText> list = new ArrayList<>();
+		messages.forEach(text -> list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(text, getWidth() - 40)));
+		return list;
+	}
 
-		graphics.drawText(
+	@Override
+	public Visibility getVisibility() {
+		return visibility;
+	}
+
+	@Override
+	public void update(ToastManager manager, long time) {
+		displayTimeMultiplier = manager.getNotificationDisplayTimeMultiplier();
+		this.visibility = (double) time < (double) DURATION * displayTimeMultiplier ? Visibility.SHOW : Visibility.HIDE;
+	}
+
+	@Override
+	public void draw(DrawContext context, TextRenderer textRenderer, long startTime) {
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, this.getWidth(), this.getHeight());
+
+		context.drawText(
 			textRenderer,
 			TITLE, 32, 7, TITLE_COLOR,
 			false
 		);
 
-		double time = DURATION * manager.getNotificationDisplayTimeMultiplier();
+		double time = DURATION * displayTimeMultiplier;
 
 		List<OrderedText> body = startTime >= (time / 2) && !hintLines.isEmpty() ? hintLines : descLines;
 
 		for (int i = 0; i < body.size(); i++) {
-			graphics.drawText(textRenderer, body.get(i), 32, 18 + i * 11, 0xFF_FFFFFF, false);
+			context.drawText(textRenderer, body.get(i), 32, 18 + i * 11, 0xFF_FFFFFF, false);
 		}
 
-		icon.ifLeft(it -> graphics.drawItemWithoutEntity(it, 8, 8));
-		icon.ifRight(it -> ScreenDrawing.texturedRect(graphics, 8, 8, 16, 16, it, 0xFF_FFFFFF));
-		return startTime >= time ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
-	}
-
-	private List<OrderedText> wrap(List<Text> messages) {
-		List<OrderedText> list = new ArrayList<>();
-		messages.forEach(text -> list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(text, getWidth() - 40)));
-		return list;
+		icon.ifLeft(it -> context.drawItemWithoutEntity(it, 8, 8));
+		icon.ifRight(it -> ScreenDrawing.texturedRect(context, 8, 8, 16, 16, it, 0xFF_FFFFFF));
 	}
 
 	@Override

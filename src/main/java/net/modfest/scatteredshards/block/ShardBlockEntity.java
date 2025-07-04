@@ -5,12 +5,13 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -80,36 +81,39 @@ public class ShardBlockEntity extends BlockEntity {
 	public float getGlowStrength() {
 		return glowStrength;
 	}
-	
+
 	public boolean canInteract() {
 		return canInteract;
 	}
 
 	@Override
-	protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-		super.writeNbt(nbt, registryLookup);
-		if (shardId != null) nbt.putString(SHARD_NBT_KEY, shardId.toString());
+	protected void writeData(WriteView view) {
+		super.writeData(view);
 
-		nbt.putBoolean("CanInteract", this.canInteract);
+		if (shardId != null) view.putString(SHARD_NBT_KEY, shardId.toString());
+
+		view.putBoolean("CanInteract", this.canInteract);
 
 		NbtCompound glowSettings = new NbtCompound();
 		glowSettings.putFloat("size", this.glowSize);
 		glowSettings.putFloat("strength", this.glowStrength);
-		nbt.put("Glow", glowSettings);
+		view.put("Glow", NbtCompound.CODEC, glowSettings);
 	}
 
 	@Override
-	protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-		super.readNbt(nbt, registryLookup);
-		if (nbt.contains(SHARD_NBT_KEY, NbtElement.STRING_TYPE)) {
-			setShardId(Identifier.of(nbt.getString(SHARD_NBT_KEY)));
+	protected void readData(ReadView view) {
+		super.readData(view);
+
+		var shardId = view.getString(SHARD_NBT_KEY, null);
+		if (shardId != null) {
+			setShardId(Identifier.of(shardId));
 		}
 
-		this.canInteract = nbt.getBoolean("CanInteract");
+		this.canInteract = view.getBoolean("CanInteract", false);
 
-		NbtCompound glowSettings = nbt.getCompound("Glow");
-		this.glowSize = glowSettings.getFloat("size");
-		this.glowStrength = glowSettings.getFloat("strength");
+		NbtCompound glowSettings = view.read("Glow", NbtCompound.CODEC).get();
+		this.glowSize = glowSettings.getFloat("size").orElse(this.glowSize);
+		this.glowStrength = glowSettings.getFloat("strength").orElse(this.glowStrength);
 	}
 
 	@Override
