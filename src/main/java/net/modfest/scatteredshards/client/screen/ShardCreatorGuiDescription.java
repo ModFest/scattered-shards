@@ -2,10 +2,7 @@ package net.modfest.scatteredshards.client.screen;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.CottonClientScreen;
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
@@ -16,18 +13,12 @@ import io.github.cottonmc.cotton.gui.widget.WToggleButton;
 import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
-import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.argument.ItemStringReader;
-import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.Resource;
 import net.minecraft.text.Text;
@@ -43,9 +34,11 @@ import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
 import net.modfest.scatteredshards.networking.C2SModifyShard;
 import net.modfest.scatteredshards.util.ModMetaUtil;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public static final Text TITLE_TEXT = Text.translatable("gui.scattered_shards.creator.title");
@@ -56,9 +49,9 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public static final Text ICON_TEXTURE_TEXT = Text.translatable("gui.scattered_shards.creator.icon.texture");
 	public static final Text ICON_ITEM_TEXT = Text.translatable("gui.scattered_shards.creator.icon.item");
 	public static final Text ITEM_TEXT = Text.translatable("gui.scattered_shards.creator.field.item.id");
-	public static final Text COMPONENT_TEXT = Text.translatable("gui.scattered_shards.creator.field.item.component");
 	public static final Text USE_MOD_ICON_TEXT = Text.translatable("gui.scattered_shards.creator.toggle.mod_icon");
 	public static final Text SAVE_TEXT = Text.translatable("gui.scattered_shards.creator.button.save");
+	private static final String PREVIOUS_VALUE = "<previous_value>";
 
 	private Identifier shardId;
 	private Shard shard;
@@ -115,22 +108,15 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 
 	public WProtectableField itemField = new WProtectableField(ITEM_TEXT)
 		.setChangedListener((it) -> {
-			this.item = null;
-			Identifier id = Identifier.tryParse(it);
-			if (id != null) {
-				this.item = Registries.ITEM.containsId(id)
-					? Registries.ITEM.get(id)
-					: null;
+			if (it.isBlank() || Objects.equals(it, PREVIOUS_VALUE)) {
+				return;
 			}
-			updateItemIcon();
-		});
 
-	public WProtectableField componentField = new WProtectableField(COMPONENT_TEXT)
-		.setChangedListener((it) -> {
 			try {
-				updateComponents(new StringReader(it));
+				updateItem(new StringReader(it));
 			} catch (Exception ignored) {
 			}
+
 			updateItemIcon();
 		});
 
@@ -142,71 +128,13 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	private Identifier iconPath = null;
 
 
-	private <T> void updateComponents(StringReader reader) throws CommandSyntaxException {
-		ComponentChanges.Builder changesBuilder = ComponentChanges.builder();
-		Set<ComponentType<?>> known = new ReferenceArraySet<>();
+	private void updateItem(StringReader reader) throws CommandSyntaxException {
+		var itemReader = new ItemStringReader(MinecraftClient.getInstance().world.getRegistryManager());
+		var result = itemReader.consume(reader);
 
-		// Begin of component list
-		reader.expect('[');
-		reader.skipWhitespace();
-
-		// Body of component list
-		while (reader.canRead() && reader.peek() != ']') {
-			boolean negation = false;
-
-			if (reader.peek() == '!') {
-				// Negate incoming block
-				reader.skip();
-				negation = true;
-			}
-
-			// Component Type
-			@SuppressWarnings("unchecked") // We could avoid this with a separate method for getting the values but eh
-			ComponentType<T> componentType = (ComponentType<T>) ItemStringReader.Reader.readComponentType(reader);
-			reader.skipWhitespace();
-			if (!known.add(componentType))
-				throw new SimpleCommandExceptionType(Text.literal("Same component cannot appear twice")).create();
-
-			if (negation)
-				changesBuilder.remove(componentType);
-			else {
-				reader.expect('=');
-				reader.skipWhitespace();
-
-				// Component Value
-
-				int index = reader.getCursor();
-
-				NbtElement nbtElement = new StringNbtReader(reader).parseElement();
-				DataResult<T> dataResult = componentType.getCodecOrThrow().parse(NbtOps.INSTANCE, nbtElement);
-
-				changesBuilder.add(componentType, dataResult.getOrThrow(error -> {
-					reader.setCursor(index);
-					return new SimpleCommandExceptionType(Text.literal("Component is malformed")).create();
-				}));
-
-				reader.skipWhitespace();
-			}
-
-			// List separation
-
-			if (!reader.canRead() || reader.peek() != ',')
-				break;
-
-			reader.skip();
-			reader.skipWhitespace();
-			if (!reader.canRead())
-				throw new SimpleCommandExceptionType(Text.literal("Expected component")).create();
-		}
-
-		// End of components list
-		reader.expect(']');
-
-		ComponentChanges componentChanges = changesBuilder.build();
-
+		this.item = result.item().value();
 		ComponentMap.Builder mapBuilder = ComponentMap.builder();
-		mapBuilder.addAll(componentChanges.toAddedRemovedPair().added());
-
+		mapBuilder.addAll(result.components().toAddedRemovedPair().added());
 		this.itemComponents = mapBuilder.build();
 	}
 
@@ -257,13 +185,20 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 				}
 			}
 		});
-		shard.icon().ifLeft(a -> ComponentChanges.CODEC.encodeStart(JsonOps.INSTANCE, a.getComponentChanges()).ifSuccess(componentJson -> {
+		shard.icon().ifLeft(itemStack -> {
 			this.iconToggle.setRight();
-			this.itemField.setText(Registries.ITEM.getId(a.getItem()).toString());
-			String nbt = componentJson.toString();
-			if ("{}".equals(nbt)) nbt = "";
-			this.componentField.setText(nbt);
-		}));
+
+			if (itemStack.getComponentChanges().isEmpty()) {
+				this.itemField.setText(Registries.ITEM.getId(itemStack.getItem()).toString());
+			} else {
+				// TODO
+				this.itemField.setText(PREVIOUS_VALUE);
+			}
+
+			this.item = itemStack.getItem();
+			this.itemComponents = itemStack.getComponents();
+			updateItemIcon();
+		});
 
 		shardPanel.setShard(shard);
 	}
@@ -298,7 +233,6 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		textureIconPanel.add(textureToggle);
 
 		itemIconPanel.add(itemField);
-		itemIconPanel.add(componentField);
 
 		editorPanel.add(saveButton);
 
