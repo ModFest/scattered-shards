@@ -12,13 +12,13 @@ public abstract class WScalableWidget extends WWidget {
 	@Environment(EnvType.CLIENT)
 	@Override
 	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
-		context.getMatrices().pushMatrix();
+		context.getMatrices().push();
 		
-		context.getMatrices().translate(x, y);
-		context.getMatrices().scale(scale, scale);
+		context.getMatrices().translate(x, y, 0);
+		context.getMatrices().scale(scale, scale, 1.0f);
 
 		paintScaled(context, (int) (this.getWidth() / scale), (int) (this.getHeight() / scale), (int) (mouseX / scale), (int) (mouseY / scale));
-		context.getMatrices().popMatrix();
+		context.getMatrices().pop();
 	}
 
 	/**

@@ -92,7 +92,7 @@ public class WScaledText extends WScalableWidget {
 		if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
 			List<OrderedText> tooltip = hover.get();
 			if (!tooltip.isEmpty()) {
-				context.drawTooltip(tooltip, x + mouseX, y + mouseY);
+				context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltip, HoveredTooltipPositioner.INSTANCE, x + mouseX, y + mouseY);
 			}
 		}
 	}

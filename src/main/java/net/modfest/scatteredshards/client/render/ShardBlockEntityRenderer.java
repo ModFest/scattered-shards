@@ -66,7 +66,10 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		float alpha = collected ? 0.5f : 1f;
 
-		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ShardType.getBackingTexture(shard.shardTypeId())));
+		// old VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(ShardType.getBackingTexture(shard.shardTypeId())));
+		// .7 VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ShardType.getBackingTexture(shard.shardTypeId())));
+		Identifier bt = ShardType.getBackingTexture(shard.shardTypeId());
+		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(bt));
 
 		/*
 		 * A note about scale here:
@@ -126,7 +129,9 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		//Draw card front
 		Vector3f revNormal = normal.mul(-1, -1, -1);
-		buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ShardType.getFrontTexture(shard.shardTypeId())));
+		Identifier ft = ShardType.getFrontTexture(shard.shardTypeId());
+		// cheating: .5 weirdly only wants to use the last texture, so we just use a different renderlayer /shrug
+		buf = vertexConsumers.getBuffer(RenderLayer.getItemEntityTranslucentCull(ft));
 		buf
 			.vertex(matrices.peek().getPositionMatrix(), dl.x, dl.y, dl.z)
 			.color(1, 1, 1, alpha)

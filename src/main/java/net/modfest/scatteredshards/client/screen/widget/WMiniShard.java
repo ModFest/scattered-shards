@@ -74,11 +74,12 @@ public class WMiniShard extends WWidget {
 
 			ShardIconOffsets.Offset offset = this.shardType.getOffsets().getMini();
 			shard.icon().ifLeft((it) -> {
-				context.getMatrices().pushMatrix();
-				context.getMatrices().translate(x + offset.left(), y + offset.up());
-				context.getMatrices().scale(0.5f, 0.5f); // 16px -> 8px
+				context.getMatrices().push();
+				context.getMatrices().translate(x + offset.left(), y + offset.up(), 0);
+				context.getMatrices().scale(0.5f, 0.5f, 1); // 16px -> 8px
+//				RenderSystem.enableDepthTest();
 				context.drawItemWithoutEntity(it, 0, 0);
-				context.getMatrices().popMatrix();
+				context.getMatrices().pop();
 			});
 			shard.icon().ifRight((it) -> ScreenDrawing.texturedRect(context, x + offset.left(), y + offset.up(), 8, 8, it, 0xFF_FFFFFF));
 		}
