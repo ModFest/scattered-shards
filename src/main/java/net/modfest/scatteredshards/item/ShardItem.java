@@ -74,7 +74,7 @@ public class ShardItem extends Item {
 
 		Identifier shardTypeId = shard.get().shardTypeId();
 		ShardType shardType = library.shardTypes().get(shardTypeId).orElse(ShardType.MISSING);
-		Text shardTypeDesc = ShardType.getDescription(shardTypeId).copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
+		Text shardTypeDesc = ShardType.getDescription(shardTypeId).copy().fillStyle(Style.EMPTY.withColor(0xFF_000000 | shardType.textColor()));
 
 		textConsumer.accept(shardTypeDesc);
 		textConsumer.accept(Text.translatable("item.scattered_shards.shard_item.description").formatted(Formatting.GRAY));

@@ -52,7 +52,7 @@ public class WShardPanel extends WPlainPanel {
 	private final WScaledLabel typeDescription = new WScaledLabel(() -> ShardType.getDescription(shard.shardTypeId()), 0.5f)
 		.setShadow(true)
 		.setHorizontalAlignment(HorizontalAlignment.CENTER)
-		.setColor(() -> shardType.textColor());
+		.setColor(() -> 0xFF_000000 | shardType.textColor());
 	private final WScaledLabel source = new WScaledLabel(() -> Shard.getSourceForSourceId(shard.sourceId()), 0.9f)
 		.setShadow(true)
 		.setHorizontalAlignment(HorizontalAlignment.CENTER);
@@ -95,7 +95,7 @@ public class WShardPanel extends WPlainPanel {
 		updateDimensionsAndBacking();
 		
 		typeDescription.setText(ShardType.getDescription(shardTypeId));
-		typeDescription.setColor(value::textColor);
+		typeDescription.setColor(() -> 0xFF_000000 | value.textColor());
 		return this;
 	}
 

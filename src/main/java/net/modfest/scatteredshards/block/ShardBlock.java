@@ -181,7 +181,7 @@ public class ShardBlock extends Block implements BlockEntityProvider {
 
 		//Fill in name / lore
 		stack.set(DataComponentTypes.ITEM_NAME, shard.name());
-		Text shardTypeDesc = ShardType.getDescription(shard.shardTypeId()).copy().fillStyle(Style.EMPTY.withColor(shardType.textColor()));
+		Text shardTypeDesc = ShardType.getDescription(shard.shardTypeId()).copy().fillStyle(Style.EMPTY.withColor(0xFF_000000 | shardType.textColor()));
 		LoreComponent lore = new LoreComponent(List.of(shardTypeDesc));
 		stack.set(DataComponentTypes.LORE, lore);
 

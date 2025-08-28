@@ -52,7 +52,7 @@ public class ShardCollectedToast implements Toast {
 		}
 
 		this.icon = shard.icon();
-		this.descLines = wrap(List.of(shard.name().copy().withColor(ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING).textColor())));
+		this.descLines = wrap(List.of(shard.name().copy().withColor(0xFF_000000 | ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING).textColor())));
 		this.hintLines = wrap(List.of(hint));
 		this.height = 32 + Math.max(0, Math.max(this.descLines.size(), this.hintLines.size()) - 1) * 11;
 		icon.ifRight(ModMetaUtil::touchIconTexture);

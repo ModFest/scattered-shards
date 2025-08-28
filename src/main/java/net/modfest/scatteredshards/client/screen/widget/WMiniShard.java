@@ -104,7 +104,7 @@ public class WMiniShard extends WWidget {
 		if (ScatteredShardsClient.hasShiftDown() && !shard.name().getString().isBlank()) {
 			tooltip.add(shard.name());
 		}
-		tooltip.add(ShardType.getDescription(shard.shardTypeId()).copy().withColor(shardType.textColor()));
+		tooltip.add(ShardType.getDescription(shard.shardTypeId()).copy().withColor(0xFF_000000 | shardType.textColor()));
 		if (ScatteredShardsClient.hasShiftDown()) {
 			GlobalCollection globalCollection = ScatteredShardsAPI.getClientGlobalCollection();
 			if (globalCollection != null) {
