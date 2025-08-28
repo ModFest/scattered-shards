@@ -162,7 +162,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		ShardIconOffsets.Offset offset = shardType.getOffsets().getNormal();
 
 		shard.icon().ifLeft(stack -> {
-			matrices.translate((offset.left() - 8) * metersPerPixel, (offset.up() - 8) * metersPerPixel, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			matrices.translate((offset.left() - 4) * metersPerPixel, offset.up() * metersPerPixel, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
 			matrices.scale(-0.38f, 0.38f, 0.001f /*0.6f*/);
 
 			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ItemDisplayContext.GUI, actualLight, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 0);
