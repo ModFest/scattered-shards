@@ -1,6 +1,5 @@
 package net.modfest.scatteredshards.client.screen.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.TooltipBuilder;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
@@ -21,7 +20,6 @@ import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardIconOffsets;
 import net.modfest.scatteredshards.api.shard.ShardTextureSettings;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.client.ScatteredShardsClient;
 import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
 import net.modfest.scatteredshards.util.ModMetaUtil;
 
@@ -101,15 +99,13 @@ public class WMiniShard extends WWidget {
 	@Override
 	public void addTooltip(TooltipBuilder tooltip) {
 
-		if (ScatteredShardsClient.hasShiftDown() && !shard.name().getString().isBlank()) {
+		if (!shard.name().getString().isBlank()) {
 			tooltip.add(shard.name());
 		}
 		tooltip.add(ShardType.getDescription(shard.shardTypeId()).copy().withColor(0xFF_000000 | shardType.textColor()));
-		if (ScatteredShardsClient.hasShiftDown()) {
-			GlobalCollection globalCollection = ScatteredShardsAPI.getClientGlobalCollection();
-			if (globalCollection != null) {
-				tooltip.add(Text.translatable("gui.scattered_shards.tablet.tooltip.global_collection", "%.1f%%".formatted(100 * globalCollection.getCount(shardId) / (float) globalCollection.totalPlayers())).formatted(Formatting.GRAY));
-			}
+		GlobalCollection globalCollection = ScatteredShardsAPI.getClientGlobalCollection();
+		if (globalCollection != null) {
+			tooltip.add(Text.translatable("gui.scattered_shards.tablet.tooltip.global_collection", "%.1f%%".formatted(100 * globalCollection.getCount(shardId) / (float) globalCollection.totalPlayers())).formatted(Formatting.GRAY));
 		}
 
 		super.addTooltip(tooltip);

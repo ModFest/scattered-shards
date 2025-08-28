@@ -16,7 +16,6 @@ import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.client.ScatteredShardsClient;
 import net.modfest.scatteredshards.client.screen.widget.WLeftRightPanel;
 import net.modfest.scatteredshards.client.screen.widget.WShardPanel;
 import net.modfest.scatteredshards.client.screen.widget.WShardSetPanel;
@@ -58,7 +57,6 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		int panelHeight = selectorPanel.getHeight();
 
 		WScaledLabel progressVisited = new WScaledLabel(() -> {
-			if (!ScatteredShardsClient.hasShiftDown()) return Text.empty();
 			int visitedSets = 0;
 			for (Collection<Identifier> set : library.shardSets().asMap().values()) {
 				for (Identifier identifier : set) {
@@ -74,10 +72,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		progressVisited.setSize(80, 10);
 		progressVisited.setLocation(13, panelHeight - 20);
 
-		WScaledLabel progressTotal = new WScaledLabel(() -> {
-			if (!ScatteredShardsClient.hasShiftDown()) return Text.empty();
-			return Text.translatable("gui.scattered_shards.tablet.label.progress.total", "%.0f%%".formatted(100 * collection.size() / (float) library.shards().size()));
-		}, 1.0f).setColor(Colors.LIGHT_GRAY);
+		WScaledLabel progressTotal = new WScaledLabel(() -> Text.translatable("gui.scattered_shards.tablet.label.progress.total", "%.0f%%".formatted(100 * collection.size() / (float) library.shards().size())), 1.0f).setColor(Colors.LIGHT_GRAY);
 		selectorPanel.add(progressTotal, 0, 0);
 		progressTotal.setSize(80, 10);
 		progressTotal.setLocation(selectorPanel.getWidth() - 72, panelHeight - 20);
@@ -123,7 +118,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 
 	public static class Screen extends CottonClientScreen {
 		public Screen(ShardCollection collection, ShardLibrary library) {
-			super(new ShardTabletGuiDescription(collection, library));
+			super(Text.translatable("menu.scattered_shards.collection"), new ShardTabletGuiDescription(collection, library));
 		}
 
 		@Override
