@@ -66,7 +66,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		float alpha = collected ? 0.5f : 1f;
 
-		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ShardType.getBackingTexture(shard.shardTypeId())));
+		VertexConsumer buf = vertexConsumers.getBuffer(RenderLayer.getItemEntityTranslucentCull(ShardType.getBackingTexture(shard.shardTypeId())));
 
 		/*
 		 * A note about scale here:
@@ -126,7 +126,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		//Draw card front
 		Vector3f revNormal = normal.mul(-1, -1, -1);
-		buf = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ShardType.getFrontTexture(shard.shardTypeId())));
+		buf = vertexConsumers.getBuffer(RenderLayer.getItemEntityTranslucentCull(ShardType.getFrontTexture(shard.shardTypeId())));
 		buf
 			.vertex(matrices.peek().getPositionMatrix(), dl.x, dl.y, dl.z)
 			.color(1, 1, 1, alpha)
