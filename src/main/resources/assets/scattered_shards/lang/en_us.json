@@ -51,8 +51,8 @@
 	"gui.scattered_shards.creator.button.save": "Save",
 	"gui.scattered_shards.tablet.click_on_a_shard": "Click on a Shard to the left",
 	"gui.scattered_shards.tablet.tooltip.global_collection": "%s of players have this shard",
-	"gui.scattered_shards.tablet.label.progress.started": "%s Started",
-	"gui.scattered_shards.tablet.label.progress.total": "%s Overall",
+	"gui.scattered_shards.tablet.label.progress.started": "%s Started Sets",
+	"gui.scattered_shards.tablet.label.progress.total": "%s Shards",
 
 	"argument.scattered_shards.entity.options.has_shard.description": "Shard Identifier",
 	"argument.scattered_shards.entity.options.has_shard.invalid": "Unknown shard identifier '%s'"
