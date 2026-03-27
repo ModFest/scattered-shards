@@ -7,7 +7,10 @@ plugins {
 }
 
 version = "$baseVersion+$branch"
-archivesBaseName = project.slug
+
+base {
+	archivesName = project.slug
+}
 
 repositories {
 	maven { url "https://staging.alexiil.uk/maven/" }
@@ -20,15 +23,14 @@ dependencies {
 	include libs.kaleidoConfig
 
 	minecraft libs.mc
-	mappings loom.officialMojangMappings()
 
-	modImplementation libs.fl
-	modImplementation libs.fapi
+	implementation libs.fl
+	implementation libs.fapi
 
-	modImplementation libs.libgui
-	modImplementation libs.fpapi
+	//modImplementation libs.libgui
+	implementation libs.fpapi
 
-	include libs.libgui
+	//include libs.libgui
 	include libs.fpapi
 }
 
@@ -51,7 +53,7 @@ processResources {
 		mc            : compatibleVersions.split(", ")[0],
 		fl            : libs.versions.fl.get(),
 		fapi          : libs.versions.fapi.get(),
-		libgui        : libs.versions.libgui.get(),
+		//libgui        : libs.versions.libgui.get(),
 		fpapi         : libs.versions.fpapi.get()
 	]
 	inputs.properties meta
@@ -61,18 +63,18 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
 	withSourcesJar()
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${archivesBaseName}" }
+		rename { "${it}_${project.base.archivesName.get()}"}
 	}
 }
 
@@ -88,7 +90,7 @@ modrinth {
 	token = "$System.env.MODRINTH_TOKEN"
 	projectId = slug
 	versionNumber = project.version
-	uploadFile = remapJar
+	uploadFile = jar
 	gameVersions = compatibleVersions.split(", ").toList()
 	loaders = compatibleLoaders.split(", ").toList()
 	changelog = "$System.env.CHANGELOG"
