@@ -18,7 +18,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardDisplaySettings;
@@ -37,7 +37,7 @@ import java.util.function.Supplier;
 public class WShardPanel extends WPlainPanel {
 
 	public static final IntSupplier WHITE = () -> 0xFF_FFFFFF;
-	public static final Style HINT_STYLE = Style.EMPTY.withFont(ResourceLocation.parse("minecraft:alt"));
+	public static final Style HINT_STYLE = Style.EMPTY.withFont(Identifier.parse("minecraft:alt"));
 
 	private Shard shard = Shard.MISSING_SHARD.copy();
 	private ShardType shardType;
@@ -89,7 +89,7 @@ public class WShardPanel extends WPlainPanel {
 	/**
 	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
 	 */
-	public WShardPanel setType(ResourceLocation shardTypeId, ShardType value) {
+	public WShardPanel setType(Identifier shardTypeId, ShardType value) {
 		this.shardType = value;
 		
 		updateDimensionsAndBacking();
@@ -102,7 +102,7 @@ public class WShardPanel extends WPlainPanel {
 	/**
 	 * Sets the icon displayed to a static value. Note: Prevents shard icon from being updated if the configured shard is mutated!
 	 */
-	public WShardPanel setIcon(Either<ItemStack, ResourceLocation> icon) {
+	public WShardPanel setIcon(Either<ItemStack, Identifier> icon) {
 		this.icon.setIcon(icon);
 		return this;
 	}

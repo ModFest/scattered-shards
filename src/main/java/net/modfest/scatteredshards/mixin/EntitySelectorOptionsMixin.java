@@ -6,7 +6,7 @@ import net.minecraft.commands.arguments.selector.options.EntitySelectorOptions;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.mixinsupport.ShardArgument;
@@ -52,7 +52,7 @@ public class EntitySelectorOptionsMixin {
 
 				int i = reader.getReader().getCursor();
 				reader.setWorldLimited();
-				ResourceLocation id = ResourceLocation.read(reader.getReader());
+				Identifier id = Identifier.read(reader.getReader());
 				Optional<Shard> shard = ScatteredShardsAPI.getServerLibrary().shards().get(id);
 				if (shard.isEmpty()) {
 					reader.getReader().setCursor(i);

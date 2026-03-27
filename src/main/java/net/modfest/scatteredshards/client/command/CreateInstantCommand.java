@@ -7,7 +7,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
@@ -25,7 +25,7 @@ public class CreateInstantCommand {
 		var source = ctx.getSource();
 
 		var modId = StringArgumentType.getString(ctx, "mod_id");
-		var shardTypeId = ctx.getArgument("shard_type", ResourceLocation.class);
+		var shardTypeId = ctx.getArgument("shard_type", Identifier.class);
 		var name = StringArgumentType.getString(ctx, "shard_name");
 		var lore = StringArgumentType.getString(ctx, "shard_lore");
 		var hint = StringArgumentType.getString(ctx, "shard_hint");
@@ -49,7 +49,7 @@ public class CreateInstantCommand {
 		shard.setLore(Component.literal(lore));
 		shard.setHint(Component.literal(hint));
 		shard.setIcon(modIcon);
-		shard.setSourceId(ResourceLocation.fromNamespaceAndPath(modId, "shard_pack"));
+		shard.setSourceId(Identifier.fromNamespaceAndPath(modId, "shard_pack"));
 
 		ClientPlayNetworking.send(new C2SCreateShardInstant(shardId, shard));
 

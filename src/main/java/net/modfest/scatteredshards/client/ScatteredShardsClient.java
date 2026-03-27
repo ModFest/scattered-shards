@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.toasts.Toast;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
@@ -43,7 +43,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		});
 	}
 
-	public static void onShardCollected(ResourceLocation shardId) {
+	public static void onShardCollected(Identifier shardId) {
 		var library = ScatteredShardsAPI.getClientLibrary();
 		var collection = ScatteredShardsAPI.getClientCollection();
 
@@ -68,7 +68,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		Minecraft.getInstance().getToastManager().addToast(toast);
 	}
 
-	public static void triggerShardModificationToast(ResourceLocation shardId, boolean success) {
+	public static void triggerShardModificationToast(Identifier shardId, boolean success) {
 		var toast = new SystemToast(
 			SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
 			Component.translatable("toast.scattered_shards.shard_mod.title"),

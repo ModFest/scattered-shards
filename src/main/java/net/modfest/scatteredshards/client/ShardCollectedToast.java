@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
@@ -25,10 +25,10 @@ import java.util.List;
 public class ShardCollectedToast implements Toast {
 	public static final int TITLE_COLOR = 0xFF_FFFF00;
 	public static final Component TITLE = Component.translatable("toast.scattered_shards.collected");
-	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("toast/advancement");
+	private static final Identifier TEXTURE = Identifier.withDefaultNamespace("toast/advancement");
 	public static final int DURATION = 5000;
 
-	Either<ItemStack, ResourceLocation> icon;
+	Either<ItemStack, Identifier> icon;
 	List<FormattedCharSequence> descLines;
 	List<FormattedCharSequence> hintLines;
 	private final int height;

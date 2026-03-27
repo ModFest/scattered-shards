@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.modfest.scatteredshards.ScatteredShards;
@@ -45,7 +45,7 @@ public class ShardLibraryPersistentState extends SavedData {
 		for (String id : shards.keySet()) {
 			try {
 				CompoundTag shardNbt = shards.getCompound(id).get();
-				ResourceLocation shardId = ResourceLocation.parse(id);
+				Identifier shardId = Identifier.parse(id);
 				Shard shard = Shard.fromNbt(shardNbt);
 
 				library.shards().put(shardId, shard);

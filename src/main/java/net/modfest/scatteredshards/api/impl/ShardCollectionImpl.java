@@ -1,6 +1,6 @@
 package net.modfest.scatteredshards.api.impl;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ShardCollection;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,33 +10,33 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class ShardCollectionImpl implements ShardCollection {
-	private final Set<ResourceLocation> data;
+	private final Set<Identifier> data;
 
 	public ShardCollectionImpl() {
 		this(new HashSet<>());
 	}
 
-	public ShardCollectionImpl(Set<ResourceLocation> data) {
+	public ShardCollectionImpl(Set<Identifier> data) {
 		this.data = data;
 	}
 
 	@Override
-	public boolean contains(ResourceLocation shardId) {
+	public boolean contains(Identifier shardId) {
 		return data.contains(shardId);
 	}
 
 	@Override
-	public boolean add(ResourceLocation shardId) {
+	public boolean add(Identifier shardId) {
 		return data.add(shardId);
 	}
 
 	@Override
-	public void addAll(Collection<ResourceLocation> shardIds) {
+	public void addAll(Collection<Identifier> shardIds) {
 		data.addAll(shardIds);
 	}
 
 	@Override
-	public boolean remove(ResourceLocation shardId) {
+	public boolean remove(Identifier shardId) {
 		return data.remove(shardId);
 	}
 
@@ -51,12 +51,12 @@ public class ShardCollectionImpl implements ShardCollection {
 	}
 
 	@Override
-	public @NotNull Iterator<ResourceLocation> iterator() {
+	public @NotNull Iterator<Identifier> iterator() {
 		return data.iterator();
 	}
 
 	@Override
-	public Set<ResourceLocation> toImmutableSet() {
+	public Set<Identifier> toImmutableSet() {
 		return Set.copyOf(data);
 	}
 }

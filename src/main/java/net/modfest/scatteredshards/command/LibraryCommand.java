@@ -11,7 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public class LibraryCommand {
 
 	public static int delete(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		ResourceLocation shardId = ctx.getArgument("shard_id", ResourceLocation.class);
+		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		library.shards().get(shardId).orElseThrow(() -> ShardCommand.INVALID_SHARD.create(shardId));
@@ -65,10 +65,10 @@ public class LibraryCommand {
 	}
 
 	public static int migrate(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		ResourceLocation shardId = ctx.getArgument("shard_id", ResourceLocation.class);
+		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 		String modId = StringArgumentType.getString(ctx, "mod_id");
-		ResourceLocation shardTypeId = ctx.getArgument("shard_type", ResourceLocation.class);
-		ResourceLocation newShardId = ShardType.createModId(shardTypeId, modId);
+		Identifier shardTypeId = ctx.getArgument("shard_type", Identifier.class);
+		Identifier newShardId = ShardType.createModId(shardTypeId, modId);
 
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		library.shardTypes().get(shardTypeId).orElseThrow(() -> ShardCommand.INVALID_SHARD_TYPE.create(shardTypeId));

@@ -4,7 +4,7 @@ import io.github.cottonmc.cotton.gui.widget.WPanelWithInsets;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -52,8 +52,8 @@ public class WShardSetPanel extends WPanelWithInsets {
 		return this.height - insets.top() - insets.bottom();
 	}
 
-	public void setShardSet(ResourceLocation setId, ShardLibrary library, ShardCollection collection) {
-		List<ResourceLocation> shardSet = new ArrayList<>(library.shardSets().get(setId));
+	public void setShardSet(Identifier setId, ShardLibrary library, ShardCollection collection) {
+		List<Identifier> shardSet = new ArrayList<>(library.shardSets().get(setId));
 		shardSet.sort((a, b) -> {
 			int aPriority = library.shards().get(a)
 				.map(Shard::shardTypeId)
@@ -86,7 +86,7 @@ public class WShardSetPanel extends WPanelWithInsets {
 		int xofs = 100;
 
 		for (int i = 0; i < Math.min(shards.size(), shardSet.size()); i++) {
-			ResourceLocation shardId = shardSet.get(i);
+			Identifier shardId = shardSet.get(i);
 			WMiniShard widget = shards.get(i);
 			widget.setShardConsumer(shardConsumer);
 			collection.contains(shardId);

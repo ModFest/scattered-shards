@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import com.mojang.math.Axis;
@@ -32,8 +32,8 @@ import org.joml.Vector3f;
 public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity> {
 	public static final float BLOCK_SCALE = 0.75f;
 	
-	private static final ResourceLocation DISTANCE_GLOW_TEX = ScatteredShards.id("textures/entity/shard_distance_glow.png");
-	private static final ResourceLocation DISTANCE_HALO_TEX = ScatteredShards.id("textures/entity/shard_distance_halo.png");
+	private static final Identifier DISTANCE_GLOW_TEX = ScatteredShards.id("textures/entity/shard_distance_glow.png");
+	private static final Identifier DISTANCE_HALO_TEX = ScatteredShards.id("textures/entity/shard_distance_halo.png");
 
 	public ShardBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
 

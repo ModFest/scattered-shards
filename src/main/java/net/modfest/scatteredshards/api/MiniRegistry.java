@@ -12,7 +12,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,42 +25,42 @@ import java.util.stream.Stream;
  * Little wrapper around BiMap to optionalize some things
  */
 public class MiniRegistry<T> {
-	private final BiMap<ResourceLocation, T> data = HashBiMap.create();
-	private final UnboundedMapCodec<ResourceLocation, T> mapCodec;
+	private final BiMap<Identifier, T> data = HashBiMap.create();
+	private final UnboundedMapCodec<Identifier, T> mapCodec;
 
 	public MiniRegistry(Codec<T> valueCodec) {
-		this.mapCodec = Codec.unboundedMap(ResourceLocation.CODEC, valueCodec);
+		this.mapCodec = Codec.unboundedMap(Identifier.CODEC, valueCodec);
 	}
 
-	public Optional<T> get(ResourceLocation id) {
+	public Optional<T> get(Identifier id) {
 		return Optional.ofNullable(data.get(id));
 	}
 
-	public Optional<ResourceLocation> get(T value) {
+	public Optional<Identifier> get(T value) {
 		return Optional.ofNullable(data.inverse().get(value));
 	}
 
-	public void forEach(BiConsumer<ResourceLocation, T> consumer) {
+	public void forEach(BiConsumer<Identifier, T> consumer) {
 		data.forEach(consumer);
 	}
 
-	public Stream<ResourceLocation> streamKeys() {
+	public Stream<Identifier> streamKeys() {
 		return data.keySet().stream();
 	}
 
-	public void put(ResourceLocation id, T value) {
+	public void put(Identifier id, T value) {
 		data.put(id, value);
 	}
 
-	public void putAll(Map<ResourceLocation, T> values) {
+	public void putAll(Map<Identifier, T> values) {
 		data.putAll(values);
 	}
 
-	public void remove(ResourceLocation id) {
+	public void remove(Identifier id) {
 		data.remove(id);
 	}
 
-	public void removeAll(Collection<ResourceLocation> ids) {
+	public void removeAll(Collection<Identifier> ids) {
 		data.keySet().removeAll(ids);
 	}
 
@@ -97,7 +97,7 @@ public class MiniRegistry<T> {
 
 	// this is not great
 	public static <T> StreamCodec<RegistryFriendlyByteBuf, MiniRegistry<T>> createPacketCodec(Codec<T> valueCodec) {
-		return ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, ByteBufCodecs.fromCodec(valueCodec)).map(
+		return ByteBufCodecs.map(HashMap::new, Identifier.STREAM_CODEC, ByteBufCodecs.fromCodec(valueCodec)).map(
 			map -> {
 				MiniRegistry<T> registry = new MiniRegistry<>(valueCodec);
 				registry.putAll(map);

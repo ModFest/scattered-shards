@@ -13,10 +13,10 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.ShardType;
 
@@ -27,8 +27,8 @@ public class ShardCommandNodeHelper {
 		return LiteralArgumentBuilder.literal(name);
 	}
 
-	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> identifier(String name) {
-		return RequiredArgumentBuilder.argument(name, ResourceLocationArgument.id());
+	public static RequiredArgumentBuilder<CommandSourceStack, Identifier> identifier(String name) {
+		return RequiredArgumentBuilder.argument(name, IdentifierArgument.id());
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class ShardCommandNodeHelper {
 	 * @param name The name of the node
 	 * @return A node builder for further modification
 	 */
-	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> shardId(String name) {
+	public static RequiredArgumentBuilder<CommandSourceStack, Identifier> shardId(String name) {
 		return identifier(name).suggests((source, builder) -> {
 			String prefix = builder.getRemaining();
 			ScatteredShardsAPI.getServerLibrary().shards().forEach((id, shard) -> {
@@ -53,13 +53,13 @@ public class ShardCommandNodeHelper {
 	 * @param name The name of the node
 	 * @return A node builder for further modification
 	 */
-	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> collectedShardId(String name) {
+	public static RequiredArgumentBuilder<CommandSourceStack, Identifier> collectedShardId(String name) {
 		return identifier(name).suggests((ctx, builder) -> {
 			ServerPlayer player = ctx.getSource().getPlayer();
 			if (player == null) return builder.buildFuture();
 
 			String prefix = builder.getRemaining();
-			for (ResourceLocation id : ScatteredShardsAPI.getServerCollection(player)) {
+			for (Identifier id : ScatteredShardsAPI.getServerCollection(player)) {
 				if (prefix.isBlank() || id.toString().startsWith(prefix)) builder.suggest(id.toString());
 			}
 
@@ -83,8 +83,8 @@ public class ShardCommandNodeHelper {
 		return RequiredArgumentBuilder.argument(name, StringArgumentType.string());
 	}
 
-	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> identifierArgument(String name) {
-		return RequiredArgumentBuilder.argument(name, ResourceLocationArgument.id());
+	public static RequiredArgumentBuilder<CommandSourceStack, Identifier> identifierArgument(String name) {
+		return RequiredArgumentBuilder.argument(name, IdentifierArgument.id());
 	}
 
 	/**

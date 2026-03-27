@@ -13,9 +13,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.MiniRegistry;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
@@ -43,9 +43,9 @@ public class ClientShardCommand {
 	);
 
 	public static int view(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
-		ResourceLocation id = context.getArgument("set_id", ResourceLocation.class);
+		Identifier id = context.getArgument("set_id", Identifier.class);
 		ShardLibrary realLibrary = ScatteredShardsAPI.getClientLibrary();
-		Set<ResourceLocation> shardPackSet = realLibrary.shardSets().get(id);
+		Set<Identifier> shardPackSet = realLibrary.shardSets().get(id);
 		if (shardPackSet.isEmpty()) {
 			throw INVALID_SET_ID.create(id);
 		}
@@ -53,9 +53,9 @@ public class ClientShardCommand {
 		ShardLibrary fakeLibrary = new ShardLibraryImpl();
 		MiniRegistry<Shard> realShardRegistry = realLibrary.shards();
 		MiniRegistry<Shard> fakeShardRegistry = fakeLibrary.shards();
-		SetMultimap<ResourceLocation, ResourceLocation> fakeShardSets = fakeLibrary.shardSets();
+		SetMultimap<Identifier, Identifier> fakeShardSets = fakeLibrary.shardSets();
 		MiniRegistry<ShardType> fakeShardTypes = fakeLibrary.shardTypes();
-		for (ResourceLocation shardId : shardPackSet) {
+		for (Identifier shardId : shardPackSet) {
 			Optional<Shard> optionalShard = realShardRegistry.get(shardId);
 			if (optionalShard.isEmpty()) continue;
 			Shard shard = optionalShard.get();
@@ -70,7 +70,7 @@ public class ClientShardCommand {
 
 	public static int creatorNew(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		String modId = StringArgumentType.getString(context, "mod_id");
-		ResourceLocation shardTypeId = context.getArgument("shard_type", ResourceLocation.class);
+		Identifier shardTypeId = context.getArgument("shard_type", Identifier.class);
 		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardTypeId)
 			.orElseThrow(() -> ShardCommand.INVALID_SHARD_TYPE.create(shardTypeId));
 
@@ -79,7 +79,7 @@ public class ClientShardCommand {
 	}
 
 	public static int creatorEdit(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
-		ResourceLocation shardId = context.getArgument("shard_id", ResourceLocation.class);
+		Identifier shardId = context.getArgument("shard_id", Identifier.class);
 		Shard shard = ScatteredShardsAPI.getClientLibrary().shards().get(shardId)
 			.orElseThrow(() -> INVALID_SHARD_ID.create(shardId));
 
@@ -95,7 +95,7 @@ public class ClientShardCommand {
 	}
 
 	private static CompletableFuture<Suggestions> suggestShardSets(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
-		for (ResourceLocation id : ScatteredShardsAPI.getClientLibrary().shardSets().keySet()) {
+		for (Identifier id : ScatteredShardsAPI.getClientLibrary().shardSets().keySet()) {
 			builder.suggest(id.toString());
 		}
 		return builder.buildFuture();
@@ -119,8 +119,8 @@ public class ClientShardCommand {
 		return LiteralArgumentBuilder.literal(name);
 	}
 
-	static RequiredArgumentBuilder<FabricClientCommandSource, ResourceLocation> identifierArgument(String name) {
-		return RequiredArgumentBuilder.argument(name, ResourceLocationArgument.id());
+	static RequiredArgumentBuilder<FabricClientCommandSource, Identifier> identifierArgument(String name) {
+		return RequiredArgumentBuilder.argument(name, IdentifierArgument.id());
 	}
 
 	static RequiredArgumentBuilder<FabricClientCommandSource, String> stringArgument(String name) {

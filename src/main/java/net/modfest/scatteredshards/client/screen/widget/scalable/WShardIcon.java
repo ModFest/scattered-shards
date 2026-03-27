@@ -5,23 +5,23 @@ import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Supplier;
 
 public class WShardIcon extends WScalableWidget {
-	protected Supplier<Either<ItemStack, ResourceLocation>> icon = () -> Either.left(ItemStack.EMPTY);
+	protected Supplier<Either<ItemStack, Identifier>> icon = () -> Either.left(ItemStack.EMPTY);
 
 	public WShardIcon(float scale) {
 		this.scale = scale;
 	}
 
-	public WShardIcon setIcon(Either<ItemStack, ResourceLocation> icon) {
+	public WShardIcon setIcon(Either<ItemStack, Identifier> icon) {
 		this.icon = () -> icon;
 		return this;
 	}
 
-	public WShardIcon setIcon(Supplier<Either<ItemStack, ResourceLocation>> icon) {
+	public WShardIcon setIcon(Supplier<Either<ItemStack, Identifier>> icon) {
 		this.icon = icon;
 		return this;
 	}
@@ -31,7 +31,7 @@ public class WShardIcon extends WScalableWidget {
 		return this;
 	}
 
-	public WShardIcon setIcon(ResourceLocation image) {
+	public WShardIcon setIcon(Identifier image) {
 		this.icon = () -> Either.right(image);
 		return this;
 	}

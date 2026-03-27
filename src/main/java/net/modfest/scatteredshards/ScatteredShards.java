@@ -3,7 +3,7 @@ package net.modfest.scatteredshards;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.ShardType;
 import net.modfest.scatteredshards.command.ShardCommand;
@@ -20,8 +20,8 @@ public class ScatteredShards implements ModInitializer {
 
 	public static final ScatteredShardsConfig CONFIG = ScatteredShardsConfig.createToml(FabricLoader.getInstance().getConfigDir(), "", ID, ScatteredShardsConfig.class);
 
-	public static ResourceLocation id(String path) {
-		return ResourceLocation.fromNamespaceAndPath(ID, path);
+	public static Identifier id(String path) {
+		return Identifier.fromNamespaceAndPath(ID, path);
 	}
 
 	public static String permission(String path) {

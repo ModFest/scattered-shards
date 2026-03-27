@@ -3,16 +3,16 @@ package net.modfest.scatteredshards.api;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Objects;
 
 public class GlobalCollection {
 	int totalPlayers;
-	HashMap<ResourceLocation, Integer> collectionTracker;
+	HashMap<Identifier, Integer> collectionTracker;
 
-	public GlobalCollection(int totalPlayers, HashMap<ResourceLocation, Integer> collectionTracker) {
+	public GlobalCollection(int totalPlayers, HashMap<Identifier, Integer> collectionTracker) {
 		this.totalPlayers = totalPlayers;
 		this.collectionTracker = collectionTracker;
 	}
@@ -21,21 +21,21 @@ public class GlobalCollection {
 		return totalPlayers;
 	}
 
-	public HashMap<ResourceLocation, Integer> collectionTracker() {
+	public HashMap<Identifier, Integer> collectionTracker() {
 		return collectionTracker;
 	}
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, GlobalCollection> PACKET_CODEC = StreamCodec.composite(
 		ByteBufCodecs.INT, GlobalCollection::totalPlayers,
-		ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, ByteBufCodecs.VAR_INT), GlobalCollection::collectionTracker,
+		ByteBufCodecs.map(HashMap::new, Identifier.STREAM_CODEC, ByteBufCodecs.VAR_INT), GlobalCollection::collectionTracker,
 		GlobalCollection::new
 	);
 
-	public int getCount(ResourceLocation shard) {
+	public int getCount(Identifier shard) {
 		return Objects.requireNonNullElse(collectionTracker.get(shard), 0);
 	}
 
-	public void update(ResourceLocation shard, int change, int playerCount) {
+	public void update(Identifier shard, int change, int playerCount) {
 		collectionTracker.compute(shard, (k, count) -> count != null ? count + change : 1);
 		totalPlayers = playerCount;
 	}

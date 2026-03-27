@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -20,7 +20,7 @@ public class ItemCommand {
 
 	public static int item(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		ServerPlayer player = ctx.getSource().getPlayerOrException();
-		ResourceLocation shardId = ctx.getArgument("shard_id", ResourceLocation.class);
+		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 
 		var name = library.shards().get(shardId).map(Shard::name).orElse(null);

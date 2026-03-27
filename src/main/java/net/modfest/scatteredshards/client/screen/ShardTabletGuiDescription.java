@@ -12,7 +12,7 @@ import io.github.cottonmc.cotton.gui.widget.data.Vec2i;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -31,14 +31,14 @@ import java.util.List;
 
 public class ShardTabletGuiDescription extends LightweightGuiDescription {
 	public static int INITIAL_SCROLL_POSITION = 0;
-	public static ResourceLocation INITIAL_SHARD = ShardType.MISSING_ID;
+	public static Identifier INITIAL_SHARD = ShardType.MISSING_ID;
 
 	protected final ShardCollection collection;
 	protected final ShardLibrary library;
 
 	WShardPanel shardPanel = new WShardPanel();
 	WPlainPanel selectorPanel = new WPlainPanel();
-	WListPanel<ResourceLocation, WShardSetPanel> shardSelector;
+	WListPanel<Identifier, WShardSetPanel> shardSelector;
 
 	public ShardTabletGuiDescription(ShardCollection collection, ShardLibrary library) {
 		this.collection = collection;
@@ -46,7 +46,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 
 		shardPanel.setShard(library.shards().get(INITIAL_SHARD).orElse(Shard.MISSING_SHARD));
 
-		List<ResourceLocation> ids = new ArrayList<>(this.library.shardSets().keySet());
+		List<Identifier> ids = new ArrayList<>(this.library.shardSets().keySet());
 		ids.sort(Comparator.comparing((setId) -> Shard.getSourceForSourceId(setId).getString().toLowerCase()));
 
 		shardSelector = new WListPanel<>(ids, WShardSetPanel::new, this::configurePanel);
@@ -60,8 +60,8 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 
 		WScaledLabel progressVisited = new WScaledLabel(() -> {
 			int visitedSets = 0;
-			for (Collection<ResourceLocation> set : library.shardSets().asMap().values()) {
-				for (ResourceLocation identifier : set) {
+			for (Collection<Identifier> set : library.shardSets().asMap().values()) {
+				for (Identifier identifier : set) {
 					if (collection.contains(identifier)) {
 						visitedSets++;
 						break;
@@ -111,7 +111,7 @@ public class ShardTabletGuiDescription extends LightweightGuiDescription {
 		return panel.getHeight() - panel.getInsets().top() - panel.getInsets().bottom();
 	}
 
-	private void configurePanel(ResourceLocation setId, WShardSetPanel panel) {
+	private void configurePanel(Identifier setId, WShardSetPanel panel) {
 		panel.setSize(shardSelector.getWidth() - shardSelector.getScrollBar().getWidth(), 20);
 		panel.setShardConsumer(shardPanel::setShard);
 		panel.setShardSet(setId, library, collection);

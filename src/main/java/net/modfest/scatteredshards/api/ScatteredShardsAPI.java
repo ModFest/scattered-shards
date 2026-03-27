@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ShardCollectionImpl;
 import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
@@ -74,7 +74,7 @@ public class ScatteredShardsAPI {
 
 	public static void calculateShardProgress() {
 		if (serverGlobalCollection != null) return;
-		HashMap<ResourceLocation, Integer> shardCountMap = new HashMap<>();
+		HashMap<Identifier, Integer> shardCountMap = new HashMap<>();
 		int totalCount = serverCollections.size();
 
 		serverCollections.forEach(((uuid, identifiers) -> identifiers.forEach(identifier -> shardCountMap.compute(identifier, (k, count) -> count != null ? 1 + count : 1))));
@@ -116,7 +116,7 @@ public class ScatteredShardsAPI {
 		clientGlobalCollection = collection;
 	}
 
-	public static boolean triggerShardCollection(ServerPlayer player, ResourceLocation shardId) {
+	public static boolean triggerShardCollection(ServerPlayer player, Identifier shardId) {
 		ShardCollection collection = getServerCollection(player);
 		if (collection.add(shardId)) {
 			if (player.getServer() != null) collectionPersistentState.setDirty();
@@ -129,7 +129,7 @@ public class ScatteredShardsAPI {
 		}
 	}
 
-	public static boolean triggerShardUncollection(ServerPlayer player, ResourceLocation shardId) {
+	public static boolean triggerShardUncollection(ServerPlayer player, Identifier shardId) {
 		ShardCollection collection = getServerCollection(player);
 		if (collection.remove(shardId)) {
 			if (player.getServer() != null) collectionPersistentState.setDirty();

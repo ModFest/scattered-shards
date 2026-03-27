@@ -12,7 +12,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -32,7 +32,7 @@ public class ShardBlockEntity extends BlockEntity {
 	public static final String SHARD_NBT_KEY = "Shard";
 
 	@Nullable
-	protected ResourceLocation shardId;
+	protected Identifier shardId;
 
 	@Nullable
 	protected Shard shard;
@@ -49,7 +49,7 @@ public class ShardBlockEntity extends BlockEntity {
 	}
 
 	@Nullable
-	public ResourceLocation getShardId() {
+	public Identifier getShardId() {
 		return shardId;
 	}
 
@@ -60,7 +60,7 @@ public class ShardBlockEntity extends BlockEntity {
 		return library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
 	}
 
-	public void setShardId(ResourceLocation id) {
+	public void setShardId(Identifier id) {
 		Objects.requireNonNull(id);
 		this.shardId = id;
 		this.shard = null;
@@ -106,7 +106,7 @@ public class ShardBlockEntity extends BlockEntity {
 
 		var shardId = view.getStringOr(SHARD_NBT_KEY, null);
 		if (shardId != null) {
-			setShardId(ResourceLocation.parse(shardId));
+			setShardId(Identifier.parse(shardId));
 		}
 
 		this.canInteract = view.getBooleanOr("CanInteract", false);
@@ -153,7 +153,7 @@ public class ShardBlockEntity extends BlockEntity {
 		}
 
 		public void tick() {
-			ResourceLocation shardId = ShardBlockEntity.this.getShardId();
+			Identifier shardId = ShardBlockEntity.this.getShardId();
 
 			boolean wasCollected = this.collected;
 			ShardCollection shards = ScatteredShardsAPI.getClientCollection();

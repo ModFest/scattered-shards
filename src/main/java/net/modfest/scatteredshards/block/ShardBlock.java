@@ -21,7 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -122,7 +122,7 @@ public class ShardBlock extends Block implements EntityBlock {
 	protected ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state, boolean includeData) {
 		BlockEntity entity = world.getBlockEntity(pos);
 		if (world.isClientSide() && entity instanceof ShardBlockEntity shardEntity) {
-			ResourceLocation shardId = shardEntity.getShardId();
+			Identifier shardId = shardEntity.getShardId();
 			ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 
 			if (shardId == null || library == null) {
@@ -141,7 +141,7 @@ public class ShardBlock extends Block implements EntityBlock {
 	 *
 	 * @return the shard block
 	 */
-	public static ItemStack createShardBlock(ShardLibrary library, ResourceLocation shardId, boolean canInteract, float glowSize, float glowStrength) {
+	public static ItemStack createShardBlock(ShardLibrary library, Identifier shardId, boolean canInteract, float glowSize, float glowStrength) {
 		Shard shard = library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
 		ShardType shardType = library.shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
 		return createShardBlock(shardType, shardId, shard, canInteract, glowSize, glowStrength);
@@ -172,7 +172,7 @@ public class ShardBlock extends Block implements EntityBlock {
 		return stack;*/
 	}
 
-	public static ItemStack createShardBlock(ShardType shardType, ResourceLocation shardId, Shard shard, boolean canInteract, float glowSize, float glowStrength) {
+	public static ItemStack createShardBlock(ShardType shardType, Identifier shardId, Shard shard, boolean canInteract, float glowSize, float glowStrength) {
 		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_BLOCK);
 
 		CompoundTag blockEntityTag = new CompoundTag();

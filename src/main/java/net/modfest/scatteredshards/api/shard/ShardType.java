@@ -14,7 +14,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ColorCodec;
 
@@ -46,33 +46,33 @@ public record ShardType(int textColor, int glowColor, Optional<ShardDisplaySetti
 	public static final SoundEvent COLLECT_SECRET_SOUND = SoundEvent.createVariableRangeEvent(ScatteredShards.id("collect_secret"));
 
 	public static final ShardType MISSING = new ShardType(0xFFFFFF, 0xFF00FF, Optional.empty(), Optional.empty(), Optional.empty(), -1);
-	public static final ResourceLocation MISSING_ID = ScatteredShards.id("missing");
+	public static final Identifier MISSING_ID = ScatteredShards.id("missing");
 
-	public static ResourceLocation createModId(ResourceLocation shardTypeId, String modId) {
-		return ResourceLocation.fromNamespaceAndPath(modId, shardTypeId.toDebugFileName());
+	public static Identifier createModId(Identifier shardTypeId, String modId) {
+		return Identifier.fromNamespaceAndPath(modId, shardTypeId.toDebugFileName());
 	}
 
-	private static ResourceLocation getTexture(ResourceLocation id, String name) {
+	private static Identifier getTexture(Identifier id, String name) {
 		return id.withPath("textures/gui/shards/" + id.getPath() + "_" + name + ".png");
 	}
 
-	public static ResourceLocation getBackingTexture(ResourceLocation id) {
+	public static Identifier getBackingTexture(Identifier id) {
 		return getTexture(id, "backing");
 	}
 
-	public static ResourceLocation getFrontTexture(ResourceLocation id) {
+	public static Identifier getFrontTexture(Identifier id) {
 		return getTexture(id, "front");
 	}
 
-	public static ResourceLocation getMiniFrontTexture(ResourceLocation id) {
+	public static Identifier getMiniFrontTexture(Identifier id) {
 		return getTexture(id, "mini_front");
 	}
 
-	public static ResourceLocation getMiniBackingTexture(ResourceLocation id) {
+	public static Identifier getMiniBackingTexture(Identifier id) {
 		return getTexture(id, "mini_backing");
 	}
 
-	public static Component getDescription(ResourceLocation id) {
+	public static Component getDescription(Identifier id) {
 		return Component.translatable(id.toLanguageKey("shard_type", "description"));
 	}
 

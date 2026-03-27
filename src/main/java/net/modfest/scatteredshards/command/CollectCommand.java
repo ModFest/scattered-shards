@@ -7,14 +7,14 @@ import com.mojang.brigadier.tree.CommandNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 
 public class CollectCommand {
 
 	public static int collect(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		ResourceLocation id = ctx.getArgument("shard_id", ResourceLocation.class);
+		Identifier id = ctx.getArgument("shard_id", Identifier.class);
 
 		//Validate shard
 		ScatteredShardsAPI.getServerLibrary().shards().get(id)

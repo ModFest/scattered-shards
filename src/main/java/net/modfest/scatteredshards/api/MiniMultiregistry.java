@@ -9,7 +9,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,34 +20,34 @@ import java.util.function.BiConsumer;
  * Little wrap around Multimap to make it easier to manage as a registry
  */
 public class MiniMultiregistry<T> {
-	private final Multimap<ResourceLocation, T> data = MultimapBuilder.hashKeys().hashSetValues(3).build();
-	private final Codec<Map<ResourceLocation, Collection<T>>> mapCodec;
+	private final Multimap<Identifier, T> data = MultimapBuilder.hashKeys().hashSetValues(3).build();
+	private final Codec<Map<Identifier, Collection<T>>> mapCodec;
 
 	public MiniMultiregistry(Codec<T> valueCodec) {
-		mapCodec = Codec.unboundedMap(ResourceLocation.CODEC, valueCodec.listOf().xmap(Functions.identity(), List::copyOf));
+		mapCodec = Codec.unboundedMap(Identifier.CODEC, valueCodec.listOf().xmap(Functions.identity(), List::copyOf));
 	}
 
-	public Collection<T> get(ResourceLocation id) {
+	public Collection<T> get(Identifier id) {
 		return data.get(id);
 	}
 
-	public void forEachMapping(BiConsumer<ResourceLocation, T> consumer) {
+	public void forEachMapping(BiConsumer<Identifier, T> consumer) {
 		data.forEach(consumer);
 	}
 
-	public void forEachSet(BiConsumer<ResourceLocation, Collection<T>> consumer) {
+	public void forEachSet(BiConsumer<Identifier, Collection<T>> consumer) {
 		data.asMap().forEach(consumer);
 	}
 
-	public void put(ResourceLocation key, T value) {
+	public void put(Identifier key, T value) {
 		data.put(key, value);
 	}
 
-	public void removeValue(ResourceLocation key, T value) {
+	public void removeValue(Identifier key, T value) {
 		data.remove(key, value);
 	}
 
-	public void removeKey(ResourceLocation key) {
+	public void removeKey(Identifier key) {
 		data.removeAll(key);
 	}
 

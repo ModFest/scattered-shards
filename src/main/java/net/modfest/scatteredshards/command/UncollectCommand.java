@@ -10,7 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
@@ -26,7 +26,7 @@ public class UncollectCommand {
 	 * @throws CommandSyntaxException if there was a problem executing the command.
 	 */
 	public static int uncollect(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		ResourceLocation id = ctx.getArgument("shard_id", ResourceLocation.class);
+		Identifier id = ctx.getArgument("shard_id", Identifier.class);
 
 		//Validate shard
 		ScatteredShardsAPI.getServerLibrary().shards().get(id)

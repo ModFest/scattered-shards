@@ -12,7 +12,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.GlobalCollection;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
@@ -26,13 +26,13 @@ import net.modfest.scatteredshards.util.ModMetaUtil;
 import java.util.function.Consumer;
 
 public class WMiniShard extends WWidget {
-	private static final ResourceLocation MINI_OUTLINE = ScatteredShards.id("textures/gui/shards/mini_outline.png");
-	private static final ResourceLocation MINI_OUTLINE_SLIGHT = ScatteredShards.id("textures/gui/shards/mini_outline_slight.png");
+	private static final Identifier MINI_OUTLINE = ScatteredShards.id("textures/gui/shards/mini_outline.png");
+	private static final Identifier MINI_OUTLINE_SLIGHT = ScatteredShards.id("textures/gui/shards/mini_outline_slight.png");
 
 	protected Shard shard = null;
 	protected ShardType shardType = null;
 	protected boolean isCollected = false;
-	protected ResourceLocation shardId;
+	protected Identifier shardId;
 	private int width = (int)ShardTextureSettings.Size.DEFAULT_MINI.width();
 	private int height = (int)ShardTextureSettings.Size.DEFAULT_MINI.height();
 
@@ -42,7 +42,7 @@ public class WMiniShard extends WWidget {
 	public WMiniShard() {
 	}
 
-	public WMiniShard setShard(Shard shard, boolean collected, ResourceLocation shardId) {
+	public WMiniShard setShard(Shard shard, boolean collected, Identifier shardId) {
 		shard.icon().ifRight(ModMetaUtil::touchIconTexture);
 		this.shard = shard;
 		this.shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
@@ -63,7 +63,7 @@ public class WMiniShard extends WWidget {
 	@Environment(EnvType.CLIENT)
 	@Override
 	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
-		ResourceLocation tex = (isCollected) ? ShardType.getMiniFrontTexture(shard.shardTypeId()) : ShardType.getMiniBackingTexture(shard.shardTypeId());
+		Identifier tex = (isCollected) ? ShardType.getMiniFrontTexture(shard.shardTypeId()) : ShardType.getMiniBackingTexture(shard.shardTypeId());
 		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
 		float opacity = (isCollected) ? 1.0f : 0.6f;
 		ScreenDrawing.texturedRect(context, x, y, getWidth(), getHeight(), tex, color, opacity);

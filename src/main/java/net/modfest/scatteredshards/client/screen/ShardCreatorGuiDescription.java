@@ -22,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
@@ -53,9 +53,9 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public static final Component SAVE_TEXT = Component.translatable("gui.scattered_shards.creator.button.save");
 	private static final String PREVIOUS_VALUE = "<previous_value>";
 
-	private ResourceLocation shardId;
+	private Identifier shardId;
 	private Shard shard;
-	private ResourceLocation modIcon;
+	private Identifier modIcon;
 
 	WLayoutBox editorPanel = new WLayoutBox(Axis.VERTICAL);
 	WShardPanel shardPanel = new WShardPanel();
@@ -82,11 +82,11 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public WLayoutBox textureIconPanel = new WLayoutBox(Axis.VERTICAL);
 	public WLayoutBox itemIconPanel = new WLayoutBox(Axis.VERTICAL);
 
-	public static ResourceLocation parseTexture(String path) {
+	public static Identifier parseTexture(String path) {
 		if (path.isBlank()) {
 			return null;
 		}
-		ResourceLocation id = ResourceLocation.tryParse(path);
+		Identifier id = Identifier.tryParse(path);
 		if (id == null) {
 			return null;
 		}
@@ -125,7 +125,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 
 	private Item item = null;
 	private DataComponentMap itemComponents = DataComponentMap.EMPTY;
-	private ResourceLocation iconPath = null;
+	private Identifier iconPath = null;
 
 
 	private void updateItem(StringReader reader) throws CommandSyntaxException {
@@ -161,12 +161,12 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 	}
 
-	public ShardCreatorGuiDescription(ResourceLocation shardId, Shard shard, String modId) {
+	public ShardCreatorGuiDescription(Identifier shardId, Shard shard, String modId) {
 		this(shardId);
 		this.shard = shard;
 
 		this.modIcon = ModMetaUtil.touchModIcon(modId);
-		shard.setSourceId(ResourceLocation.fromNamespaceAndPath(modId, "shard_pack"));
+		shard.setSourceId(Identifier.fromNamespaceAndPath(modId, "shard_pack"));
 
 		// Initialize field values
 		this.nameField.setText(shard.name().tryCollapseToString());
@@ -203,7 +203,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		shardPanel.setShard(shard);
 	}
 
-	public ShardCreatorGuiDescription(ResourceLocation shardId) {
+	public ShardCreatorGuiDescription(Identifier shardId) {
 		this.shardId = shardId;
 
 		WLeftRightPanel root = new WLeftRightPanel(editorPanel, shardPanel);
@@ -254,12 +254,12 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 
 	public static class Screen extends CottonClientScreen {
 
-		public Screen(ResourceLocation shardId, Shard shard, String modId) {
+		public Screen(Identifier shardId, Shard shard, String modId) {
 			super(new ShardCreatorGuiDescription(shardId, shard, modId));
 		}
 
 		public static Screen newShard(String modId, ShardType shardType) {
-			ResourceLocation shardTypeId = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardType).orElse(ShardType.MISSING_ID);
+			Identifier shardTypeId = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardType).orElse(ShardType.MISSING_ID);
 			return new Screen(
 				ShardType.createModId(shardTypeId, modId),
 				Shard.emptyOfType(shardTypeId),
@@ -268,7 +268,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 
 		public static Screen editShard(Shard shard) {
-			ResourceLocation shardId = ScatteredShardsAPI.getClientLibrary().shards().get(shard).orElse(Shard.MISSING_SHARD_SOURCE);
+			Identifier shardId = ScatteredShardsAPI.getClientLibrary().shards().get(shard).orElse(Shard.MISSING_SHARD_SOURCE);
 			String modId = shardId.getNamespace();
 			return new Screen(shardId, shard, modId);
 		}

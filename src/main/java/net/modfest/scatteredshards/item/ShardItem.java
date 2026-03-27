@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -37,7 +37,7 @@ public class ShardItem extends Item {
 	 *
 	 * @return the shard item
 	 */
-	public static ItemStack createShardItem(ResourceLocation shardId, Component name) {
+	public static ItemStack createShardItem(Identifier shardId, Component name) {
 		ItemStack stack = new ItemStack(ScatteredShardsContent.SHARD_ITEM);
 		stack.set(ScatteredShardsContent.SHARD_ID_COMPONENT, shardId);
 		stack.set(DataComponents.ITEM_NAME, name);
@@ -49,7 +49,7 @@ public class ShardItem extends Item {
 	public void inventoryTick(ItemStack stack, ServerLevel world, Entity entity, @Nullable EquipmentSlot slot) {
 		if (world.isClientSide || !(entity instanceof ServerPlayer player) || player.hasInfiniteMaterials()) return;
 
-		ResourceLocation id = stack.get(ScatteredShardsContent.SHARD_ID_COMPONENT);
+		Identifier id = stack.get(ScatteredShardsContent.SHARD_ID_COMPONENT);
 		stack.setCount(0);
 
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
@@ -61,7 +61,7 @@ public class ShardItem extends Item {
 
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay displayComponent, Consumer<Component> textConsumer, TooltipFlag type) {
-		ResourceLocation id = stack.get(ScatteredShardsContent.SHARD_ID_COMPONENT);
+		Identifier id = stack.get(ScatteredShardsContent.SHARD_ID_COMPONENT);
 
 		if (id == null) {
 			return;
@@ -74,7 +74,7 @@ public class ShardItem extends Item {
 			return;
 		}
 
-		ResourceLocation shardTypeId = shard.get().shardTypeId();
+		Identifier shardTypeId = shard.get().shardTypeId();
 		ShardType shardType = library.shardTypes().get(shardTypeId).orElse(ShardType.MISSING);
 		Component shardTypeDesc = ShardType.getDescription(shardTypeId).copy().withStyle(Style.EMPTY.withColor(0xFF_000000 | shardType.textColor()));
 

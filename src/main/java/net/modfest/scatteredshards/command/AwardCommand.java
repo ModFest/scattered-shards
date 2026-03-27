@@ -8,7 +8,7 @@ import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -17,7 +17,7 @@ public class AwardCommand {
 
 	public static int award(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		EntitySelector target = ctx.getArgument("players", EntitySelector.class);
-		ResourceLocation shardId = ctx.getArgument("shard_id", ResourceLocation.class);
+		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
 
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		library.shards().get(shardId).orElseThrow(() -> ShardCommand.INVALID_SHARD.create(shardId)); //Validate shardId

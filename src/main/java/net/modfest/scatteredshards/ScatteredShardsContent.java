@@ -16,7 +16,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.block.ShardBlock;
 import net.modfest.scatteredshards.block.ShardBlockEntity;
 import net.modfest.scatteredshards.client.render.ShardBlockEntityRenderer;
@@ -33,10 +33,10 @@ public class ScatteredShardsContent {
 
 	public static final BlockEntityType<ShardBlockEntity> SHARD_BLOCKENTITY = registerBlockEntity("shard_block", ShardBlockEntity::new, SHARD_BLOCK);
 
-	public static final DataComponentType<ResourceLocation> SHARD_ID_COMPONENT = Registry.register(
+	public static final DataComponentType<Identifier> SHARD_ID_COMPONENT = Registry.register(
 		BuiltInRegistries.DATA_COMPONENT_TYPE,
 		ScatteredShards.id("shard_id"),
-		DataComponentType.<ResourceLocation>builder().persistent(ResourceLocation.CODEC).build()
+		DataComponentType.<Identifier>builder().persistent(Identifier.CODEC).build()
 	);
 
 

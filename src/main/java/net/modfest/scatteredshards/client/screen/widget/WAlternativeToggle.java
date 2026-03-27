@@ -11,7 +11,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
@@ -21,13 +21,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class WAlternativeToggle extends WWidget {
-	NinePatch<ResourceLocation> button = NinePatch.builder(ScatteredShards.id("textures/gui/button.png"))
+	NinePatch<Identifier> button = NinePatch.builder(ScatteredShards.id("textures/gui/button.png"))
 		.cornerSize(4)
 		.cornerUv(4 / 200f, 4 / 20f)
 		.mode(NinePatch.Mode.TILING)
 		.build();
 
-	NinePatch<ResourceLocation> recessedButton = NinePatch.builder(ScatteredShards.id("textures/gui/button_recessed.png"))
+	NinePatch<Identifier> recessedButton = NinePatch.builder(ScatteredShards.id("textures/gui/button_recessed.png"))
 		.cornerSize(4)
 		.cornerUv(4 / 200f, 4 / 20f)
 		.mode(NinePatch.Mode.TILING)
@@ -152,8 +152,8 @@ public class WAlternativeToggle extends WWidget {
 		Matrix3x2fStack matrices = context.pose();
 		matrices.pushMatrix();
 		matrices.translate(x, y);
-		NinePatch<ResourceLocation> leftButton = map(recessedButton, button);
-		NinePatch<ResourceLocation> rightButton = map(button, recessedButton);
+		NinePatch<Identifier> leftButton = map(recessedButton, button);
+		NinePatch<Identifier> rightButton = map(button, recessedButton);
 		leftButton.draw(NinePatchTextureRendererImpl.INSTANCE, context, halfWidth, this.getHeight());
 		matrices.translate(halfWidth - 1, 0);
 		rightButton.draw(NinePatchTextureRendererImpl.INSTANCE, context, halfWidth, this.getHeight());

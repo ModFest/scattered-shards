@@ -6,7 +6,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.modfest.scatteredshards.ScatteredShards;
@@ -45,7 +45,7 @@ public class ShardCollectionPersistentState extends SavedData {
 
 				for (Tag elem : tag.getList(s).get()) {
 					if (elem instanceof StringTag str) {
-						ResourceLocation shardId = ResourceLocation.parse(str.asString().get());
+						Identifier shardId = Identifier.parse(str.asString().get());
 						coll.add(shardId);
 					}
 				}
@@ -68,7 +68,7 @@ public class ShardCollectionPersistentState extends SavedData {
 
 		collections.forEach((id, collection) -> {
 			ListTag list = new ListTag();
-			for (ResourceLocation i : collection) {
+			for (Identifier i : collection) {
 				list.add(StringTag.valueOf(i.toString()));
 			}
 			tag.put(id.toString(), list);

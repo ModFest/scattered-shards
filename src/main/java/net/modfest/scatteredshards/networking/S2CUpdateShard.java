@@ -8,7 +8,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -20,9 +20,9 @@ import java.util.Optional;
 /**
  * Collects/uncollects/deletes a shard.
  */
-public record S2CUpdateShard(ResourceLocation shardId, Mode mode) implements CustomPacketPayload {
+public record S2CUpdateShard(Identifier shardId, Mode mode) implements CustomPacketPayload {
 	public static final Type<S2CUpdateShard> PACKET_ID = new Type<>(ScatteredShards.id("update_shard"));
-	public static final StreamCodec<RegistryFriendlyByteBuf, S2CUpdateShard> PACKET_CODEC = StreamCodec.composite(ResourceLocation.STREAM_CODEC, S2CUpdateShard::shardId, Mode.PACKET_CODEC, S2CUpdateShard::mode, S2CUpdateShard::new);
+	public static final StreamCodec<RegistryFriendlyByteBuf, S2CUpdateShard> PACKET_CODEC = StreamCodec.composite(Identifier.STREAM_CODEC, S2CUpdateShard::shardId, Mode.PACKET_CODEC, S2CUpdateShard::mode, S2CUpdateShard::new);
 
 	@Environment(EnvType.CLIENT)
 	public static void receive(S2CUpdateShard payload, ClientPlayNetworking.Context context) {
