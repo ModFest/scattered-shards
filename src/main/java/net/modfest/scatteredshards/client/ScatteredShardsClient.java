@@ -2,7 +2,7 @@ package net.modfest.scatteredshards.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -24,7 +24,7 @@ import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class ScatteredShardsClient implements ClientModInitializer {
-	public static final KeyMapping VIEW_COLLECTION = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+	public static final KeyMapping VIEW_COLLECTION = KeyMappingHelper.registerKeyBinding(new KeyMapping(
 		"key.scattered_shards.collection",
 		InputConstants.UNKNOWN.getValue(),
 		"key.categories.scattered_shards"
