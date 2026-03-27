@@ -14,15 +14,15 @@ import io.github.cottonmc.cotton.gui.widget.data.Axis;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.command.argument.ItemStringReader;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.resource.Resource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.commands.arguments.item.ItemParser;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
@@ -41,21 +41,21 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class ShardCreatorGuiDescription extends LightweightGuiDescription {
-	public static final Text TITLE_TEXT = Text.translatable("gui.scattered_shards.creator.title");
-	public static final Text NAME_TEXT = Text.translatable("gui.scattered_shards.creator.field.name");
-	public static final Text LORE_TEXT = Text.translatable("gui.scattered_shards.creator.field.lore");
-	public static final Text HINT_TEXT = Text.translatable("gui.scattered_shards.creator.field.hint");
-	public static final Text TEXTURE_TEXT = Text.translatable("gui.scattered_shards.creator.field.texture");
-	public static final Text ICON_TEXTURE_TEXT = Text.translatable("gui.scattered_shards.creator.icon.texture");
-	public static final Text ICON_ITEM_TEXT = Text.translatable("gui.scattered_shards.creator.icon.item");
-	public static final Text ITEM_TEXT = Text.translatable("gui.scattered_shards.creator.field.item.id");
-	public static final Text USE_MOD_ICON_TEXT = Text.translatable("gui.scattered_shards.creator.toggle.mod_icon");
-	public static final Text SAVE_TEXT = Text.translatable("gui.scattered_shards.creator.button.save");
+	public static final Component TITLE_TEXT = Component.translatable("gui.scattered_shards.creator.title");
+	public static final Component NAME_TEXT = Component.translatable("gui.scattered_shards.creator.field.name");
+	public static final Component LORE_TEXT = Component.translatable("gui.scattered_shards.creator.field.lore");
+	public static final Component HINT_TEXT = Component.translatable("gui.scattered_shards.creator.field.hint");
+	public static final Component TEXTURE_TEXT = Component.translatable("gui.scattered_shards.creator.field.texture");
+	public static final Component ICON_TEXTURE_TEXT = Component.translatable("gui.scattered_shards.creator.icon.texture");
+	public static final Component ICON_ITEM_TEXT = Component.translatable("gui.scattered_shards.creator.icon.item");
+	public static final Component ITEM_TEXT = Component.translatable("gui.scattered_shards.creator.field.item.id");
+	public static final Component USE_MOD_ICON_TEXT = Component.translatable("gui.scattered_shards.creator.toggle.mod_icon");
+	public static final Component SAVE_TEXT = Component.translatable("gui.scattered_shards.creator.button.save");
 	private static final String PREVIOUS_VALUE = "<previous_value>";
 
-	private Identifier shardId;
+	private ResourceLocation shardId;
 	private Shard shard;
-	private Identifier modIcon;
+	private ResourceLocation modIcon;
 
 	WLayoutBox editorPanel = new WLayoutBox(Axis.VERTICAL);
 	WShardPanel shardPanel = new WShardPanel();
@@ -82,15 +82,15 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 	public WLayoutBox textureIconPanel = new WLayoutBox(Axis.VERTICAL);
 	public WLayoutBox itemIconPanel = new WLayoutBox(Axis.VERTICAL);
 
-	public static Identifier parseTexture(String path) {
+	public static ResourceLocation parseTexture(String path) {
 		if (path.isBlank()) {
 			return null;
 		}
-		Identifier id = Identifier.tryParse(path);
+		ResourceLocation id = ResourceLocation.tryParse(path);
 		if (id == null) {
 			return null;
 		}
-		Optional<Resource> resource = MinecraftClient.getInstance().getResourceManager().getResource(id);
+		Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(id);
 		return resource.isPresent() ? id : null;
 	}
 
@@ -124,17 +124,17 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		.setOnClick(() -> ClientPlayNetworking.send(new C2SModifyShard(shardId, shard)));
 
 	private Item item = null;
-	private ComponentMap itemComponents = ComponentMap.EMPTY;
-	private Identifier iconPath = null;
+	private DataComponentMap itemComponents = DataComponentMap.EMPTY;
+	private ResourceLocation iconPath = null;
 
 
 	private void updateItem(StringReader reader) throws CommandSyntaxException {
-		var itemReader = new ItemStringReader(MinecraftClient.getInstance().world.getRegistryManager());
-		var result = itemReader.consume(reader);
+		var itemReader = new ItemParser(Minecraft.getInstance().level.registryAccess());
+		var result = itemReader.parse(reader);
 
 		this.item = result.item().value();
-		ComponentMap.Builder mapBuilder = ComponentMap.builder();
-		mapBuilder.addAll(result.components().toAddedRemovedPair().added());
+		DataComponentMap.Builder mapBuilder = DataComponentMap.builder();
+		mapBuilder.addAll(result.components().split().added());
 		this.itemComponents = mapBuilder.build();
 	}
 
@@ -143,9 +143,9 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 			shard.setIcon(Shard.MISSING_ICON);
 			return;
 		}
-		ItemStack stack = item.getDefaultStack();
+		ItemStack stack = item.getDefaultInstance();
 		if (!itemComponents.isEmpty()) {
-			stack.applyComponentsFrom(itemComponents);
+			stack.applyComponents(itemComponents);
 		}
 		shard.setIcon(Either.left(stack));
 	}
@@ -161,17 +161,17 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 	}
 
-	public ShardCreatorGuiDescription(Identifier shardId, Shard shard, String modId) {
+	public ShardCreatorGuiDescription(ResourceLocation shardId, Shard shard, String modId) {
 		this(shardId);
 		this.shard = shard;
 
 		this.modIcon = ModMetaUtil.touchModIcon(modId);
-		shard.setSourceId(Identifier.of(modId, "shard_pack"));
+		shard.setSourceId(ResourceLocation.fromNamespaceAndPath(modId, "shard_pack"));
 
 		// Initialize field values
-		this.nameField.setText(shard.name().getLiteralString());
-		this.loreField.setText(shard.lore().getLiteralString());
-		this.hintField.setText(shard.hint().getLiteralString());
+		this.nameField.setText(shard.name().tryCollapseToString());
+		this.loreField.setText(shard.lore().tryCollapseToString());
+		this.hintField.setText(shard.hint().tryCollapseToString());
 		shard.icon().ifRight(a -> {
 			this.iconToggle.setLeft();
 			if (Objects.equals(a, modIcon)) {
@@ -188,8 +188,8 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		shard.icon().ifLeft(itemStack -> {
 			this.iconToggle.setRight();
 
-			if (itemStack.getComponentChanges().isEmpty()) {
-				this.itemField.setText(Registries.ITEM.getId(itemStack.getItem()).toString());
+			if (itemStack.getComponentsPatch().isEmpty()) {
+				this.itemField.setText(BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString());
 			} else {
 				// TODO
 				this.itemField.setText(PREVIOUS_VALUE);
@@ -203,7 +203,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		shardPanel.setShard(shard);
 	}
 
-	public ShardCreatorGuiDescription(Identifier shardId) {
+	public ShardCreatorGuiDescription(ResourceLocation shardId) {
 		this.shardId = shardId;
 
 		WLeftRightPanel root = new WLeftRightPanel(editorPanel, shardPanel);
@@ -254,12 +254,12 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 
 	public static class Screen extends CottonClientScreen {
 
-		public Screen(Identifier shardId, Shard shard, String modId) {
+		public Screen(ResourceLocation shardId, Shard shard, String modId) {
 			super(new ShardCreatorGuiDescription(shardId, shard, modId));
 		}
 
 		public static Screen newShard(String modId, ShardType shardType) {
-			Identifier shardTypeId = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardType).orElse(ShardType.MISSING_ID);
+			ResourceLocation shardTypeId = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardType).orElse(ShardType.MISSING_ID);
 			return new Screen(
 				ShardType.createModId(shardTypeId, modId),
 				Shard.emptyOfType(shardTypeId),
@@ -268,7 +268,7 @@ public class ShardCreatorGuiDescription extends LightweightGuiDescription {
 		}
 
 		public static Screen editShard(Shard shard) {
-			Identifier shardId = ScatteredShardsAPI.getClientLibrary().shards().get(shard).orElse(Shard.MISSING_SHARD_SOURCE);
+			ResourceLocation shardId = ScatteredShardsAPI.getClientLibrary().shards().get(shard).orElse(Shard.MISSING_SHARD_SOURCE);
 			String modId = shardId.getNamespace();
 			return new Screen(shardId, shard, modId);
 		}

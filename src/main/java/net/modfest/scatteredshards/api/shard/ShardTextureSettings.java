@@ -2,9 +2,9 @@ package net.modfest.scatteredshards.api.shard;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
 
 import java.util.Optional;
 
@@ -14,9 +14,9 @@ public record ShardTextureSettings (Optional<Size> size, Optional<Size> miniSize
 		Codec.optionalField("mini", Size.CODEC, false).forGetter(ShardTextureSettings::miniSize)
 	).apply(instance, ShardTextureSettings::new));
 
-	public static final PacketCodec<RegistryByteBuf, ShardTextureSettings> PACKET_CODEC = PacketCodec.tuple(
-		PacketCodecs.optional(ShardTextureSettings.Size.PACKET_CODEC), ShardTextureSettings::size,
-		PacketCodecs.optional(ShardTextureSettings.Size.PACKET_CODEC), ShardTextureSettings::miniSize,
+	public static final StreamCodec<RegistryFriendlyByteBuf, ShardTextureSettings> PACKET_CODEC = StreamCodec.composite(
+		ByteBufCodecs.optional(ShardTextureSettings.Size.PACKET_CODEC), ShardTextureSettings::size,
+		ByteBufCodecs.optional(ShardTextureSettings.Size.PACKET_CODEC), ShardTextureSettings::miniSize,
 		ShardTextureSettings::new
 	);
 
@@ -28,9 +28,9 @@ public record ShardTextureSettings (Optional<Size> size, Optional<Size> miniSize
 			Codec.FLOAT.fieldOf("height").forGetter(ShardTextureSettings.Size::height)
 		).apply(instance, ShardTextureSettings.Size::new));
 
-		public static final PacketCodec<RegistryByteBuf, ShardTextureSettings.Size> PACKET_CODEC = PacketCodec.tuple(
-			PacketCodecs.FLOAT, ShardTextureSettings.Size::width,
-			PacketCodecs.FLOAT, ShardTextureSettings.Size::height,
+		public static final StreamCodec<RegistryFriendlyByteBuf, ShardTextureSettings.Size> PACKET_CODEC = StreamCodec.composite(
+			ByteBufCodecs.FLOAT, ShardTextureSettings.Size::width,
+			ByteBufCodecs.FLOAT, ShardTextureSettings.Size::height,
 			ShardTextureSettings.Size::new
 		);
 

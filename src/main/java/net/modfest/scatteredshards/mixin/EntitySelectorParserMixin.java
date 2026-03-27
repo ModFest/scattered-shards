@@ -1,12 +1,12 @@
 package net.modfest.scatteredshards.mixin;
 
-import net.minecraft.command.EntitySelectorReader;
+import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.modfest.scatteredshards.mixinsupport.ShardArgument;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(EntitySelectorReader.class)
-public class EntitySelectorReaderMixin implements ShardArgument {
+@Mixin(EntitySelectorParser.class)
+public class EntitySelectorParserMixin implements ShardArgument {
 
 	@Unique
 	private boolean scards$hasShard = false;

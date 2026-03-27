@@ -1,24 +1,24 @@
 package net.modfest.scatteredshards.api.impl;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.PersistentStateType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
 
-public class ShardLibraryPersistentState extends PersistentState {
-	public static final Codec<ShardLibraryPersistentState> CODEC = NbtCompound.CODEC.xmap(
+public class ShardLibraryPersistentState extends SavedData {
+	public static final Codec<ShardLibraryPersistentState> CODEC = CompoundTag.CODEC.xmap(
 		ShardLibraryPersistentState::createFromNbt,
 		ShardLibraryPersistentState::writeNbt
 	);
 
-	private static final PersistentStateType<ShardLibraryPersistentState> TYPE = new PersistentStateType<>(ScatteredShards.ID + "_library",
+	private static final SavedDataType<ShardLibraryPersistentState> TYPE = new SavedDataType<>(ScatteredShards.ID + "_library",
 		ShardLibraryPersistentState::new,
 		ShardLibraryPersistentState.CODEC,
 		null);
@@ -26,13 +26,13 @@ public class ShardLibraryPersistentState extends PersistentState {
 	public static final String SHARDS_KEY = "Shards";
 
 	public static ShardLibraryPersistentState get(MinecraftServer server) {
-		return server.getOverworld().getPersistentStateManager().getOrCreate(TYPE);
+		return server.overworld().getDataStorage().computeIfAbsent(TYPE);
 	}
 
 	public ShardLibraryPersistentState() {
 	}
 
-	public static ShardLibraryPersistentState createFromNbt(NbtCompound tag) {
+	public static ShardLibraryPersistentState createFromNbt(CompoundTag tag) {
 		ScatteredShards.LOGGER.info("Loading shard library...");
 		ShardLibraryPersistentState state = new ShardLibraryPersistentState();
 		// This is just a placeholder - all the data lives in the serverLibrary below
@@ -41,11 +41,11 @@ public class ShardLibraryPersistentState extends PersistentState {
 		library.shards().clear();
 		library.shardSets().clear();
 
-		NbtCompound shards = tag.getCompound(SHARDS_KEY).get();
-		for (String id : shards.getKeys()) {
+		CompoundTag shards = tag.getCompound(SHARDS_KEY).get();
+		for (String id : shards.keySet()) {
 			try {
-				NbtCompound shardNbt = shards.getCompound(id).get();
-				Identifier shardId = Identifier.of(id);
+				CompoundTag shardNbt = shards.getCompound(id).get();
+				ResourceLocation shardId = ResourceLocation.parse(id);
 				Shard shard = Shard.fromNbt(shardNbt);
 
 				library.shards().put(shardId, shard);
@@ -60,8 +60,8 @@ public class ShardLibraryPersistentState extends PersistentState {
 		return state;
 	}
 
-	public NbtCompound writeNbt() {
-		NbtCompound tag = new NbtCompound();
+	public CompoundTag writeNbt() {
+		CompoundTag tag = new CompoundTag();
 
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 		ScatteredShards.LOGGER.info("Saving the ShardLibrary with {} shards and {} shardSets...", library.shards().size(), library.shardSets().size());

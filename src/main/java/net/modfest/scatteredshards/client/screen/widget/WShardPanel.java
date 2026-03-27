@@ -10,15 +10,15 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.Insets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardDisplaySettings;
@@ -37,12 +37,12 @@ import java.util.function.Supplier;
 public class WShardPanel extends WPlainPanel {
 
 	public static final IntSupplier WHITE = () -> 0xFF_FFFFFF;
-	public static final Style HINT_STYLE = Style.EMPTY.withFont(Identifier.of("minecraft:alt"));
+	public static final Style HINT_STYLE = Style.EMPTY.withFont(ResourceLocation.parse("minecraft:alt"));
 
 	private Shard shard = Shard.MISSING_SHARD.copy();
 	private ShardType shardType;
 	private boolean isHidden = false;
-	private Text hideText = Text.translatable("gui.scattered_shards.tablet.click_on_a_shard");
+	private Component hideText = Component.translatable("gui.scattered_shards.tablet.click_on_a_shard");
 
 	private final WDynamicSprite backing = new WDynamicSprite(() -> ShardType.getFrontTexture(shard.shardTypeId()));
 	private final WShardIcon icon = new WShardIcon(2.0f);
@@ -89,7 +89,7 @@ public class WShardPanel extends WPlainPanel {
 	/**
 	 * Sets the shardType displayed to a static value. Note: Prevents the shardType from being updated if the configured shard is mutated!
 	 */
-	public WShardPanel setType(Identifier shardTypeId, ShardType value) {
+	public WShardPanel setType(ResourceLocation shardTypeId, ShardType value) {
 		this.shardType = value;
 		
 		updateDimensionsAndBacking();
@@ -102,31 +102,31 @@ public class WShardPanel extends WPlainPanel {
 	/**
 	 * Sets the icon displayed to a static value. Note: Prevents shard icon from being updated if the configured shard is mutated!
 	 */
-	public WShardPanel setIcon(Either<ItemStack, Identifier> icon) {
+	public WShardPanel setIcon(Either<ItemStack, ResourceLocation> icon) {
 		this.icon.setIcon(icon);
 		return this;
 	}
 
-	public WShardPanel setName(Supplier<Text> text, IntSupplier color) {
+	public WShardPanel setName(Supplier<Component> text, IntSupplier color) {
 		this.name.setText(text);
 		this.name.setColor(color);
 		return this;
 	}
 
-	public WShardPanel setSource(Supplier<Text> text, IntSupplier color) {
+	public WShardPanel setSource(Supplier<Component> text, IntSupplier color) {
 		this.source.setText(text);
 		this.source.setColor(color);
 		return this;
 	}
 
-	public WShardPanel setLore(Supplier<Text> text, IntSupplier color) {
-		this.lore.setText(() -> text.get().copy().formatted(Formatting.ITALIC));
+	public WShardPanel setLore(Supplier<Component> text, IntSupplier color) {
+		this.lore.setText(() -> text.get().copy().withStyle(ChatFormatting.ITALIC));
 		this.lore.setColor(color);
 		return this;
 	}
 
-	public WShardPanel setHint(Supplier<Text> text, IntSupplier color) {
-		this.hint.setText(() -> text.get().copy().fillStyle(HINT_STYLE));
+	public WShardPanel setHint(Supplier<Component> text, IntSupplier color) {
+		this.hint.setText(() -> text.get().copy().withStyle(HINT_STYLE));
 		this.hint.setColor(color);
 		this.hint.setHover(text);
 		return this;
@@ -157,7 +157,7 @@ public class WShardPanel extends WPlainPanel {
 		return this;
 	}
 
-	public WShardPanel hideWithMessage(Text message) {
+	public WShardPanel hideWithMessage(Component message) {
 		this.isHidden = true;
 		this.hideText = message;
 		return this;
@@ -205,7 +205,7 @@ public class WShardPanel extends WPlainPanel {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		if (!isHidden) {
 			super.paint(context, x, y, mouseX, mouseY);
 			return;
@@ -214,13 +214,13 @@ public class WShardPanel extends WPlainPanel {
 		BackgroundPainter backgroundPainter = this.getBackgroundPainter();
 		if (backgroundPainter != null) backgroundPainter.paintBackground(context, x, y, this);
 
-		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-		List<OrderedText> lines = textRenderer.wrapLines(hideText, 108);
+		Font textRenderer = Minecraft.getInstance().font;
+		List<FormattedCharSequence> lines = textRenderer.split(hideText, 108);
 		int yOffset = 30;
 		int layoutWidth = this.getWidth() - this.getInsets().left() - this.getInsets().right();
-		for (OrderedText t : lines) {
+		for (FormattedCharSequence t : lines) {
 			ScreenDrawing.drawStringWithShadow(context, t, HorizontalAlignment.CENTER, x + this.insets.left(), y + yOffset, layoutWidth, 0xFF_FFFFFF);
-			yOffset += textRenderer.fontHeight;
+			yOffset += textRenderer.lineHeight;
 		}
 	}
 

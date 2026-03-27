@@ -1,23 +1,23 @@
 package net.modfest.scatteredshards.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
@@ -32,7 +32,7 @@ public class ShardBlockEntity extends BlockEntity {
 	public static final String SHARD_NBT_KEY = "Shard";
 
 	@Nullable
-	protected Identifier shardId;
+	protected ResourceLocation shardId;
 
 	@Nullable
 	protected Shard shard;
@@ -49,7 +49,7 @@ public class ShardBlockEntity extends BlockEntity {
 	}
 
 	@Nullable
-	public Identifier getShardId() {
+	public ResourceLocation getShardId() {
 		return shardId;
 	}
 
@@ -60,7 +60,7 @@ public class ShardBlockEntity extends BlockEntity {
 		return library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
 	}
 
-	public void setShardId(Identifier id) {
+	public void setShardId(ResourceLocation id) {
 		Objects.requireNonNull(id);
 		this.shardId = id;
 		this.shard = null;
@@ -87,46 +87,46 @@ public class ShardBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	protected void writeData(WriteView view) {
-		super.writeData(view);
+	protected void saveAdditional(ValueOutput view) {
+		super.saveAdditional(view);
 
 		if (shardId != null) view.putString(SHARD_NBT_KEY, shardId.toString());
 
 		view.putBoolean("CanInteract", this.canInteract);
 
-		NbtCompound glowSettings = new NbtCompound();
+		CompoundTag glowSettings = new CompoundTag();
 		glowSettings.putFloat("size", this.glowSize);
 		glowSettings.putFloat("strength", this.glowStrength);
-		view.put("Glow", NbtCompound.CODEC, glowSettings);
+		view.store("Glow", CompoundTag.CODEC, glowSettings);
 	}
 
 	@Override
-	protected void readData(ReadView view) {
-		super.readData(view);
+	protected void loadAdditional(ValueInput view) {
+		super.loadAdditional(view);
 
-		var shardId = view.getString(SHARD_NBT_KEY, null);
+		var shardId = view.getStringOr(SHARD_NBT_KEY, null);
 		if (shardId != null) {
-			setShardId(Identifier.of(shardId));
+			setShardId(ResourceLocation.parse(shardId));
 		}
 
-		this.canInteract = view.getBoolean("CanInteract", false);
+		this.canInteract = view.getBooleanOr("CanInteract", false);
 
-		NbtCompound glowSettings = view.read("Glow", NbtCompound.CODEC).get();
+		CompoundTag glowSettings = view.read("Glow", CompoundTag.CODEC).get();
 		this.glowSize = glowSettings.getFloat("size").orElse(this.glowSize);
 		this.glowStrength = glowSettings.getFloat("strength").orElse(this.glowStrength);
 	}
 
 	@Override
-	public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-		return createNbt(registryLookup);
+	public CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
+		return saveWithoutMetadata(registryLookup);
 	}
 
 	@Override
-	public Packet<ClientPlayPacketListener> toUpdatePacket() {
-		return BlockEntityUpdateS2CPacket.create(this);
+	public Packet<ClientGamePacketListener> getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
-	public static void clientTick(World world, BlockPos pos, BlockState state, BlockEntity entity) {
+	public static void clientTick(Level world, BlockPos pos, BlockState state, BlockEntity entity) {
 		if (entity instanceof ShardBlockEntity self) {
 			self.getAnimations().tick();
 		}
@@ -145,7 +145,7 @@ public class ShardBlockEntity extends BlockEntity {
 		private float spinSpeed = UNCOLLECTED_SPIN_SPEED;
 
 		public float getAngle(float tickDelta) {
-			return (float) (MathHelper.lerp(tickDelta, this.lastAngle, this.angle) % Math.PI * 2);
+			return (float) (Mth.lerp(tickDelta, this.lastAngle, this.angle) % Math.PI * 2);
 		}
 
 		public boolean collected() {
@@ -153,7 +153,7 @@ public class ShardBlockEntity extends BlockEntity {
 		}
 
 		public void tick() {
-			Identifier shardId = ShardBlockEntity.this.getShardId();
+			ResourceLocation shardId = ShardBlockEntity.this.getShardId();
 
 			boolean wasCollected = this.collected;
 			ShardCollection shards = ScatteredShardsAPI.getClientCollection();
@@ -175,9 +175,9 @@ public class ShardBlockEntity extends BlockEntity {
 		public void playCollectAnimation() {
 			this.spinSpeed = ON_COLLECT_SPIN_SPEED;
 
-			final WorldRenderer worldRenderer = MinecraftClient.getInstance().worldRenderer;
-			final Random random = ShardBlockEntity.this.getWorld().getRandom();
-			final Vec3d pos = Vec3d.ofCenter(ShardBlockEntity.this.getPos());
+			final LevelRenderer worldRenderer = Minecraft.getInstance().levelRenderer;
+			final RandomSource random = ShardBlockEntity.this.getLevel().getRandom();
+			final Vec3 pos = Vec3.atCenterOf(ShardBlockEntity.this.getBlockPos());
 
 			ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 
@@ -185,7 +185,7 @@ public class ShardBlockEntity extends BlockEntity {
 				.get(ShardBlockEntity.this.getShard(library).shardTypeId())
 				.orElse(ShardType.MISSING);
 			shardType.collectParticle().ifPresent(p -> {
-				if (!(p instanceof ParticleEffect particle)) {
+				if (!(p instanceof ParticleOptions particle)) {
 					return;
 				}
 

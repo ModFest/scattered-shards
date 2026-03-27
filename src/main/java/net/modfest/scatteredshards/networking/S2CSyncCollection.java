@@ -3,16 +3,17 @@ package net.modfest.scatteredshards.networking;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
 
-public record S2CSyncCollection(ShardCollection collection) implements CustomPayload {
-	public static final Id<S2CSyncCollection> PACKET_ID = new Id<>(ScatteredShards.id("sync_collection"));
-	public static final PacketCodec<RegistryByteBuf, S2CSyncCollection> PACKET_CODEC = ShardCollection.PACKET_CODEC.xmap(S2CSyncCollection::new, S2CSyncCollection::collection);
+public record S2CSyncCollection(ShardCollection collection) implements CustomPacketPayload {
+	public static final Type<S2CSyncCollection> PACKET_ID = new Type<>(ScatteredShards.id("sync_collection"));
+	public static final StreamCodec<RegistryFriendlyByteBuf, S2CSyncCollection> PACKET_CODEC = ShardCollection.PACKET_CODEC.map(S2CSyncCollection::new, S2CSyncCollection::collection);
 
 	@Environment(EnvType.CLIENT)
 	public static void receive(S2CSyncCollection payload, ClientPlayNetworking.Context context) {
@@ -23,7 +24,7 @@ public record S2CSyncCollection(ShardCollection collection) implements CustomPay
 	}
 
 	@Override
-	public Id<? extends CustomPayload> getId() {
+	public Type<? extends CustomPacketPayload> type() {
 		return PACKET_ID;
 	}
 }

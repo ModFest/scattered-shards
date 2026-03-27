@@ -3,11 +3,12 @@ package net.modfest.scatteredshards.networking;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -19,9 +20,9 @@ import java.util.Optional;
 /**
  * Collects/uncollects/deletes a shard.
  */
-public record S2CUpdateShard(Identifier shardId, Mode mode) implements CustomPayload {
-	public static final Id<S2CUpdateShard> PACKET_ID = new Id<>(ScatteredShards.id("update_shard"));
-	public static final PacketCodec<RegistryByteBuf, S2CUpdateShard> PACKET_CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, S2CUpdateShard::shardId, Mode.PACKET_CODEC, S2CUpdateShard::mode, S2CUpdateShard::new);
+public record S2CUpdateShard(ResourceLocation shardId, Mode mode) implements CustomPacketPayload {
+	public static final Type<S2CUpdateShard> PACKET_ID = new Type<>(ScatteredShards.id("update_shard"));
+	public static final StreamCodec<RegistryFriendlyByteBuf, S2CUpdateShard> PACKET_CODEC = StreamCodec.composite(ResourceLocation.STREAM_CODEC, S2CUpdateShard::shardId, Mode.PACKET_CODEC, S2CUpdateShard::mode, S2CUpdateShard::new);
 
 	@Environment(EnvType.CLIENT)
 	public static void receive(S2CUpdateShard payload, ClientPlayNetworking.Context context) {
@@ -43,7 +44,7 @@ public record S2CUpdateShard(Identifier shardId, Mode mode) implements CustomPay
 	}
 
 	@Override
-	public Id<? extends CustomPayload> getId() {
+	public Type<? extends CustomPacketPayload> type() {
 		return PACKET_ID;
 	}
 
@@ -52,6 +53,6 @@ public record S2CUpdateShard(Identifier shardId, Mode mode) implements CustomPay
 		UNCOLLECT,
 		DELETE;
 
-		public static final PacketCodec<RegistryByteBuf, Mode> PACKET_CODEC = PacketCodecs.INTEGER.xmap(val -> Mode.values()[val], Mode::ordinal).cast();
+		public static final StreamCodec<RegistryFriendlyByteBuf, Mode> PACKET_CODEC = ByteBufCodecs.INT.map(val -> Mode.values()[val], Mode::ordinal).cast();
 	}
 }

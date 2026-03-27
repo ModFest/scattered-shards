@@ -6,13 +6,13 @@ import io.github.cottonmc.cotton.gui.widget.WWidget;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.GlobalCollection;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
@@ -26,13 +26,13 @@ import net.modfest.scatteredshards.util.ModMetaUtil;
 import java.util.function.Consumer;
 
 public class WMiniShard extends WWidget {
-	private static final Identifier MINI_OUTLINE = ScatteredShards.id("textures/gui/shards/mini_outline.png");
-	private static final Identifier MINI_OUTLINE_SLIGHT = ScatteredShards.id("textures/gui/shards/mini_outline_slight.png");
+	private static final ResourceLocation MINI_OUTLINE = ScatteredShards.id("textures/gui/shards/mini_outline.png");
+	private static final ResourceLocation MINI_OUTLINE_SLIGHT = ScatteredShards.id("textures/gui/shards/mini_outline_slight.png");
 
 	protected Shard shard = null;
 	protected ShardType shardType = null;
 	protected boolean isCollected = false;
-	protected Identifier shardId;
+	protected ResourceLocation shardId;
 	private int width = (int)ShardTextureSettings.Size.DEFAULT_MINI.width();
 	private int height = (int)ShardTextureSettings.Size.DEFAULT_MINI.height();
 
@@ -42,7 +42,7 @@ public class WMiniShard extends WWidget {
 	public WMiniShard() {
 	}
 
-	public WMiniShard setShard(Shard shard, boolean collected, Identifier shardId) {
+	public WMiniShard setShard(Shard shard, boolean collected, ResourceLocation shardId) {
 		shard.icon().ifRight(ModMetaUtil::touchIconTexture);
 		this.shard = shard;
 		this.shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
@@ -62,8 +62,8 @@ public class WMiniShard extends WWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
-		Identifier tex = (isCollected) ? ShardType.getMiniFrontTexture(shard.shardTypeId()) : ShardType.getMiniBackingTexture(shard.shardTypeId());
+	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+		ResourceLocation tex = (isCollected) ? ShardType.getMiniFrontTexture(shard.shardTypeId()) : ShardType.getMiniBackingTexture(shard.shardTypeId());
 		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
 		float opacity = (isCollected) ? 1.0f : 0.6f;
 		ScreenDrawing.texturedRect(context, x, y, getWidth(), getHeight(), tex, color, opacity);
@@ -72,11 +72,11 @@ public class WMiniShard extends WWidget {
 
 			ShardIconOffsets.Offset offset = this.shardType.getOffsets().getMini();
 			shard.icon().ifLeft((it) -> {
-				context.getMatrices().pushMatrix();
-				context.getMatrices().translate(x + offset.left(), y + offset.up());
-				context.getMatrices().scale(0.5f, 0.5f); // 16px -> 8px
-				context.drawItemWithoutEntity(it, 0, 0);
-				context.getMatrices().popMatrix();
+				context.pose().pushMatrix();
+				context.pose().translate(x + offset.left(), y + offset.up());
+				context.pose().scale(0.5f, 0.5f); // 16px -> 8px
+				context.renderFakeItem(it, 0, 0);
+				context.pose().popMatrix();
 			});
 			shard.icon().ifRight((it) -> ScreenDrawing.texturedRect(context, x + offset.left(), y + offset.up(), 8, 8, it, 0xFF_FFFFFF));
 		}
@@ -87,7 +87,7 @@ public class WMiniShard extends WWidget {
 
 			renderTooltip(context, x, y, mouseX, mouseY);
 		} else if ( // Awful bullshit write real code later
-			MinecraftClient.getInstance().currentScreen instanceof ShardTabletGuiDescription.Screen stgds
+			Minecraft.getInstance().screen instanceof ShardTabletGuiDescription.Screen stgds
 				&& stgds.getDescription().getRootPanel() instanceof WLeftRightPanel wlrp
 				&& wlrp.rightPanel instanceof WShardPanel wsp
 				&& wsp.getShard() == shard
@@ -105,7 +105,7 @@ public class WMiniShard extends WWidget {
 		tooltip.add(ShardType.getDescription(shard.shardTypeId()).copy().withColor(0xFF_000000 | shardType.textColor()));
 		GlobalCollection globalCollection = ScatteredShardsAPI.getClientGlobalCollection();
 		if (globalCollection != null) {
-			tooltip.add(Text.translatable("gui.scattered_shards.tablet.tooltip.global_collection", "%.1f%%".formatted(100 * globalCollection.getCount(shardId) / (float) globalCollection.totalPlayers())).formatted(Formatting.GRAY));
+			tooltip.add(Component.translatable("gui.scattered_shards.tablet.tooltip.global_collection", "%.1f%%".formatted(100 * globalCollection.getCount(shardId) / (float) globalCollection.totalPlayers())).withStyle(ChatFormatting.GRAY));
 		}
 
 		super.addTooltip(tooltip);
@@ -114,7 +114,7 @@ public class WMiniShard extends WWidget {
 	@Override
 	public InputResult onClick(int x, int y, int button) {
 		if (button == 0) {
-			MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 0.25f));
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 0.25f));
 			shardConsumer.accept(shard);
 			return InputResult.PROCESSED;
 		} else {

@@ -6,15 +6,15 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resource.JsonDataLoader;
-import net.minecraft.resource.ResourceFinder;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.dynamic.Codecs;
-import net.minecraft.util.profiler.Profiler;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.resources.FileToIdConverter;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardDisplaySettings;
@@ -25,31 +25,31 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public class ShardTypeLoader extends JsonDataLoader<JsonElement> implements IdentifiableResourceReloadListener {
+public class ShardTypeLoader extends SimpleJsonResourceReloadListener<JsonElement> implements IdentifiableResourceReloadListener {
 
 	public static final String TYPE = "shard_type";
-	public static final Identifier ID = ScatteredShards.id(TYPE);
+	public static final ResourceLocation ID = ScatteredShards.id(TYPE);
 
 	public ShardTypeLoader() {
-		super(Codecs.JSON_ELEMENT, ResourceFinder.json(TYPE));
+		super(ExtraCodecs.JSON, FileToIdConverter.json(TYPE));
 	}
 
 	@Override
-	public @NotNull Identifier getFabricId() {
+	public @NotNull ResourceLocation getFabricId() {
 		return ID;
 	}
 
 	@Override
-	protected void apply(Map<Identifier, JsonElement> cache, ResourceManager manager, Profiler profiler) {
+	protected void apply(Map<ResourceLocation, JsonElement> cache, ResourceManager manager, ProfilerFiller profiler) {
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 
 		library.shardTypes().clear();
 		library.shardTypes().put(ShardType.MISSING_ID, ShardType.MISSING);
 
 		int successes = 0;
-		for (Map.Entry<Identifier, JsonElement> entry : cache.entrySet()) {
+		for (Map.Entry<ResourceLocation, JsonElement> entry : cache.entrySet()) {
 			try {
-				JsonObject root = JsonHelper.asObject(entry.getValue(), "root element");
+				JsonObject root = GsonHelper.convertToJsonObject(entry.getValue(), "root element");
 
 				//TODO: improve this accursed way of datafying these settings
 				if (root.has("display_settings")) {
@@ -64,8 +64,8 @@ public class ShardTypeLoader extends JsonDataLoader<JsonElement> implements Iden
 					successes++;
 				} else {
 					for (Map.Entry<String, JsonElement> shardEntry : root.entrySet()) {
-						JsonObject shardTypeObj = JsonHelper.asObject(shardEntry.getValue(), "shard-type object");
-						library.shardTypes().put(Identifier.of(shardEntry.getKey()), ShardType.fromJson(shardTypeObj));
+						JsonObject shardTypeObj = GsonHelper.convertToJsonObject(shardEntry.getValue(), "shard-type object");
+						library.shardTypes().put(ResourceLocation.parse(shardEntry.getKey()), ShardType.fromJson(shardTypeObj));
 						successes++;
 					}
 				}
@@ -77,11 +77,11 @@ public class ShardTypeLoader extends JsonDataLoader<JsonElement> implements Iden
 	}
 
 	public static void register() {
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ShardTypeLoader());
+		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new ShardTypeLoader());
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
 			if (server != null) {
 				S2CSyncLibrary syncLibrary = new S2CSyncLibrary(ScatteredShardsAPI.getServerLibrary());
-				for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 					ServerPlayNetworking.send(player, syncLibrary);
 				}
 			}

@@ -7,11 +7,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -19,9 +19,9 @@ import net.modfest.scatteredshards.block.ShardBlock;
 
 public class BlockCommand {
 
-	public static int blockCommand(CommandContext<ServerCommandSource> ctx, boolean options) throws CommandSyntaxException {
-		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
+	public static int blockCommand(CommandContext<CommandSourceStack> ctx, boolean options) throws CommandSyntaxException {
+		ServerPlayer player = ctx.getSource().getPlayerOrException();
+		ResourceLocation shardId = ctx.getArgument("shard_id", ResourceLocation.class);
 
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 
@@ -31,31 +31,31 @@ public class BlockCommand {
 
 		ItemStack stack = ShardBlock.createShardBlock(library, shardId, canInteract, glowSize, glowStrength);
 
-		player.getInventory().offerOrDrop(stack);
+		player.getInventory().placeItemBackInInventory(stack);
 
-		ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.block", shardId), false);
+		ctx.getSource().sendSuccess(() -> Component.translatableEscape("commands.scattered_shards.shard.block", shardId), false);
 		return Command.SINGLE_SUCCESS;
 	}
 
-	public static int block(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+	public static int block(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		return blockCommand(ctx, false);
 	}
 
-	public static int blockOptions(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+	public static int blockOptions(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		return blockCommand(ctx, true);
 	}
 
-	public static void register(CommandNode<ServerCommandSource> parent) {
+	public static void register(CommandNode<CommandSourceStack> parent) {
 		//Usage: /shard block <shard_id>
-		CommandNode<ServerCommandSource> blockCommand = ShardCommandNodeHelper.literal("block")
+		CommandNode<CommandSourceStack> blockCommand = ShardCommandNodeHelper.literal("block")
 			.requires(Permissions.require(ScatteredShards.permission("command.block"), 2))
 			.build();
-		CommandNode<ServerCommandSource> blockIdArgument = ShardCommandNodeHelper.shardId("shard_id")
+		CommandNode<CommandSourceStack> blockIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(BlockCommand::block)
 			.build();
-		CommandNode<ServerCommandSource> blockInteractArgument = ShardCommandNodeHelper.booleanValue("can_interact").build();
-		CommandNode<ServerCommandSource> blockGlowSizeArgument = ShardCommandNodeHelper.floatValue("glow_size").build();
-		CommandNode<ServerCommandSource> blockGlowStrengthArgument = ShardCommandNodeHelper.floatValue("glow_strength")
+		CommandNode<CommandSourceStack> blockInteractArgument = ShardCommandNodeHelper.booleanValue("can_interact").build();
+		CommandNode<CommandSourceStack> blockGlowSizeArgument = ShardCommandNodeHelper.floatValue("glow_size").build();
+		CommandNode<CommandSourceStack> blockGlowStrengthArgument = ShardCommandNodeHelper.floatValue("glow_strength")
 			.executes(BlockCommand::blockOptions)
 			.build(); //Already governed by "/shard block" permission
 

@@ -2,7 +2,7 @@ package net.modfest.scatteredshards.api.impl;
 
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.api.MiniRegistry;
 import net.modfest.scatteredshards.api.ShardDisplaySettings;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public class ShardLibraryImpl implements ShardLibrary {
 	private final MiniRegistry<Shard> shards;
 	private final MiniRegistry<ShardType> shardTypes;
-	private final SetMultimap<Identifier, Identifier> shardSets;
+	private final SetMultimap<ResourceLocation, ResourceLocation> shardSets;
 	private final ShardDisplaySettings shardDisplaySettings;
 
 	@Override
@@ -34,7 +34,7 @@ public class ShardLibraryImpl implements ShardLibrary {
 		);
 	}
 
-	public ShardLibraryImpl(MiniRegistry<Shard> shards, MiniRegistry<ShardType> shardTypes, SetMultimap<Identifier, Identifier> shardSets, ShardDisplaySettings settings) {
+	public ShardLibraryImpl(MiniRegistry<Shard> shards, MiniRegistry<ShardType> shardTypes, SetMultimap<ResourceLocation, ResourceLocation> shardSets, ShardDisplaySettings settings) {
 		this.shards = shards;
 		this.shardTypes = shardTypes;
 		this.shardSets = shardSets;
@@ -52,7 +52,7 @@ public class ShardLibraryImpl implements ShardLibrary {
 	}
 
 	@Override
-	public SetMultimap<Identifier, Identifier> shardSets() {
+	public SetMultimap<ResourceLocation, ResourceLocation> shardSets() {
 		return shardSets;
 	}
 
@@ -62,7 +62,7 @@ public class ShardLibraryImpl implements ShardLibrary {
 	}
 
 	@Override
-	public Stream<Shard> resolveShardSet(Identifier id) {
+	public Stream<Shard> resolveShardSet(ResourceLocation id) {
 		return shardSets.get(id).stream()
 			.map(shards::get)
 			.flatMap(Optional::stream);

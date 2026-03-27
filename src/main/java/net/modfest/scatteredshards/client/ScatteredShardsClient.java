@@ -3,15 +3,15 @@ package net.modfest.scatteredshards.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.toast.SystemToast;
-import net.minecraft.client.toast.Toast;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.components.toasts.Toast;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.ScatteredShardsContent;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
@@ -24,9 +24,9 @@ import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class ScatteredShardsClient implements ClientModInitializer {
-	public static final KeyBinding VIEW_COLLECTION = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+	public static final KeyMapping VIEW_COLLECTION = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 		"key.scattered_shards.collection",
-		InputUtil.UNKNOWN_KEY.getCode(),
+		InputConstants.UNKNOWN.getValue(),
 		"key.categories.scattered_shards"
 	));
 
@@ -37,13 +37,13 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		ScatteredShardsContent.registerClient();
 		ScatteredShardsAPI.initClient();
 		ClientTickEvents.END_CLIENT_TICK.register(c -> {
-			if (VIEW_COLLECTION.wasPressed()) {
+			if (VIEW_COLLECTION.consumeClick()) {
 				openShardTablet();
 			}
 		});
 	}
 
-	public static void onShardCollected(Identifier shardId) {
+	public static void onShardCollected(ResourceLocation shardId) {
 		var library = ScatteredShardsAPI.getClientLibrary();
 		var collection = ScatteredShardsAPI.getClientCollection();
 
@@ -62,32 +62,32 @@ public class ScatteredShardsClient implements ClientModInitializer {
 		library.shardTypes()
 			.get(shard.shardTypeId())
 			.flatMap(ShardType::collectSound)
-			.ifPresent((sound) -> MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(sound, 1.0F, 0.8F)));
+			.ifPresent((sound) -> Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound, 1.0F, 0.8F)));
 
 		Toast toast = new ShardCollectedToast(shard);
-		MinecraftClient.getInstance().getToastManager().add(toast);
+		Minecraft.getInstance().getToastManager().addToast(toast);
 	}
 
-	public static void triggerShardModificationToast(Identifier shardId, boolean success) {
+	public static void triggerShardModificationToast(ResourceLocation shardId, boolean success) {
 		var toast = new SystemToast(
-			SystemToast.Type.PERIODIC_NOTIFICATION,
-			Text.translatable("toast.scattered_shards.shard_mod.title"),
-			Text.stringifiedTranslatable(success ? "toast.scattered_shards.shard_mod.success" : "toast.scattered_shards.shard_mod.success.fail", shardId)
+			SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
+			Component.translatable("toast.scattered_shards.shard_mod.title"),
+			Component.translatableEscape(success ? "toast.scattered_shards.shard_mod.success" : "toast.scattered_shards.shard_mod.success.fail", shardId)
 		);
-		MinecraftClient.getInstance().getToastManager().add(toast);
+		Minecraft.getInstance().getToastManager().addToast(toast);
 	}
 
 	public static void openShardTablet() {
-		MinecraftClient.getInstance().send(() -> {
+		Minecraft.getInstance().schedule(() -> {
 			final ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 			final ShardCollection collection = ScatteredShardsAPI.getClientCollection();
 
-			MinecraftClient.getInstance().setScreen(new ShardTabletGuiDescription.Screen(collection, library));
-			MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f));
+			Minecraft.getInstance().setScreen(new ShardTabletGuiDescription.Screen(collection, library));
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0f, 1.0f));
 		});
 	}
 
 	public static boolean hasShiftDown() {
-		return InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), 340) || InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), 344);
+		return InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 340) || InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 344);
 	}
 }

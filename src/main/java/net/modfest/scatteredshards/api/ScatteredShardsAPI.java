@@ -3,10 +3,10 @@ package net.modfest.scatteredshards.api;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.impl.ShardCollectionImpl;
 import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
@@ -59,7 +59,7 @@ public class ScatteredShardsAPI {
 		if (collection == null) {
 			collection = new ShardCollectionImpl();
 			serverCollections.put(uuid, collection);
-			if (collectionPersistentState != null) collectionPersistentState.markDirty();
+			if (collectionPersistentState != null) collectionPersistentState.setDirty();
 		}
 		return collection;
 	}
@@ -74,7 +74,7 @@ public class ScatteredShardsAPI {
 
 	public static void calculateShardProgress() {
 		if (serverGlobalCollection != null) return;
-		HashMap<Identifier, Integer> shardCountMap = new HashMap<>();
+		HashMap<ResourceLocation, Integer> shardCountMap = new HashMap<>();
 		int totalCount = serverCollections.size();
 
 		serverCollections.forEach(((uuid, identifiers) -> identifiers.forEach(identifier -> shardCountMap.compute(identifier, (k, count) -> count != null ? 1 + count : 1))));
@@ -82,8 +82,8 @@ public class ScatteredShardsAPI {
 		serverGlobalCollection = new GlobalCollection(totalCount, shardCountMap);
 	}
 
-	public static ShardCollection getServerCollection(PlayerEntity player) {
-		return getServerCollection(player.getUuid());
+	public static ShardCollection getServerCollection(Player player) {
+		return getServerCollection(player.getUUID());
 	}
 
 	@ApiStatus.Internal
@@ -116,10 +116,10 @@ public class ScatteredShardsAPI {
 		clientGlobalCollection = collection;
 	}
 
-	public static boolean triggerShardCollection(ServerPlayerEntity player, Identifier shardId) {
+	public static boolean triggerShardCollection(ServerPlayer player, ResourceLocation shardId) {
 		ShardCollection collection = getServerCollection(player);
 		if (collection.add(shardId)) {
-			if (player.getServer() != null) collectionPersistentState.markDirty();
+			if (player.getServer() != null) collectionPersistentState.setDirty();
 
 			serverGlobalCollection.update(shardId, 1, serverCollections.size());
 			ServerPlayNetworking.send(player, new S2CUpdateShard(shardId, S2CUpdateShard.Mode.COLLECT));
@@ -129,10 +129,10 @@ public class ScatteredShardsAPI {
 		}
 	}
 
-	public static boolean triggerShardUncollection(ServerPlayerEntity player, Identifier shardId) {
+	public static boolean triggerShardUncollection(ServerPlayer player, ResourceLocation shardId) {
 		ShardCollection collection = getServerCollection(player);
 		if (collection.remove(shardId)) {
-			if (player.getServer() != null) collectionPersistentState.markDirty();
+			if (player.getServer() != null) collectionPersistentState.setDirty();
 
 
 			serverGlobalCollection.update(shardId, -1, serverCollections.size());

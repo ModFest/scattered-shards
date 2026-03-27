@@ -2,9 +2,9 @@ package net.modfest.scatteredshards.api.shard;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
 
 import java.util.Optional;
 
@@ -14,9 +14,9 @@ public record ShardDisplaySettings(Optional<ShardIconOffsets> offsets, Optional<
 		Codec.optionalField("textures", ShardTextureSettings.CODEC, false).forGetter(ShardDisplaySettings::textures)
 	).apply(instance, ShardDisplaySettings::new));
 
-	public static final PacketCodec<RegistryByteBuf, ShardDisplaySettings> PACKET_CODEC = PacketCodec.tuple(
-		PacketCodecs.optional(ShardIconOffsets.PACKET_CODEC), ShardDisplaySettings::offsets,
-		PacketCodecs.optional(ShardTextureSettings.PACKET_CODEC), ShardDisplaySettings::textures,
+	public static final StreamCodec<RegistryFriendlyByteBuf, ShardDisplaySettings> PACKET_CODEC = StreamCodec.composite(
+		ByteBufCodecs.optional(ShardIconOffsets.PACKET_CODEC), ShardDisplaySettings::offsets,
+		ByteBufCodecs.optional(ShardTextureSettings.PACKET_CODEC), ShardDisplaySettings::textures,
 		ShardDisplaySettings::new
 	);
 

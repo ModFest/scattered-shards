@@ -2,8 +2,8 @@ package net.modfest.scatteredshards.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.api.shard.Shard;
 
 public class ShardEvents {
@@ -15,7 +15,7 @@ public class ShardEvents {
 
 	@FunctionalInterface
 	public interface Collect {
-		void handle(ServerPlayerEntity player, Identifier shardId, Shard shard);
+		void handle(ServerPlayer player, ResourceLocation shardId, Shard shard);
 	}
 
 }

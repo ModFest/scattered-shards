@@ -2,8 +2,8 @@ package net.modfest.scatteredshards.client.screen.widget;
 
 import io.github.cottonmc.cotton.gui.widget.WTextField;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
@@ -12,7 +12,7 @@ public class WProtectableField extends WTextField {
 		this.setMaxLength(256);
 	}
 
-	public WProtectableField(Text suggestion) {
+	public WProtectableField(Component suggestion) {
 		super(suggestion);
 		this.setMaxLength(256);
 	}
@@ -24,12 +24,12 @@ public class WProtectableField extends WTextField {
 	}
 
 	@Override
-	protected void renderCursor(DrawContext context, int x, int y, String visibleText) {
+	protected void renderCursor(GuiGraphics context, int x, int y, String visibleText) {
 		if (this.isEditable()) super.renderCursor(context, x, y, visibleText);
 	}
 
 	@Override
-	protected void renderSelection(DrawContext context, int x, int y, String visibleText) {
+	protected void renderSelection(GuiGraphics context, int x, int y, String visibleText) {
 		if (this.isEditable()) super.renderSelection(context, x, y, visibleText);
 	}
 
@@ -56,8 +56,8 @@ public class WProtectableField extends WTextField {
 		return this;
 	}
 
-	public WProtectableField setTextChangedListener(Consumer<Text> consumer) {
-		super.setChangedListener((it) -> consumer.accept(Text.literal(it)));
+	public WProtectableField setTextChangedListener(Consumer<Component> consumer) {
+		super.setChangedListener((it) -> consumer.accept(Component.literal(it)));
 		return this;
 	}
 

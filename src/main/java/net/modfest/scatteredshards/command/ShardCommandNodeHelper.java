@@ -11,24 +11,24 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.command.EntitySelector;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.ShardType;
 
 import java.util.concurrent.CompletableFuture;
 
 public class ShardCommandNodeHelper {
-	public static LiteralArgumentBuilder<ServerCommandSource> literal(String name) {
+	public static LiteralArgumentBuilder<CommandSourceStack> literal(String name) {
 		return LiteralArgumentBuilder.literal(name);
 	}
 
-	public static RequiredArgumentBuilder<ServerCommandSource, Identifier> identifier(String name) {
-		return RequiredArgumentBuilder.argument(name, IdentifierArgumentType.identifier());
+	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> identifier(String name) {
+		return RequiredArgumentBuilder.argument(name, ResourceLocationArgument.id());
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class ShardCommandNodeHelper {
 	 * @param name The name of the node
 	 * @return A node builder for further modification
 	 */
-	public static RequiredArgumentBuilder<ServerCommandSource, Identifier> shardId(String name) {
+	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> shardId(String name) {
 		return identifier(name).suggests((source, builder) -> {
 			String prefix = builder.getRemaining();
 			ScatteredShardsAPI.getServerLibrary().shards().forEach((id, shard) -> {
@@ -53,13 +53,13 @@ public class ShardCommandNodeHelper {
 	 * @param name The name of the node
 	 * @return A node builder for further modification
 	 */
-	public static RequiredArgumentBuilder<ServerCommandSource, Identifier> collectedShardId(String name) {
+	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> collectedShardId(String name) {
 		return identifier(name).suggests((ctx, builder) -> {
-			ServerPlayerEntity player = ctx.getSource().getPlayer();
+			ServerPlayer player = ctx.getSource().getPlayer();
 			if (player == null) return builder.buildFuture();
 
 			String prefix = builder.getRemaining();
-			for (Identifier id : ScatteredShardsAPI.getServerCollection(player)) {
+			for (ResourceLocation id : ScatteredShardsAPI.getServerCollection(player)) {
 				if (prefix.isBlank() || id.toString().startsWith(prefix)) builder.suggest(id.toString());
 			}
 
@@ -67,24 +67,24 @@ public class ShardCommandNodeHelper {
 		});
 	}
 
-	public static RequiredArgumentBuilder<ServerCommandSource, EntitySelector> players(String name) {
-		return RequiredArgumentBuilder.argument(name, EntityArgumentType.players());
+	public static RequiredArgumentBuilder<CommandSourceStack, EntitySelector> players(String name) {
+		return RequiredArgumentBuilder.argument(name, EntityArgument.players());
 	}
 
-	public static RequiredArgumentBuilder<ServerCommandSource, Float> floatValue(String name) {
+	public static RequiredArgumentBuilder<CommandSourceStack, Float> floatValue(String name) {
 		return RequiredArgumentBuilder.argument(name, FloatArgumentType.floatArg());
 	}
 
-	public static RequiredArgumentBuilder<ServerCommandSource, Boolean> booleanValue(String name) {
+	public static RequiredArgumentBuilder<CommandSourceStack, Boolean> booleanValue(String name) {
 		return RequiredArgumentBuilder.argument(name, BoolArgumentType.bool());
 	}
 
-	public static RequiredArgumentBuilder<ServerCommandSource, String> stringArgument(String name) {
+	public static RequiredArgumentBuilder<CommandSourceStack, String> stringArgument(String name) {
 		return RequiredArgumentBuilder.argument(name, StringArgumentType.string());
 	}
 
-	public static RequiredArgumentBuilder<ServerCommandSource, Identifier> identifierArgument(String name) {
-		return RequiredArgumentBuilder.argument(name, IdentifierArgumentType.identifier());
+	public static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> identifierArgument(String name) {
+		return RequiredArgumentBuilder.argument(name, ResourceLocationArgument.id());
 	}
 
 	/**
@@ -96,10 +96,10 @@ public class ShardCommandNodeHelper {
 	 * @param path The desired path to follow or create.
 	 * @return The node corresponding to the final element of path. If path is zero-length, root is returned.
 	 */
-	public CommandNode<ServerCommandSource> getOrCreate(CommandNode<ServerCommandSource> root, String... path) {
-		CommandNode<ServerCommandSource> cur = root;
+	public CommandNode<CommandSourceStack> getOrCreate(CommandNode<CommandSourceStack> root, String... path) {
+		CommandNode<CommandSourceStack> cur = root;
 		for (String pathElement : path) {
-			CommandNode<ServerCommandSource> maybeChild = cur.getChild(pathElement);
+			CommandNode<CommandSourceStack> maybeChild = cur.getChild(pathElement);
 			if (maybeChild == null) {
 				maybeChild = literal(pathElement).build();
 				cur.addChild(maybeChild);
@@ -117,7 +117,7 @@ public class ShardCommandNodeHelper {
 		return builder.buildFuture();
 	}
 
-	public static CompletableFuture<Suggestions> suggestShardTypes(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+	public static CompletableFuture<Suggestions> suggestShardTypes(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
 		ScatteredShardsAPI.getServerLibrary().shardTypes().forEach((id, shardSet) -> {
 			if (!id.equals(ShardType.MISSING_ID)) {
 				builder.suggest(id.toString());

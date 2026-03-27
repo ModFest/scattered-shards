@@ -3,10 +3,11 @@ package net.modfest.scatteredshards.networking;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -15,9 +16,9 @@ import net.modfest.scatteredshards.api.shard.Shard;
 /**
  * Syncs or adds one shard to the client, leaving all others untouched
  */
-public record S2CSyncShard(Identifier shardId, Shard shard) implements CustomPayload {
-	public static final Id<S2CSyncShard> PACKET_ID = new Id<>(ScatteredShards.id("sync_shard"));
-	public static final PacketCodec<RegistryByteBuf, S2CSyncShard> PACKET_CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, S2CSyncShard::shardId, Shard.PACKET_CODEC, S2CSyncShard::shard, S2CSyncShard::new);
+public record S2CSyncShard(ResourceLocation shardId, Shard shard) implements CustomPacketPayload {
+	public static final Type<S2CSyncShard> PACKET_ID = new Type<>(ScatteredShards.id("sync_shard"));
+	public static final StreamCodec<RegistryFriendlyByteBuf, S2CSyncShard> PACKET_CODEC = StreamCodec.composite(ResourceLocation.STREAM_CODEC, S2CSyncShard::shardId, Shard.PACKET_CODEC, S2CSyncShard::shard, S2CSyncShard::new);
 
 	@Environment(EnvType.CLIENT)
 	public static void receive(S2CSyncShard payload, ClientPlayNetworking.Context context) {
@@ -30,7 +31,7 @@ public record S2CSyncShard(Identifier shardId, Shard shard) implements CustomPay
 	}
 
 	@Override
-	public Id<? extends CustomPayload> getId() {
+	public Type<? extends CustomPacketPayload> type() {
 		return PACKET_ID;
 	}
 }

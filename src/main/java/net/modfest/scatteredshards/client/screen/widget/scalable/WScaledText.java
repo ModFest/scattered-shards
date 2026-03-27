@@ -3,12 +3,12 @@ package net.modfest.scatteredshards.client.screen.widget.scalable;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.tooltip.HoveredTooltipPositioner;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 import java.util.function.IntSupplier;
@@ -19,31 +19,31 @@ import java.util.function.Supplier;
  */
 public class WScaledText extends WScalableWidget {
 
-	protected Supplier<Text> text;
+	protected Supplier<Component> text;
 	protected IntSupplier color = () -> 0xFF_FFFFFF;
-	protected Supplier<List<OrderedText>> hover = List::of;
+	protected Supplier<List<FormattedCharSequence>> hover = List::of;
 	protected boolean shadow = false;
 	protected int backgroundColor = 0;
 
 	protected VerticalAlignment verticalAlignment = VerticalAlignment.TOP;
 	protected HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
 
-	public WScaledText(Text text, float scale) {
+	public WScaledText(Component text, float scale) {
 		this.text = () -> text;
 		this.scale = scale;
 	}
 
-	public WScaledText(Supplier<Text> text, float scale) {
+	public WScaledText(Supplier<Component> text, float scale) {
 		this.text = text;
 		this.scale = scale;
 	}
 
-	public WScaledText setText(Text text) {
+	public WScaledText setText(Component text) {
 		this.text = () -> text;
 		return this;
 	}
 
-	public WScaledText setText(Supplier<Text> text) {
+	public WScaledText setText(Supplier<Component> text) {
 		this.text = text;
 		return this;
 	}
@@ -58,12 +58,12 @@ public class WScaledText extends WScalableWidget {
 		return this;
 	}
 
-	public WScaledText setHover(Supplier<Text> text) {
-		this.hover = () -> MinecraftClient.getInstance().textRenderer.wrapLines(text.get(), 200);
+	public WScaledText setHover(Supplier<Component> text) {
+		this.hover = () -> Minecraft.getInstance().font.split(text.get(), 200);
 		return this;
 	}
 
-	public WScaledText setHoverLines(Supplier<List<OrderedText>> hover) {
+	public WScaledText setHoverLines(Supplier<List<FormattedCharSequence>> hover) {
 		this.hover = hover;
 		return this;
 	}
@@ -84,26 +84,26 @@ public class WScaledText extends WScalableWidget {
 	}
 
 	@Override
-	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		//Paint background here because it's one pixel more accurate; results are validated for scaled painting already.
 		if (backgroundColor != 0) ScreenDrawing.coloredRect(context, x, y, getWidth(), getHeight(), backgroundColor);
 		super.paint(context, x, y, mouseX, mouseY);
 
 		if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
-			List<OrderedText> tooltip = hover.get();
+			List<FormattedCharSequence> tooltip = hover.get();
 			if (!tooltip.isEmpty()) {
-				context.drawTooltip(tooltip, x + mouseX, y + mouseY);
+				context.setTooltipForNextFrame(tooltip, x + mouseX, y + mouseY);
 			}
 		}
 	}
 
 	@Override
-	public void paintScaled(DrawContext context, int width, int height, int mouseX, int mouseY) {
-		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+	public void paintScaled(GuiGraphics context, int width, int height, int mouseX, int mouseY) {
+		Font textRenderer = Minecraft.getInstance().font;
 		int frameColor = color.getAsInt();
-		List<OrderedText> lines = textRenderer.wrapLines(text.get(), width);
+		List<FormattedCharSequence> lines = textRenderer.split(text.get(), width);
 
-		int totalHeight = textRenderer.fontHeight * lines.size();
+		int totalHeight = textRenderer.lineHeight * lines.size();
 
 		int yOffset = switch (verticalAlignment) {
 			case CENTER -> height / 2 - totalHeight / 2;
@@ -112,7 +112,7 @@ public class WScaledText extends WScalableWidget {
 		};
 
 		for (int i = 0; i < lines.size(); i++) {
-			int lineY = textRenderer.fontHeight * i;
+			int lineY = textRenderer.lineHeight * i;
 			if (shadow) {
 				ScreenDrawing.drawStringWithShadow(context, lines.get(i), horizontalAlignment, 0, yOffset + lineY, width, frameColor);
 			} else {

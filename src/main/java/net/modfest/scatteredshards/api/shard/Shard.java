@@ -7,15 +7,15 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 
 import java.util.Objects;
@@ -23,32 +23,32 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class Shard {
-	public static final Codec<Either<ItemStack, Identifier>> ICON_CODEC = Codec.either(ItemStack.CODEC, Identifier.CODEC);
+	public static final Codec<Either<ItemStack, ResourceLocation>> ICON_CODEC = Codec.either(ItemStack.CODEC, ResourceLocation.CODEC);
 
 	public static final Codec<Shard> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-		Identifier.CODEC.fieldOf("shard_type_id").forGetter(Shard::shardTypeId),
-		TextCodecs.CODEC.fieldOf("name").forGetter(Shard::name),
-		TextCodecs.CODEC.fieldOf("lore").forGetter(Shard::lore),
-		TextCodecs.CODEC.fieldOf("hint").forGetter(Shard::hint),
-		Identifier.CODEC.fieldOf("source_id").forGetter(Shard::sourceId),
+		ResourceLocation.CODEC.fieldOf("shard_type_id").forGetter(Shard::shardTypeId),
+		ComponentSerialization.CODEC.fieldOf("name").forGetter(Shard::name),
+		ComponentSerialization.CODEC.fieldOf("lore").forGetter(Shard::lore),
+		ComponentSerialization.CODEC.fieldOf("hint").forGetter(Shard::hint),
+		ResourceLocation.CODEC.fieldOf("source_id").forGetter(Shard::sourceId),
 		ICON_CODEC.fieldOf("icon").forGetter(Shard::icon)
 	).apply(instance, Shard::new));
 
-	public static final PacketCodec<RegistryByteBuf, Shard> PACKET_CODEC = PacketCodecs.codec(CODEC).cast();
+	public static final StreamCodec<RegistryFriendlyByteBuf, Shard> PACKET_CODEC = ByteBufCodecs.fromCodec(CODEC).cast();
 
-	public static final Identifier MISSING_ICON_ID = ScatteredShards.id("textures/gui/shards/missing_icon.png");
-	public static final Either<ItemStack, Identifier> MISSING_ICON = Either.right(MISSING_ICON_ID);
-	public static final Identifier MISSING_SHARD_SOURCE = ScatteredShards.id("missing");
-	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING_ID, Text.of("Missing"), Text.of(""), Text.of(""), MISSING_SHARD_SOURCE, MISSING_ICON);
+	public static final ResourceLocation MISSING_ICON_ID = ScatteredShards.id("textures/gui/shards/missing_icon.png");
+	public static final Either<ItemStack, ResourceLocation> MISSING_ICON = Either.right(MISSING_ICON_ID);
+	public static final ResourceLocation MISSING_SHARD_SOURCE = ScatteredShards.id("missing");
+	public static final Shard MISSING_SHARD = new Shard(ShardType.MISSING_ID, Component.nullToEmpty("Missing"), Component.nullToEmpty(""), Component.nullToEmpty(""), MISSING_SHARD_SOURCE, MISSING_ICON);
 
-	protected Identifier shardTypeId;
-	protected Text name;
-	protected Text lore;
-	protected Text hint;
-	protected Identifier sourceId;
-	protected Either<ItemStack, Identifier> icon;
+	protected ResourceLocation shardTypeId;
+	protected Component name;
+	protected Component lore;
+	protected Component hint;
+	protected ResourceLocation sourceId;
+	protected Either<ItemStack, ResourceLocation> icon;
 
-	public Shard(Identifier shardTypeId, Text name, Text lore, Text hint, Identifier sourceId, Either<ItemStack, Identifier> icon) {
+	public Shard(ResourceLocation shardTypeId, Component name, Component lore, Component hint, ResourceLocation sourceId, Either<ItemStack, ResourceLocation> icon) {
 		Stream.of(name, lore, hint, icon).forEach(Objects::requireNonNull);
 		this.shardTypeId = shardTypeId;
 		this.name = name;
@@ -58,51 +58,51 @@ public class Shard {
 		this.icon = icon;
 	}
 
-	public Identifier shardTypeId() {
+	public ResourceLocation shardTypeId() {
 		return shardTypeId;
 	}
 
-	public Text name() {
+	public Component name() {
 		return name;
 	}
 
-	public Text lore() {
+	public Component lore() {
 		return lore;
 	}
 
-	public Text hint() {
+	public Component hint() {
 		return hint;
 	}
 
-	public Identifier sourceId() {
+	public ResourceLocation sourceId() {
 		return sourceId;
 	}
 
-	public Either<ItemStack, Identifier> icon() {
+	public Either<ItemStack, ResourceLocation> icon() {
 		return icon;
 	}
 
-	public Shard setShardType(Identifier shardTypeId) {
+	public Shard setShardType(ResourceLocation shardTypeId) {
 		this.shardTypeId = shardTypeId;
 		return this;
 	}
 
-	public Shard setName(Text value) {
+	public Shard setName(Component value) {
 		this.name = value;
 		return this;
 	}
 
-	public Shard setLore(Text value) {
+	public Shard setLore(Component value) {
 		this.lore = value;
 		return this;
 	}
 
-	public Shard setHint(Text value) {
+	public Shard setHint(Component value) {
 		this.hint = value;
 		return this;
 	}
 
-	public Shard setIcon(Either<ItemStack, Identifier> icon) {
+	public Shard setIcon(Either<ItemStack, ResourceLocation> icon) {
 		this.icon = icon;
 		return this;
 	}
@@ -112,22 +112,22 @@ public class Shard {
 		return this;
 	}
 
-	public Shard setIcon(Identifier textureValue) {
+	public Shard setIcon(ResourceLocation textureValue) {
 		this.icon = Either.right(textureValue);
 		return this;
 	}
 
-	public Shard setSourceId(Identifier id) {
+	public Shard setSourceId(ResourceLocation id) {
 		this.sourceId = id;
 		return this;
 	}
 
-	public static Shard fromNbt(NbtCompound nbt) {
+	public static Shard fromNbt(CompoundTag nbt) {
 		return CODEC.parse(NbtOps.INSTANCE, nbt).result().orElseThrow();
 	}
 
-	public NbtCompound toNbt() {
-		return (NbtCompound) CODEC.encodeStart(NbtOps.INSTANCE, this).result().orElseThrow();
+	public CompoundTag toNbt() {
+		return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).result().orElseThrow();
 	}
 
 	public JsonObject toJson() {
@@ -135,7 +135,7 @@ public class Shard {
 	}
 
 	public Shard copy() {
-		Either<ItemStack, Identifier> icon = icon().mapBoth(stack -> stack, id -> id);
+		Either<ItemStack, ResourceLocation> icon = icon().mapBoth(stack -> stack, id -> id);
 		return new Shard(shardTypeId, name.copy(), lore.copy(), hint.copy(), sourceId, icon);
 	}
 
@@ -144,24 +144,24 @@ public class Shard {
 		return toJson().toString();
 	}
 
-	public static Shard emptyOfType(Identifier id) {
-		return MISSING_SHARD.copy().setShardType(id).setName(Text.of(""));
+	public static Shard emptyOfType(ResourceLocation id) {
+		return MISSING_SHARD.copy().setShardType(id).setName(Component.nullToEmpty(""));
 	}
 
-	public static Text getSourceForMod(ModContainer mod) {
-		return Text.literal(mod.getMetadata().getName());
+	public static Component getSourceForMod(ModContainer mod) {
+		return Component.literal(mod.getMetadata().getName());
 	}
 
-	public static Optional<Text> getSourceForModId(String modId) {
+	public static Optional<Component> getSourceForModId(String modId) {
 		return FabricLoader.getInstance().getModContainer(modId).map(Shard::getSourceForMod);
 	}
 
-	public static Text getSourceForSourceId(Identifier id) {
+	public static Component getSourceForSourceId(ResourceLocation id) {
 		if (!id.getPath().equals("shard_pack")) {
-			return Text.translatable("shard_pack." + id.getNamespace() + "." + id.getPath() + ".name");
+			return Component.translatable("shard_pack." + id.getNamespace() + "." + id.getPath() + ".name");
 		}
 
 		return getSourceForModId(id.getNamespace())
-			.orElse(Text.translatable("shard_pack." + id.getNamespace() + ".name"));
+			.orElse(Component.translatable("shard_pack." + id.getNamespace() + ".name"));
 	}
 }

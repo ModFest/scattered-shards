@@ -6,8 +6,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
@@ -25,7 +25,7 @@ public class CreateInstantCommand {
 		var source = ctx.getSource();
 
 		var modId = StringArgumentType.getString(ctx, "mod_id");
-		var shardTypeId = ctx.getArgument("shard_type", Identifier.class);
+		var shardTypeId = ctx.getArgument("shard_type", ResourceLocation.class);
 		var name = StringArgumentType.getString(ctx, "shard_name");
 		var lore = StringArgumentType.getString(ctx, "shard_lore");
 		var hint = StringArgumentType.getString(ctx, "shard_hint");
@@ -41,19 +41,19 @@ public class CreateInstantCommand {
 		var modIcon = ModMetaUtil.touchModIcon(modId);
 
 		if (library.shards().get(shardId).isPresent()) {
-			source.sendError(Text.translatable("error.scattered_shards.duplicate_id", shardId.toString()));
+			source.sendError(Component.translatable("error.scattered_shards.duplicate_id", shardId.toString()));
 			return 0;
 		}
 
-		shard.setName(Text.literal(name));
-		shard.setLore(Text.literal(lore));
-		shard.setHint(Text.literal(hint));
+		shard.setName(Component.literal(name));
+		shard.setLore(Component.literal(lore));
+		shard.setHint(Component.literal(hint));
 		shard.setIcon(modIcon);
-		shard.setSourceId(Identifier.of(modId, "shard_pack"));
+		shard.setSourceId(ResourceLocation.fromNamespaceAndPath(modId, "shard_pack"));
 
 		ClientPlayNetworking.send(new C2SCreateShardInstant(shardId, shard));
 
-		source.sendFeedback(Text.translatable("commands.scattered_shards.shard.create_instant", shardId.toString()));
+		source.sendFeedback(Component.translatable("commands.scattered_shards.shard.create_instant", shardId.toString()));
 
 		return 1;
 	}

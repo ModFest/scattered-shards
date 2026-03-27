@@ -9,9 +9,9 @@ import io.github.cottonmc.cotton.gui.widget.data.Rect2i;
 import juuxel.libninepatch.NinePatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
@@ -21,22 +21,22 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class WAlternativeToggle extends WWidget {
-	NinePatch<Identifier> button = NinePatch.builder(ScatteredShards.id("textures/gui/button.png"))
+	NinePatch<ResourceLocation> button = NinePatch.builder(ScatteredShards.id("textures/gui/button.png"))
 		.cornerSize(4)
 		.cornerUv(4 / 200f, 4 / 20f)
 		.mode(NinePatch.Mode.TILING)
 		.build();
 
-	NinePatch<Identifier> recessedButton = NinePatch.builder(ScatteredShards.id("textures/gui/button_recessed.png"))
+	NinePatch<ResourceLocation> recessedButton = NinePatch.builder(ScatteredShards.id("textures/gui/button_recessed.png"))
 		.cornerSize(4)
 		.cornerUv(4 / 200f, 4 / 20f)
 		.mode(NinePatch.Mode.TILING)
 		.build();
 
 	@Nullable
-	protected Text leftLabel = Text.literal("Left Text");
+	protected Component leftLabel = Component.literal("Left Text");
 	@Nullable
-	protected Text rightLabel = Text.literal("Right Text");
+	protected Component rightLabel = Component.literal("Right Text");
 
 	protected boolean isRight = false;
 	protected Runnable onRight = () -> {
@@ -47,7 +47,7 @@ public class WAlternativeToggle extends WWidget {
 	public WAlternativeToggle() {
 	}
 
-	public WAlternativeToggle(@Nullable Text left, @Nullable Text right) {
+	public WAlternativeToggle(@Nullable Component left, @Nullable Component right) {
 		this.leftLabel = left;
 		this.rightLabel = right;
 	}
@@ -143,25 +143,25 @@ public class WAlternativeToggle extends WWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		int halfWidth = (int) Math.ceil(this.width / 2.0);
 
 		int hoverX = (isRight) ? 0 : halfWidth - 1;
 		boolean hovered = (mouseX >= hoverX && mouseY >= 0 && mouseX < hoverX + halfWidth && mouseY < getHeight());
 
-		Matrix3x2fStack matrices = context.getMatrices();
+		Matrix3x2fStack matrices = context.pose();
 		matrices.pushMatrix();
 		matrices.translate(x, y);
-		NinePatch<Identifier> leftButton = map(recessedButton, button);
-		NinePatch<Identifier> rightButton = map(button, recessedButton);
+		NinePatch<ResourceLocation> leftButton = map(recessedButton, button);
+		NinePatch<ResourceLocation> rightButton = map(button, recessedButton);
 		leftButton.draw(NinePatchTextureRendererImpl.INSTANCE, context, halfWidth, this.getHeight());
 		matrices.translate(halfWidth - 1, 0);
 		rightButton.draw(NinePatchTextureRendererImpl.INSTANCE, context, halfWidth, this.getHeight());
 
 		matrices.popMatrix();
 
-		ScreenDrawing.drawStringWithShadow(context, leftLabel.asOrderedText(), HorizontalAlignment.CENTER, x + 2, y + 5, halfWidth - 4, 0xFF_FFFFFF);
-		ScreenDrawing.drawStringWithShadow(context, rightLabel.asOrderedText(), HorizontalAlignment.CENTER, x + 2 + halfWidth, y + 5, halfWidth - 4, 0xFF_FFFFFF);
+		ScreenDrawing.drawStringWithShadow(context, leftLabel.getVisualOrderText(), HorizontalAlignment.CENTER, x + 2, y + 5, halfWidth - 4, 0xFF_FFFFFF);
+		ScreenDrawing.drawStringWithShadow(context, rightLabel.getVisualOrderText(), HorizontalAlignment.CENTER, x + 2 + halfWidth, y + 5, halfWidth - 4, 0xFF_FFFFFF);
 
 		if (hovered) {
 			ScreenDrawing.drawBeveledPanel(context, x + hoverX, y, halfWidth, this.getHeight(), 0xFF_FFFFFF, 0x00_FFFFFF, 0xFF_FFFFFF);

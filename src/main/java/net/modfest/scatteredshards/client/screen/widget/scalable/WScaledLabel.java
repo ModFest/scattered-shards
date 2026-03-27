@@ -4,44 +4,44 @@ import io.github.cottonmc.cotton.gui.client.Scissors;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.Component;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
 
 import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public class WScaledLabel extends WScalableWidget {
-	protected Supplier<Text> text;
+	protected Supplier<Component> text;
 	protected IntSupplier color = () -> 0xFF_FFFFFF;
-	protected Supplier<List<OrderedText>> hover = List::of;
+	protected Supplier<List<FormattedCharSequence>> hover = List::of;
 	protected boolean shadow = false;
 	protected int backgroundColor = 0;
 
 	protected VerticalAlignment verticalAlignment = VerticalAlignment.TOP;
 	protected HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
 
-	public WScaledLabel(Text text, float scale) {
+	public WScaledLabel(Component text, float scale) {
 		this.text = () -> text;
 		this.scale = scale;
 	}
 
-	public WScaledLabel(Supplier<Text> text, float scale) {
+	public WScaledLabel(Supplier<Component> text, float scale) {
 		this.text = text;
 		this.scale = scale;
 	}
 
-	public WScaledLabel setText(Text text) {
+	public WScaledLabel setText(Component text) {
 		this.text = () -> text;
 		return this;
 	}
 
-	public WScaledLabel setText(Supplier<Text> text) {
+	public WScaledLabel setText(Supplier<Component> text) {
 		this.text = text;
 		return this;
 	}
@@ -56,12 +56,12 @@ public class WScaledLabel extends WScalableWidget {
 		return this;
 	}
 
-	public WScaledLabel setHover(Supplier<Text> text) {
-		this.hover = () -> MinecraftClient.getInstance().textRenderer.wrapLines(text.get(), 200);
+	public WScaledLabel setHover(Supplier<Component> text) {
+		this.hover = () -> Minecraft.getInstance().font.split(text.get(), 200);
 		return this;
 	}
 
-	public WScaledLabel setHoverLines(Supplier<List<OrderedText>> hover) {
+	public WScaledLabel setHoverLines(Supplier<List<FormattedCharSequence>> hover) {
 		this.hover = hover;
 		return this;
 	}
@@ -83,7 +83,7 @@ public class WScaledLabel extends WScalableWidget {
 
 	@SuppressWarnings("resource")
 	@Override
-	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		//Paint background here because it's one pixel more accurate; results are validated for scaled painting already.
 		if (backgroundColor != 0) ScreenDrawing.coloredRect(context, x, y, getWidth(), getHeight(), backgroundColor);
 
@@ -92,41 +92,41 @@ public class WScaledLabel extends WScalableWidget {
 		context.disableScissor();
 
 		if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
-			List<OrderedText> tooltip = hover.get();
+			List<FormattedCharSequence> tooltip = hover.get();
 			if (!tooltip.isEmpty()) {
 
-				context.drawTooltip(tooltip, x + mouseX, y + mouseY);
+				context.setTooltipForNextFrame(tooltip, x + mouseX, y + mouseY);
 
 			}
 		}
 	}
 
 	@Override
-	public void paintScaled(DrawContext context, int width, int height, int mouseX, int mouseY) {
-		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+	public void paintScaled(GuiGraphics context, int width, int height, int mouseX, int mouseY) {
+		Font textRenderer = Minecraft.getInstance().font;
 		int yOffset = switch (verticalAlignment) {
-			case CENTER -> height / 2 - textRenderer.fontHeight / 2;
-			case BOTTOM -> height - textRenderer.fontHeight;
+			case CENTER -> height / 2 - textRenderer.lineHeight / 2;
+			case BOTTOM -> height - textRenderer.lineHeight;
 			case TOP -> 0;
 		};
 
 		boolean hovered = (mouseX >= 0 && mouseY >= 0 && mouseX < getWidth() && mouseY < getHeight());
-		drawScrollableString(context, text.get().asOrderedText(), horizontalAlignment, 0, yOffset, width, color.getAsInt(), shadow, hovered);
+		drawScrollableString(context, text.get().getVisualOrderText(), horizontalAlignment, 0, yOffset, width, color.getAsInt(), shadow, hovered);
 
 	}
 
-	public static void drawScrollableString(DrawContext context, OrderedText text, HorizontalAlignment alignment, int x, int y, int width, int color, boolean shadow, boolean scroll) {
-		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-		int textWidth = textRenderer.getWidth(text);
+	public static void drawScrollableString(GuiGraphics context, FormattedCharSequence text, HorizontalAlignment alignment, int x, int y, int width, int color, boolean shadow, boolean scroll) {
+		Font textRenderer = Minecraft.getInstance().font;
+		int textWidth = textRenderer.width(text);
 		int xofs = 0;
 
 		if (textWidth > width && scroll) {
 			alignment = HorizontalAlignment.LEFT;
 			int scrollWidth = textWidth - width;
-			double seconds = Util.getMeasuringTimeMs() / 1000.0;
+			double seconds = Util.getMillis() / 1000.0;
 			double scrollSpeed = Math.max(scrollWidth * 0.5, 3.0);
 			double t = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * seconds / scrollSpeed)) / 2.0 + 0.5;
-			xofs = (int) MathHelper.lerp(t, 0.0, scrollWidth);
+			xofs = (int) Mth.lerp(t, 0.0, scrollWidth);
 		}
 
 		//context.setShaderColor(1, 1, 1, 1);

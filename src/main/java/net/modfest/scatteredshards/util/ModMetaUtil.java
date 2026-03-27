@@ -3,10 +3,10 @@ package net.modfest.scatteredshards.util;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import org.apache.commons.lang3.Validate;
 
@@ -21,13 +21,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * Liberally stolen from ModMenu. Thanks ModMenu!
  */
 public class ModMetaUtil {
-	private static final Map<String, Identifier> iconTextures = new ConcurrentHashMap<>();
-	private static final Map<Path, NativeImageBackedTexture> modIconCache = new ConcurrentHashMap<>();
+	private static final Map<String, ResourceLocation> iconTextures = new ConcurrentHashMap<>();
+	private static final Map<Path, DynamicTexture> modIconCache = new ConcurrentHashMap<>();
 
-	public static NativeImageBackedTexture createIcon(ModContainer iconSource, String iconPath) {
+	public static DynamicTexture createIcon(ModContainer iconSource, String iconPath) {
 		try {
 			Path path = iconSource.getPath(iconPath);
-			NativeImageBackedTexture cachedIcon = modIconCache.get(path);
+			DynamicTexture cachedIcon = modIconCache.get(path);
 			if (cachedIcon != null) {
 				return cachedIcon;
 			}
@@ -38,7 +38,7 @@ public class ModMetaUtil {
 			try (InputStream inputStream = Files.newInputStream(path)) {
 				NativeImage image = NativeImage.read(Objects.requireNonNull(inputStream));
 				Validate.validState(image.getHeight() == image.getWidth(), "Must be square icon");
-				NativeImageBackedTexture tex = new NativeImageBackedTexture(() -> iconPath, image);
+				DynamicTexture tex = new DynamicTexture(() -> iconPath, image);
 				modIconCache.put(path, tex);
 				return tex;
 			}
@@ -61,7 +61,7 @@ public class ModMetaUtil {
 		}
 	}
 
-	public static NativeImageBackedTexture getMissingIcon() {
+	public static DynamicTexture getMissingIcon() {
 		return createIcon(
 			FabricLoader.getInstance()
 				.getModContainer(ScatteredShards.ID)
@@ -70,7 +70,7 @@ public class ModMetaUtil {
 		);
 	}
 
-	public static NativeImageBackedTexture getIcon(ModContainer mod, int preferredSize) {
+	public static DynamicTexture getIcon(ModContainer mod, int preferredSize) {
 		if (mod == null) return getMissingIcon();
 		ModMetadata meta = mod.getMetadata();
 		String modId = meta.getId();
@@ -79,20 +79,20 @@ public class ModMetaUtil {
 		ModContainer iconSource = FabricLoader.getInstance()
 			.getModContainer(modId)
 			.orElseThrow(() -> new RuntimeException("Cannot get ModContainer for Fabric mod with id " + finalIconSourceId));
-		NativeImageBackedTexture icon = createIcon(iconSource, iconPath);
+		DynamicTexture icon = createIcon(iconSource, iconPath);
 		if (icon == null) return getMissingIcon();
 		return icon;
 	}
 
-	public static Identifier touchModIcon(String modId) {
+	public static ResourceLocation touchModIcon(String modId) {
 		return iconTextures.computeIfAbsent(modId, id -> {
-			Identifier iconTexture = Identifier.of(ScatteredShards.ID, modId + "_icon");
-			MinecraftClient.getInstance().getTextureManager().registerTexture(iconTexture, ModMetaUtil.getIcon(FabricLoader.getInstance().getModContainer(modId).orElse(null), 16));
+			ResourceLocation iconTexture = ResourceLocation.fromNamespaceAndPath(ScatteredShards.ID, modId + "_icon");
+			Minecraft.getInstance().getTextureManager().register(iconTexture, ModMetaUtil.getIcon(FabricLoader.getInstance().getModContainer(modId).orElse(null), 16));
 			return iconTexture;
 		});
 	}
 
-	public static void touchIconTexture(Identifier iconTexture) {
+	public static void touchIconTexture(ResourceLocation iconTexture) {
 		if (!iconTexture.getNamespace().equals(ScatteredShards.ID) || !iconTexture.getPath().endsWith("_icon")) return;
 		touchModIcon(iconTexture.getPath().substring(0, iconTexture.getPath().length() - "_icon".length()));
 	}

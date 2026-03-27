@@ -2,17 +2,18 @@ package net.modfest.scatteredshards.client;
 
 import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.toast.Toast;
-import net.minecraft.client.toast.ToastManager;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.toasts.Toast.Visibility;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastManager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
@@ -23,13 +24,13 @@ import java.util.List;
 
 public class ShardCollectedToast implements Toast {
 	public static final int TITLE_COLOR = 0xFF_FFFF00;
-	public static final Text TITLE = Text.translatable("toast.scattered_shards.collected");
-	private static final Identifier TEXTURE = Identifier.ofVanilla("toast/advancement");
+	public static final Component TITLE = Component.translatable("toast.scattered_shards.collected");
+	private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("toast/advancement");
 	public static final int DURATION = 5000;
 
-	Either<ItemStack, Identifier> icon;
-	List<OrderedText> descLines;
-	List<OrderedText> hintLines;
+	Either<ItemStack, ResourceLocation> icon;
+	List<FormattedCharSequence> descLines;
+	List<FormattedCharSequence> hintLines;
 	private final int height;
 	private double displayTimeMultiplier = 1;
 
@@ -37,17 +38,17 @@ public class ShardCollectedToast implements Toast {
 
 
 	public ShardCollectedToast(Shard shard) {
-		Text hint;
+		Component hint;
 
 		if (ScatteredShardsClient.VIEW_COLLECTION.isUnbound()) {
-			hint = Text.translatable(
+			hint = Component.translatable(
 				"toast.scattered_shards.collected.prompt_without_key",
-				Text.literal("/shards").formatted(Formatting.AQUA).formatted(Formatting.BOLD)
+				Component.literal("/shards").withStyle(ChatFormatting.AQUA).withStyle(ChatFormatting.BOLD)
 			);
 		} else {
-			hint = Text.translatable(
+			hint = Component.translatable(
 				"toast.scattered_shards.collected.prompt",
-				Text.keybind(ScatteredShardsClient.VIEW_COLLECTION.getTranslationKey()).formatted(Formatting.GOLD).formatted(Formatting.BOLD)
+				Component.keybind(ScatteredShardsClient.VIEW_COLLECTION.getName()).withStyle(ChatFormatting.GOLD).withStyle(ChatFormatting.BOLD)
 			);
 		}
 
@@ -58,14 +59,14 @@ public class ShardCollectedToast implements Toast {
 		icon.ifRight(ModMetaUtil::touchIconTexture);
 	}
 
-	private List<OrderedText> wrap(List<Text> messages) {
-		List<OrderedText> list = new ArrayList<>();
-		messages.forEach(text -> list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(text, getWidth() - 40)));
+	private List<FormattedCharSequence> wrap(List<Component> messages) {
+		List<FormattedCharSequence> list = new ArrayList<>();
+		messages.forEach(text -> list.addAll(Minecraft.getInstance().font.split(text, width() - 40)));
 		return list;
 	}
 
 	@Override
-	public Visibility getVisibility() {
+	public Visibility getWantedVisibility() {
 		return visibility;
 	}
 
@@ -76,10 +77,10 @@ public class ShardCollectedToast implements Toast {
 	}
 
 	@Override
-	public void draw(DrawContext context, TextRenderer textRenderer, long startTime) {
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, this.getWidth(), this.getHeight());
+	public void render(GuiGraphics context, Font textRenderer, long startTime) {
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, this.width(), this.height());
 
-		context.drawText(
+		context.drawString(
 			textRenderer,
 			TITLE, 32, 7, TITLE_COLOR,
 			false
@@ -87,18 +88,18 @@ public class ShardCollectedToast implements Toast {
 
 		double time = DURATION * displayTimeMultiplier;
 
-		List<OrderedText> body = startTime >= (time / 2) && !hintLines.isEmpty() ? hintLines : descLines;
+		List<FormattedCharSequence> body = startTime >= (time / 2) && !hintLines.isEmpty() ? hintLines : descLines;
 
 		for (int i = 0; i < body.size(); i++) {
-			context.drawText(textRenderer, body.get(i), 32, 18 + i * 11, 0xFF_FFFFFF, false);
+			context.drawString(textRenderer, body.get(i), 32, 18 + i * 11, 0xFF_FFFFFF, false);
 		}
 
-		icon.ifLeft(it -> context.drawItemWithoutEntity(it, 8, 8));
+		icon.ifLeft(it -> context.renderFakeItem(it, 8, 8));
 		icon.ifRight(it -> ScreenDrawing.texturedRect(context, 8, 8, 16, 16, it, 0xFF_FFFFFF));
 	}
 
 	@Override
-	public int getHeight() {
+	public int height() {
 		return height;
 	}
 }

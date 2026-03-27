@@ -4,9 +4,9 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.modfest.scatteredshards.api.impl.ColorCodec;
 
 public class ShardDisplaySettings {
@@ -25,12 +25,12 @@ public class ShardDisplaySettings {
 		ColorCodec.CODEC.fieldOf("viewer_bottom_color").forGetter(ShardDisplaySettings::viewerBottomColor)
 	).apply(instance, ShardDisplaySettings::new));
 
-	public static final PacketCodec<RegistryByteBuf, ShardDisplaySettings> PACKET_CODEC = PacketCodec.tuple(
-		PacketCodecs.BOOLEAN, ShardDisplaySettings::drawMiniIcons,
-		PacketCodecs.INTEGER, ShardDisplaySettings::libraryColor,
-		PacketCodecs.INTEGER, ShardDisplaySettings::librarySetNameColor,
-		PacketCodecs.INTEGER, ShardDisplaySettings::viewerTopColor,
-		PacketCodecs.INTEGER, ShardDisplaySettings::viewerBottomColor,
+	public static final StreamCodec<RegistryFriendlyByteBuf, ShardDisplaySettings> PACKET_CODEC = StreamCodec.composite(
+		ByteBufCodecs.BOOL, ShardDisplaySettings::drawMiniIcons,
+		ByteBufCodecs.INT, ShardDisplaySettings::libraryColor,
+		ByteBufCodecs.INT, ShardDisplaySettings::librarySetNameColor,
+		ByteBufCodecs.INT, ShardDisplaySettings::viewerTopColor,
+		ByteBufCodecs.INT, ShardDisplaySettings::viewerBottomColor,
 		ShardDisplaySettings::new
 	);
 

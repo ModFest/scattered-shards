@@ -7,9 +7,9 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,34 +20,34 @@ import java.util.function.BiConsumer;
  * Little wrap around Multimap to make it easier to manage as a registry
  */
 public class MiniMultiregistry<T> {
-	private final Multimap<Identifier, T> data = MultimapBuilder.hashKeys().hashSetValues(3).build();
-	private final Codec<Map<Identifier, Collection<T>>> mapCodec;
+	private final Multimap<ResourceLocation, T> data = MultimapBuilder.hashKeys().hashSetValues(3).build();
+	private final Codec<Map<ResourceLocation, Collection<T>>> mapCodec;
 
 	public MiniMultiregistry(Codec<T> valueCodec) {
-		mapCodec = Codec.unboundedMap(Identifier.CODEC, valueCodec.listOf().xmap(Functions.identity(), List::copyOf));
+		mapCodec = Codec.unboundedMap(ResourceLocation.CODEC, valueCodec.listOf().xmap(Functions.identity(), List::copyOf));
 	}
 
-	public Collection<T> get(Identifier id) {
+	public Collection<T> get(ResourceLocation id) {
 		return data.get(id);
 	}
 
-	public void forEachMapping(BiConsumer<Identifier, T> consumer) {
+	public void forEachMapping(BiConsumer<ResourceLocation, T> consumer) {
 		data.forEach(consumer);
 	}
 
-	public void forEachSet(BiConsumer<Identifier, Collection<T>> consumer) {
+	public void forEachSet(BiConsumer<ResourceLocation, Collection<T>> consumer) {
 		data.asMap().forEach(consumer);
 	}
 
-	public void put(Identifier key, T value) {
+	public void put(ResourceLocation key, T value) {
 		data.put(key, value);
 	}
 
-	public void removeValue(Identifier key, T value) {
+	public void removeValue(ResourceLocation key, T value) {
 		data.remove(key, value);
 	}
 
-	public void removeKey(Identifier key) {
+	public void removeKey(ResourceLocation key) {
 		data.removeAll(key);
 	}
 
@@ -55,8 +55,8 @@ public class MiniMultiregistry<T> {
 		data.clear();
 	}
 
-	public NbtCompound toNbt() {
-		return (NbtCompound) mapCodec.encodeStart(NbtOps.INSTANCE, data.asMap()).result().orElseThrow();
+	public CompoundTag toNbt() {
+		return (CompoundTag) mapCodec.encodeStart(NbtOps.INSTANCE, data.asMap()).result().orElseThrow();
 	}
 
 	public JsonObject toJson() {
@@ -71,7 +71,7 @@ public class MiniMultiregistry<T> {
 		});
 	}
 
-	public void syncFromNbt(NbtCompound tag) {
+	public void syncFromNbt(CompoundTag tag) {
 		syncFrom(NbtOps.INSTANCE, tag);
 	}
 

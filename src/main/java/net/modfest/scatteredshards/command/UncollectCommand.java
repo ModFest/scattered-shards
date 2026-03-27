@@ -7,10 +7,10 @@ import com.mojang.brigadier.tree.CommandNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
@@ -25,17 +25,17 @@ public class UncollectCommand {
 	 * @return Always 1 for the shard removed, unless an exception occurs.
 	 * @throws CommandSyntaxException if there was a problem executing the command.
 	 */
-	public static int uncollect(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-		Identifier id = ctx.getArgument("shard_id", Identifier.class);
+	public static int uncollect(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ResourceLocation id = ctx.getArgument("shard_id", ResourceLocation.class);
 
 		//Validate shard
 		ScatteredShardsAPI.getServerLibrary().shards().get(id)
 			.orElseThrow(() -> ShardCommand.INVALID_SHARD.create(id));
 
 		//Validate that source is a player and uncollect it
-		ScatteredShardsAPI.triggerShardUncollection(ctx.getSource().getPlayerOrThrow(), id);
+		ScatteredShardsAPI.triggerShardUncollection(ctx.getSource().getPlayerOrException(), id);
 
-		ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.uncollect", id), false);
+		ctx.getSource().sendSuccess(() -> Component.translatableEscape("commands.scattered_shards.shard.uncollect", id), false);
 
 		return Command.SINGLE_SUCCESS;
 	}
@@ -47,32 +47,32 @@ public class UncollectCommand {
 	 * @return The number of shards removed. Zero is a valid output from this command (if the collection was empty).
 	 * @throws CommandSyntaxException if there was a problem executing the command.
 	 */
-	public static int uncollectAll(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+	public static int uncollectAll(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer player = ctx.getSource().getPlayerOrException();
 		ShardCollection collection = ScatteredShardsAPI.getServerCollection(player);
 		int shardsToDelete = collection.size();
 		collection.clear();
 		ServerPlayNetworking.send(player, new S2CSyncCollection(collection));
 		MinecraftServer server = ctx.getSource().getServer();
-		ShardCollectionPersistentState.get(server).markDirty();
+		ShardCollectionPersistentState.get(server).setDirty();
 
-		ctx.getSource().sendFeedback(() -> Text.translatable("commands.scattered_shards.shard.uncollect.all", shardsToDelete), false);
+		ctx.getSource().sendSuccess(() -> Component.translatable("commands.scattered_shards.shard.uncollect.all", shardsToDelete), false);
 
 		return shardsToDelete;
 	}
 
-	public static void register(CommandNode<ServerCommandSource> parent) {
-		CommandNode<ServerCommandSource> uncollectCommand = ShardCommandNodeHelper.literal("uncollect")
+	public static void register(CommandNode<CommandSourceStack> parent) {
+		CommandNode<CommandSourceStack> uncollectCommand = ShardCommandNodeHelper.literal("uncollect")
 			.requires(Permissions.require(ScatteredShards.permission("command.uncollect"), 2))
 			.build();
 
 		//syntax: uncollect <shard_id>
-		CommandNode<ServerCommandSource> uncollectIdArgument = ShardCommandNodeHelper.collectedShardId("shard_id")
+		CommandNode<CommandSourceStack> uncollectIdArgument = ShardCommandNodeHelper.collectedShardId("shard_id")
 			.executes(UncollectCommand::uncollect)
 			.build();
 
 		//syntax: uncollect all
-		CommandNode<ServerCommandSource> uncollectAllCommand = ShardCommandNodeHelper.literal("all")
+		CommandNode<CommandSourceStack> uncollectAllCommand = ShardCommandNodeHelper.literal("all")
 			.executes(UncollectCommand::uncollectAll)
 			.requires(
 				Permissions.require(ScatteredShards.permission("command.uncollect.all"), 2)

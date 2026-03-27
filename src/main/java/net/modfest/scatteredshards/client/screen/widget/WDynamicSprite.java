@@ -2,31 +2,31 @@ package net.modfest.scatteredshards.client.screen.widget;
 
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
 public class WDynamicSprite extends WWidget {
-	protected Supplier<Identifier> image = () -> Identifier.of("");
+	protected Supplier<ResourceLocation> image = () -> ResourceLocation.parse("");
 	protected int tint = 0xFF_FFFFFF;
 
 	public WDynamicSprite() {
 	}
 
-	public WDynamicSprite(Identifier image) {
+	public WDynamicSprite(ResourceLocation image) {
 		setImage(image);
 	}
 
-	public WDynamicSprite(Supplier<Identifier> image) {
+	public WDynamicSprite(Supplier<ResourceLocation> image) {
 		setImage(image);
 	}
 
-	public void setImage(Identifier image) {
+	public void setImage(ResourceLocation image) {
 		this.image = () -> image;
 	}
 
-	public void setImage(Supplier<Identifier> image) {
+	public void setImage(Supplier<ResourceLocation> image) {
 		this.image = image;
 	}
 
@@ -40,7 +40,7 @@ public class WDynamicSprite extends WWidget {
 	}
 
 	@Override
-	public void paint(DrawContext context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
 		ScreenDrawing.texturedRect(context, x, y, getWidth(), getHeight(), image.get(), tint);
 	}
 }

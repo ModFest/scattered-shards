@@ -1,18 +1,18 @@
 package net.modfest.scatteredshards.api;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Objects;
 
 public class GlobalCollection {
 	int totalPlayers;
-	HashMap<Identifier, Integer> collectionTracker;
+	HashMap<ResourceLocation, Integer> collectionTracker;
 
-	public GlobalCollection(int totalPlayers, HashMap<Identifier, Integer> collectionTracker) {
+	public GlobalCollection(int totalPlayers, HashMap<ResourceLocation, Integer> collectionTracker) {
 		this.totalPlayers = totalPlayers;
 		this.collectionTracker = collectionTracker;
 	}
@@ -21,21 +21,21 @@ public class GlobalCollection {
 		return totalPlayers;
 	}
 
-	public HashMap<Identifier, Integer> collectionTracker() {
+	public HashMap<ResourceLocation, Integer> collectionTracker() {
 		return collectionTracker;
 	}
 
-	public static final PacketCodec<RegistryByteBuf, GlobalCollection> PACKET_CODEC = PacketCodec.tuple(
-		PacketCodecs.INTEGER, GlobalCollection::totalPlayers,
-		PacketCodecs.map(HashMap::new, Identifier.PACKET_CODEC, PacketCodecs.VAR_INT), GlobalCollection::collectionTracker,
+	public static final StreamCodec<RegistryFriendlyByteBuf, GlobalCollection> PACKET_CODEC = StreamCodec.composite(
+		ByteBufCodecs.INT, GlobalCollection::totalPlayers,
+		ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, ByteBufCodecs.VAR_INT), GlobalCollection::collectionTracker,
 		GlobalCollection::new
 	);
 
-	public int getCount(Identifier shard) {
+	public int getCount(ResourceLocation shard) {
 		return Objects.requireNonNullElse(collectionTracker.get(shard), 0);
 	}
 
-	public void update(Identifier shard, int change, int playerCount) {
+	public void update(ResourceLocation shard, int change, int playerCount) {
 		collectionTracker.compute(shard, (k, count) -> count != null ? count + change : 1);
 		totalPlayers = playerCount;
 	}

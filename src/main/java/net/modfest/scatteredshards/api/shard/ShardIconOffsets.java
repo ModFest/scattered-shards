@@ -2,9 +2,9 @@ package net.modfest.scatteredshards.api.shard;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
 
 import java.util.Optional;
 
@@ -15,9 +15,9 @@ public record ShardIconOffsets(Optional<Offset> normal, Optional<Offset> mini) {
 		Codec.optionalField("mini", Offset.CODEC, false).forGetter(ShardIconOffsets::mini)
 	).apply(instance, ShardIconOffsets::new));
 
-	public static final PacketCodec<RegistryByteBuf, ShardIconOffsets> PACKET_CODEC = PacketCodec.tuple(
-		PacketCodecs.optional(Offset.PACKET_CODEC), ShardIconOffsets::normal,
-		PacketCodecs.optional(Offset.PACKET_CODEC), ShardIconOffsets::mini,
+	public static final StreamCodec<RegistryFriendlyByteBuf, ShardIconOffsets> PACKET_CODEC = StreamCodec.composite(
+		ByteBufCodecs.optional(Offset.PACKET_CODEC), ShardIconOffsets::normal,
+		ByteBufCodecs.optional(Offset.PACKET_CODEC), ShardIconOffsets::mini,
 		ShardIconOffsets::new
 	);
 
@@ -30,9 +30,9 @@ public record ShardIconOffsets(Optional<Offset> normal, Optional<Offset> mini) {
 			Codec.INT.fieldOf("left").forGetter(Offset::left)
 		).apply(instance, Offset::new));
 
-		public static final PacketCodec<RegistryByteBuf, Offset> PACKET_CODEC = PacketCodec.tuple(
-			PacketCodecs.INTEGER, Offset::up,
-			PacketCodecs.INTEGER, Offset::left,
+		public static final StreamCodec<RegistryFriendlyByteBuf, Offset> PACKET_CODEC = StreamCodec.composite(
+			ByteBufCodecs.INT, Offset::up,
+			ByteBufCodecs.INT, Offset::left,
 			Offset::new
 		);
 

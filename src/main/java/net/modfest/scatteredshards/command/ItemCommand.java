@@ -5,11 +5,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
@@ -18,27 +18,27 @@ import net.modfest.scatteredshards.item.ShardItem;
 
 public class ItemCommand {
 
-	public static int item(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-		ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-		Identifier shardId = ctx.getArgument("shard_id", Identifier.class);
+	public static int item(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer player = ctx.getSource().getPlayerOrException();
+		ResourceLocation shardId = ctx.getArgument("shard_id", ResourceLocation.class);
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 
 		var name = library.shards().get(shardId).map(Shard::name).orElse(null);
 
 		ItemStack stack = ShardItem.createShardItem(shardId, name);
 
-		player.getInventory().offerOrDrop(stack);
+		player.getInventory().placeItemBackInInventory(stack);
 
-		ctx.getSource().sendFeedback(() -> Text.stringifiedTranslatable("commands.scattered_shards.shard.item", shardId), false);
+		ctx.getSource().sendSuccess(() -> Component.translatableEscape("commands.scattered_shards.shard.item", shardId), false);
 		return Command.SINGLE_SUCCESS;
 	}
 
-	public static void register(CommandNode<ServerCommandSource> parent) {
+	public static void register(CommandNode<CommandSourceStack> parent) {
 		//Usage: /shard item <shard_id>
-		CommandNode<ServerCommandSource> blockCommand = ShardCommandNodeHelper.literal("item")
+		CommandNode<CommandSourceStack> blockCommand = ShardCommandNodeHelper.literal("item")
 			.requires(Permissions.require(ScatteredShards.permission("command.item"), 2))
 			.build();
-		CommandNode<ServerCommandSource> shardIdArgument = ShardCommandNodeHelper.shardId("shard_id")
+		CommandNode<CommandSourceStack> shardIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(ItemCommand::item)
 			.build();
 

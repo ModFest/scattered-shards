@@ -13,9 +13,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.api.MiniRegistry;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
@@ -36,16 +36,16 @@ import java.util.concurrent.CompletableFuture;
 public class ClientShardCommand {
 
 	private static final DynamicCommandExceptionType INVALID_SET_ID = new DynamicCommandExceptionType(
-		obj -> Text.stringifiedTranslatable("error.scattered_shards.invalid_set_id", obj)
+		obj -> Component.translatableEscape("error.scattered_shards.invalid_set_id", obj)
 	);
 	private static final DynamicCommandExceptionType INVALID_SHARD_ID = new DynamicCommandExceptionType(
-		obj -> Text.stringifiedTranslatable("error.scattered_shards.invalid_shard_id", obj)
+		obj -> Component.translatableEscape("error.scattered_shards.invalid_shard_id", obj)
 	);
 
 	public static int view(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
-		Identifier id = context.getArgument("set_id", Identifier.class);
+		ResourceLocation id = context.getArgument("set_id", ResourceLocation.class);
 		ShardLibrary realLibrary = ScatteredShardsAPI.getClientLibrary();
-		Set<Identifier> shardPackSet = realLibrary.shardSets().get(id);
+		Set<ResourceLocation> shardPackSet = realLibrary.shardSets().get(id);
 		if (shardPackSet.isEmpty()) {
 			throw INVALID_SET_ID.create(id);
 		}
@@ -53,9 +53,9 @@ public class ClientShardCommand {
 		ShardLibrary fakeLibrary = new ShardLibraryImpl();
 		MiniRegistry<Shard> realShardRegistry = realLibrary.shards();
 		MiniRegistry<Shard> fakeShardRegistry = fakeLibrary.shards();
-		SetMultimap<Identifier, Identifier> fakeShardSets = fakeLibrary.shardSets();
+		SetMultimap<ResourceLocation, ResourceLocation> fakeShardSets = fakeLibrary.shardSets();
 		MiniRegistry<ShardType> fakeShardTypes = fakeLibrary.shardTypes();
-		for (Identifier shardId : shardPackSet) {
+		for (ResourceLocation shardId : shardPackSet) {
 			Optional<Shard> optionalShard = realShardRegistry.get(shardId);
 			if (optionalShard.isEmpty()) continue;
 			Shard shard = optionalShard.get();
@@ -64,38 +64,38 @@ public class ClientShardCommand {
 		}
 		realLibrary.shardTypes().forEach((fakeShardTypes::put));
 		fakeLibrary.shardDisplaySettings().copyFrom(realLibrary.shardDisplaySettings());
-		context.getSource().getClient().send(() -> context.getSource().getClient().setScreen(new ShardTabletGuiDescription.Screen(shardCollection, fakeLibrary)));
+		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreen(new ShardTabletGuiDescription.Screen(shardCollection, fakeLibrary)));
 		return Command.SINGLE_SUCCESS;
 	}
 
 	public static int creatorNew(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		String modId = StringArgumentType.getString(context, "mod_id");
-		Identifier shardTypeId = context.getArgument("shard_type", Identifier.class);
+		ResourceLocation shardTypeId = context.getArgument("shard_type", ResourceLocation.class);
 		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardTypeId)
 			.orElseThrow(() -> ShardCommand.INVALID_SHARD_TYPE.create(shardTypeId));
 
-		context.getSource().getClient().send(() -> context.getSource().getClient().setScreen(ShardCreatorGuiDescription.Screen.newShard(modId, shardType)));
+		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreen(ShardCreatorGuiDescription.Screen.newShard(modId, shardType)));
 		return Command.SINGLE_SUCCESS;
 	}
 
 	public static int creatorEdit(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
-		Identifier shardId = context.getArgument("shard_id", Identifier.class);
+		ResourceLocation shardId = context.getArgument("shard_id", ResourceLocation.class);
 		Shard shard = ScatteredShardsAPI.getClientLibrary().shards().get(shardId)
 			.orElseThrow(() -> INVALID_SHARD_ID.create(shardId));
 
-		context.getSource().getClient().send(() -> context.getSource().getClient().setScreen(ShardCreatorGuiDescription.Screen.editShard(shard)));
+		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreen(ShardCreatorGuiDescription.Screen.editShard(shard)));
 		return Command.SINGLE_SUCCESS;
 	}
 
 	public static int shards(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 		ShardCollection collection = ScatteredShardsAPI.getClientCollection();
-		context.getSource().getClient().send(() -> context.getSource().getClient().setScreen(new ShardTabletGuiDescription.Screen(collection, library)));
+		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreen(new ShardTabletGuiDescription.Screen(collection, library)));
 		return Command.SINGLE_SUCCESS;
 	}
 
 	private static CompletableFuture<Suggestions> suggestShardSets(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
-		for (Identifier id : ScatteredShardsAPI.getClientLibrary().shardSets().keySet()) {
+		for (ResourceLocation id : ScatteredShardsAPI.getClientLibrary().shardSets().keySet()) {
 			builder.suggest(id.toString());
 		}
 		return builder.buildFuture();
@@ -119,8 +119,8 @@ public class ClientShardCommand {
 		return LiteralArgumentBuilder.literal(name);
 	}
 
-	static RequiredArgumentBuilder<FabricClientCommandSource, Identifier> identifierArgument(String name) {
-		return RequiredArgumentBuilder.argument(name, IdentifierArgumentType.identifier());
+	static RequiredArgumentBuilder<FabricClientCommandSource, ResourceLocation> identifierArgument(String name) {
+		return RequiredArgumentBuilder.argument(name, ResourceLocationArgument.id());
 	}
 
 	static RequiredArgumentBuilder<FabricClientCommandSource, String> stringArgument(String name) {
@@ -140,7 +140,7 @@ public class ClientShardCommand {
 			//Usage: /shardc creator
 			//-> new <mod_id> <shard_type>
 			//-> edit <shard_id>
-			CommandNode<FabricClientCommandSource> creator = literal("creator").requires((source) -> source.getPlayer().hasPermissionLevel(2)).build();
+			CommandNode<FabricClientCommandSource> creator = literal("creator").requires((source) -> source.getPlayer().hasPermissions(2)).build();
 			CommandNode<FabricClientCommandSource> creatorNew = literal("new").build();
 			CommandNode<FabricClientCommandSource> modId = stringArgument("mod_id")
 				.suggests(ShardCommandNodeHelper::suggestModIds)

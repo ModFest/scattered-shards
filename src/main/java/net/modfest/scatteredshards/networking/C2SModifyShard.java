@@ -2,12 +2,13 @@ package net.modfest.scatteredshards.networking;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
@@ -16,15 +17,15 @@ import net.modfest.scatteredshards.api.shard.Shard;
 /**
  * Requests that a shard be created or modified. Requires permissions!
  */
-public record C2SModifyShard(Identifier shardId, Shard shard) implements CustomPayload {
-	public static final Id<C2SModifyShard> PACKET_ID = new Id<>(ScatteredShards.id("modify_shard"));
-	public static final PacketCodec<RegistryByteBuf, C2SModifyShard> PACKET_CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, C2SModifyShard::shardId, Shard.PACKET_CODEC, C2SModifyShard::shard, C2SModifyShard::new);
+public record C2SModifyShard(ResourceLocation shardId, Shard shard) implements CustomPacketPayload {
+	public static final Type<C2SModifyShard> PACKET_ID = new Type<>(ScatteredShards.id("modify_shard"));
+	public static final StreamCodec<RegistryFriendlyByteBuf, C2SModifyShard> PACKET_CODEC = StreamCodec.composite(ResourceLocation.STREAM_CODEC, C2SModifyShard::shardId, Shard.PACKET_CODEC, C2SModifyShard::shard, C2SModifyShard::new);
 
 	public static void receive(C2SModifyShard payload, ServerPlayNetworking.Context context) {
 		modify(context.player(), payload.shardId, payload.shard);
 	}
 
-	public static boolean modify(ServerPlayerEntity player, Identifier shardId, Shard shard) {
+	public static boolean modify(ServerPlayer player, ResourceLocation shardId, Shard shard) {
 		MinecraftServer server = player.getServer();
 		assert server != null;
 
@@ -43,11 +44,11 @@ public record C2SModifyShard(Identifier shardId, Shard shard) implements CustomP
 			ScatteredShardsAPI.getServerLibrary().shardSets().put(shard.sourceId(), shardId);
 
 			//Make sure the NBT gets written on next world-save
-			ShardLibraryPersistentState.get(server).markDirty();
+			ShardLibraryPersistentState.get(server).setDirty();
 
 			//Update everyone's client libraries with the new shard
 			S2CSyncShard syncShard = new S2CSyncShard(shardId, shard);
-			for (ServerPlayerEntity otherPlayer : server.getPlayerManager().getPlayerList()) {
+			for (ServerPlayer otherPlayer : server.getPlayerList().getPlayers()) {
 				ServerPlayNetworking.send(otherPlayer, syncShard);
 			}
 		});
@@ -56,7 +57,7 @@ public record C2SModifyShard(Identifier shardId, Shard shard) implements CustomP
 	}
 
 	@Override
-	public Id<? extends CustomPayload> getId() {
+	public Type<? extends CustomPacketPayload> type() {
 		return PACKET_ID;
 	}
 }
