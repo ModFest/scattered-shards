@@ -10,7 +10,7 @@ version = "$baseVersion+$branch"
 archivesBaseName = project.slug
 
 repositories {
-	maven { url "https://server.bbkr.space/artifactory/libs-release" }
+	maven { url "https://staging.alexiil.uk/maven/" }
 	maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 	maven { url "https://repo.sleeping.town/" }
 }
