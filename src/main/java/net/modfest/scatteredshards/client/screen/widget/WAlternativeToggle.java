@@ -9,10 +9,13 @@ import io.github.cottonmc.cotton.gui.widget.data.Rect2i;
 import juuxel.libninepatch.NinePatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import net.modfest.scatteredshards.ScatteredShards;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
@@ -175,18 +178,20 @@ public class WAlternativeToggle extends WWidget {
 		return new Rect2i(x + xofs, y, halfWidth, getHeight());
 	}
 
-	public boolean hitActive(int x, int y) {
-		int halfWidth = (int) Math.ceil(this.width / 2.0);
-		int hoverX = (isRight) ? 0 : halfWidth - 1;
+	public boolean hitActive(double x, double y) {
+		var halfWidth = Math.ceil(this.width / 2.0);
+		var hoverX = (isRight) ? 0 : halfWidth - 1;
 		return (x >= hoverX && y >= 0 && x < hoverX + halfWidth && y < getHeight());
 	}
 
 	@Override
 	public InputResult onClick(MouseButtonEvent click, boolean doubled) {
-		if (hitActive(x, y) && click.button() == 0) {
+		if (hitActive(click.x(), click.y()) && click.button() == 0) {
 			isRight = !isRight;
 
 			map(onLeft, onRight).run();
+
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 
 			return InputResult.PROCESSED;
 		} else {
