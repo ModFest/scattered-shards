@@ -87,7 +87,6 @@ public class ShardCollectedToast implements Toast {
 
 		double time = DURATION * displayTimeMultiplier;
 
-		// TODO: Check if this really is fullyVisibleForMS (it was named startTime before)
 		List<FormattedCharSequence> body = fullyVisibleForMs >= (time / 2) && !hintLines.isEmpty() ? hintLines : descLines;
 
 		for (int i = 0; i < body.size(); i++) {
