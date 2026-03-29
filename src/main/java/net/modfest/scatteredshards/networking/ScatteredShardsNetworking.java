@@ -23,15 +23,16 @@ public class ScatteredShardsNetworking {
 	}
 
 	public static void register() {
-		PayloadTypeRegistry.playS2C().register(S2CSyncShard.PACKET_ID, S2CSyncShard.PACKET_CODEC);
-		PayloadTypeRegistry.playS2C().register(S2CSyncLibrary.PACKET_ID, S2CSyncLibrary.PACKET_CODEC);
-		PayloadTypeRegistry.playS2C().register(S2CSyncCollection.PACKET_ID, S2CSyncCollection.PACKET_CODEC);
-		PayloadTypeRegistry.playS2C().register(S2CSyncGlobalCollection.PACKET_ID, S2CSyncGlobalCollection.PACKET_CODEC);
-		PayloadTypeRegistry.playC2S().register(C2SModifyShard.PACKET_ID, C2SModifyShard.PACKET_CODEC);
-		PayloadTypeRegistry.playC2S().register(C2SCreateShardInstant.PACKET_ID, C2SCreateShardInstant.PACKET_CODEC);
-		PayloadTypeRegistry.playC2S().register(C2SRequestGlobalCollection.PACKET_ID, C2SRequestGlobalCollection.PACKET_CODEC);
-		PayloadTypeRegistry.playS2C().register(S2CModifyShardResult.PACKET_ID, S2CModifyShardResult.PACKET_CODEC);
-		PayloadTypeRegistry.playS2C().register(S2CUpdateShard.PACKET_ID, S2CUpdateShard.PACKET_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(S2CSyncShard.PACKET_ID, S2CSyncShard.PACKET_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(S2CSyncLibrary.PACKET_ID, S2CSyncLibrary.PACKET_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(S2CSyncCollection.PACKET_ID, S2CSyncCollection.PACKET_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(S2CSyncGlobalCollection.PACKET_ID, S2CSyncGlobalCollection.PACKET_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(S2CModifyShardResult.PACKET_ID, S2CModifyShardResult.PACKET_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(S2CUpdateShard.PACKET_ID, S2CUpdateShard.PACKET_CODEC);
+
+		PayloadTypeRegistry.serverboundPlay().register(C2SModifyShard.PACKET_ID, C2SModifyShard.PACKET_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(C2SCreateShardInstant.PACKET_ID, C2SCreateShardInstant.PACKET_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(C2SRequestGlobalCollection.PACKET_ID, C2SRequestGlobalCollection.PACKET_CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(C2SModifyShard.PACKET_ID, C2SModifyShard::receive);
 		ServerPlayNetworking.registerGlobalReceiver(C2SCreateShardInstant.PACKET_ID, C2SCreateShardInstant::receive);

@@ -24,10 +24,10 @@ import net.modfest.scatteredshards.client.screen.ShardTabletGuiDescription;
 import net.modfest.scatteredshards.networking.ScatteredShardsNetworking;
 
 public class ScatteredShardsClient implements ClientModInitializer {
-	public static final KeyMapping VIEW_COLLECTION = KeyMappingHelper.registerKeyBinding(new KeyMapping(
+	public static final KeyMapping VIEW_COLLECTION = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 		"key.scattered_shards.collection",
 		InputConstants.UNKNOWN.getValue(),
-		"key.categories.scattered_shards"
+		new KeyMapping.Category(ScatteredShards.id("scattered_shards"))
 	));
 
 	@Override
@@ -88,6 +88,6 @@ public class ScatteredShardsClient implements ClientModInitializer {
 	}
 
 	public static boolean hasShiftDown() {
-		return InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 340) || InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 344);
+		return InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), 340) || InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), 344);
 	}
 }

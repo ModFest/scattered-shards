@@ -3,7 +3,7 @@ package net.modfest.scatteredshards.client.screen.widget.scalable;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.Identifier;
 
@@ -37,9 +37,9 @@ public class WShardIcon extends WScalableWidget {
 	}
 
 	@Override
-	public void paintScaled(GuiGraphics context, int width, int height, int mouseX, int mouseY) {
+	public void paintScaled(GuiGraphicsExtractor context, int width, int height, int mouseX, int mouseY) {
 		icon.get().ifLeft(it -> {
-			context.renderFakeItem(it, width / 2 - 8, height / 2 - 8);
+			context.fakeItem(it, width / 2 - 8, height / 2 - 8);
 		});
 		icon.get().ifRight(it -> ScreenDrawing.texturedRect(context, 0, 0, width, height, it, 0xFF_FFFFFF));
 	}

@@ -1,5 +1,6 @@
 package net.modfest.scatteredshards.block;
 
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -11,7 +12,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.ItemLore;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +44,7 @@ public class ShardBlock extends Block implements EntityBlock {
 	public static final VoxelShape SHAPE = Shapes.box(4 / 16f, 3 / 16f, 4 / 16f, 12 / 16f, 13 / 16f, 12 / 16f);
 	public static final Block.Properties SETTINGS = Block.Properties.of()
 		.noLootTable()
-		.noCollission()
+		.noCollision()
 		.noOcclusion()
 		.lightLevel(state -> 3)
 		.strength(-1)
@@ -99,7 +99,7 @@ public class ShardBlock extends Block implements EntityBlock {
 		if (!(world.getBlockEntity(pos) instanceof ShardBlockEntity be) || !be.canInteract) {
 			return InteractionResult.PASS;
 		}
-		if (world.isClientSide) {
+		if (world.isClientSide()) {
 			return InteractionResult.CONSUME;
 		}
 		if (tryCollect(world, player, be)) {
@@ -109,12 +109,12 @@ public class ShardBlock extends Block implements EntityBlock {
 	}
 
 	@Override
-	protected void entityInside(BlockState state, Level world, BlockPos pos, Entity entity, InsideBlockEffectApplier handler) {
-		if (world.isClientSide || !(entity instanceof Player player)) {
+	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+		if (level.isClientSide() || !(entity instanceof Player player)) {
 			return;
 		}
-		if (world.getBlockEntity(pos) instanceof ShardBlockEntity be) {
-			tryCollect(world, player, be);
+		if (level.getBlockEntity(pos) instanceof ShardBlockEntity be) {
+			tryCollect(level, player, be);
 		}
 	}
 
@@ -192,7 +192,7 @@ public class ShardBlock extends Block implements EntityBlock {
 		glowTag.putFloat("strength", glowStrength);
 		blockEntityTag.put("Glow", glowTag);
 
-		stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(blockEntityTag));
+		stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(ScatteredShardsContent.SHARD_BLOCKENTITY, blockEntityTag));
 
 		return stack;
 	}

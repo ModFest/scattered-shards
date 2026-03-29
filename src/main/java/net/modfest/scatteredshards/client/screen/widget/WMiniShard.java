@@ -7,7 +7,8 @@ import io.github.cottonmc.cotton.gui.widget.data.InputResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.chat.Component;
@@ -62,7 +63,7 @@ public class WMiniShard extends WWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphicsExtractor context, int x, int y, int mouseX, int mouseY) {
 		Identifier tex = (isCollected) ? ShardType.getMiniFrontTexture(shard.shardTypeId()) : ShardType.getMiniBackingTexture(shard.shardTypeId());
 		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
 		float opacity = (isCollected) ? 1.0f : 0.6f;
@@ -75,7 +76,7 @@ public class WMiniShard extends WWidget {
 				context.pose().pushMatrix();
 				context.pose().translate(x + offset.left(), y + offset.up());
 				context.pose().scale(0.5f, 0.5f); // 16px -> 8px
-				context.renderFakeItem(it, 0, 0);
+				context.fakeItem(it, 0, 0);
 				context.pose().popMatrix();
 			});
 			shard.icon().ifRight((it) -> ScreenDrawing.texturedRect(context, x + offset.left(), y + offset.up(), 8, 8, it, 0xFF_FFFFFF));
@@ -112,8 +113,8 @@ public class WMiniShard extends WWidget {
 	}
 
 	@Override
-	public InputResult onClick(int x, int y, int button) {
-		if (button == 0) {
+	public InputResult onClick(MouseButtonEvent click, boolean doubled) {
+		if (click.button() == 0) {
 			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 0.25f));
 			shardConsumer.accept(shard);
 			return InputResult.PROCESSED;

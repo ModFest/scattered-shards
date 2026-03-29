@@ -18,7 +18,7 @@ public class ShardLibraryPersistentState extends SavedData {
 		ShardLibraryPersistentState::writeNbt
 	);
 
-	private static final SavedDataType<ShardLibraryPersistentState> TYPE = new SavedDataType<>(ScatteredShards.ID + "_library",
+	private static final SavedDataType<ShardLibraryPersistentState> TYPE = new SavedDataType<>(ScatteredShards.id("library"),
 		ShardLibraryPersistentState::new,
 		ShardLibraryPersistentState.CODEC,
 		null);

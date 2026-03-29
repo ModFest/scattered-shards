@@ -12,7 +12,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Style;
@@ -37,7 +38,7 @@ import java.util.function.Supplier;
 public class WShardPanel extends WPlainPanel {
 
 	public static final IntSupplier WHITE = () -> 0xFF_FFFFFF;
-	public static final Style HINT_STYLE = Style.EMPTY.withFont(Identifier.parse("minecraft:alt"));
+	public static final Style HINT_STYLE = Style.EMPTY.withFont(new FontDescription.Resource(Identifier.parse("minecraft:alt")));
 
 	private Shard shard = Shard.MISSING_SHARD.copy();
 	private ShardType shardType;
@@ -205,7 +206,7 @@ public class WShardPanel extends WPlainPanel {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphicsExtractor context, int x, int y, int mouseX, int mouseY) {
 		if (!isHidden) {
 			super.paint(context, x, y, mouseX, mouseY);
 			return;

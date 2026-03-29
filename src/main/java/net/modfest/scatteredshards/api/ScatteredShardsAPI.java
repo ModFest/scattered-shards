@@ -119,7 +119,7 @@ public class ScatteredShardsAPI {
 	public static boolean triggerShardCollection(ServerPlayer player, Identifier shardId) {
 		ShardCollection collection = getServerCollection(player);
 		if (collection.add(shardId)) {
-			if (player.getServer() != null) collectionPersistentState.setDirty();
+			if (player.level() != null) collectionPersistentState.setDirty();
 
 			serverGlobalCollection.update(shardId, 1, serverCollections.size());
 			ServerPlayNetworking.send(player, new S2CUpdateShard(shardId, S2CUpdateShard.Mode.COLLECT));
@@ -132,7 +132,7 @@ public class ScatteredShardsAPI {
 	public static boolean triggerShardUncollection(ServerPlayer player, Identifier shardId) {
 		ShardCollection collection = getServerCollection(player);
 		if (collection.remove(shardId)) {
-			if (player.getServer() != null) collectionPersistentState.setDirty();
+			if (player.level() != null) collectionPersistentState.setDirty();
 
 
 			serverGlobalCollection.update(shardId, -1, serverCollections.size());

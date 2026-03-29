@@ -9,7 +9,8 @@ import io.github.cottonmc.cotton.gui.widget.data.Rect2i;
 import juuxel.libninepatch.NinePatch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
@@ -143,7 +144,7 @@ public class WAlternativeToggle extends WWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphicsExtractor context, int x, int y, int mouseX, int mouseY) {
 		int halfWidth = (int) Math.ceil(this.width / 2.0);
 
 		int hoverX = (isRight) ? 0 : halfWidth - 1;
@@ -181,8 +182,8 @@ public class WAlternativeToggle extends WWidget {
 	}
 
 	@Override
-	public InputResult onClick(int x, int y, int button) {
-		if (hitActive(x, y) && button == 0) {
+	public InputResult onClick(MouseButtonEvent click, boolean doubled) {
+		if (hitActive(x, y) && click.button() == 0) {
 			isRight = !isRight;
 
 			map(onLeft, onRight).run();

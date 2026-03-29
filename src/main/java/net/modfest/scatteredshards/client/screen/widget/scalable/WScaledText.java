@@ -5,7 +5,7 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Component;
@@ -84,7 +84,7 @@ public class WScaledText extends WScalableWidget {
 	}
 
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphicsExtractor context, int x, int y, int mouseX, int mouseY) {
 		//Paint background here because it's one pixel more accurate; results are validated for scaled painting already.
 		if (backgroundColor != 0) ScreenDrawing.coloredRect(context, x, y, getWidth(), getHeight(), backgroundColor);
 		super.paint(context, x, y, mouseX, mouseY);
@@ -98,7 +98,7 @@ public class WScaledText extends WScalableWidget {
 	}
 
 	@Override
-	public void paintScaled(GuiGraphics context, int width, int height, int mouseX, int mouseY) {
+	public void paintScaled(GuiGraphicsExtractor context, int width, int height, int mouseX, int mouseY) {
 		Font textRenderer = Minecraft.getInstance().font;
 		int frameColor = color.getAsInt();
 		List<FormattedCharSequence> lines = textRenderer.split(text.get(), width);

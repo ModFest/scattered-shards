@@ -4,9 +4,8 @@ import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.toasts.Toast.Visibility;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.world.item.ItemStack;
@@ -77,25 +76,26 @@ public class ShardCollectedToast implements Toast {
 	}
 
 	@Override
-	public void render(GuiGraphics context, Font textRenderer, long startTime) {
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, this.width(), this.height());
+	public void extractRenderState(GuiGraphicsExtractor graphics, Font font, long fullyVisibleForMs) {
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, this.width(), this.height());
 
-		context.drawString(
-			textRenderer,
+		graphics.text(
+			font,
 			TITLE, 32, 7, TITLE_COLOR,
 			false
 		);
 
 		double time = DURATION * displayTimeMultiplier;
 
-		List<FormattedCharSequence> body = startTime >= (time / 2) && !hintLines.isEmpty() ? hintLines : descLines;
+		// TODO: Check if this really is fullyVisibleForMS (it was named startTime before)
+		List<FormattedCharSequence> body = fullyVisibleForMs >= (time / 2) && !hintLines.isEmpty() ? hintLines : descLines;
 
 		for (int i = 0; i < body.size(); i++) {
-			context.drawString(textRenderer, body.get(i), 32, 18 + i * 11, 0xFF_FFFFFF, false);
+			graphics.text(font, body.get(i), 32, 18 + i * 11, 0xFF_FFFFFF, false);
 		}
 
-		icon.ifLeft(it -> context.renderFakeItem(it, 8, 8));
-		icon.ifRight(it -> ScreenDrawing.texturedRect(context, 8, 8, 16, 16, it, 0xFF_FFFFFF));
+		icon.ifLeft(it -> graphics.fakeItem(it, 8, 8));
+		icon.ifRight(it -> ScreenDrawing.texturedRect(graphics, 8, 8, 16, 16, it, 0xFF_FFFFFF));
 	}
 
 	@Override

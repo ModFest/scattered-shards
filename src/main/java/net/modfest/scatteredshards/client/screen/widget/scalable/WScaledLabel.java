@@ -1,16 +1,15 @@
 package net.modfest.scatteredshards.client.screen.widget.scalable;
 
-import io.github.cottonmc.cotton.gui.client.Scissors;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Component;
-import net.minecraft.Util;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 
 import java.util.List;
 import java.util.function.IntSupplier;
@@ -83,7 +82,7 @@ public class WScaledLabel extends WScalableWidget {
 
 	@SuppressWarnings("resource")
 	@Override
-	public void paint(GuiGraphics context, int x, int y, int mouseX, int mouseY) {
+	public void paint(GuiGraphicsExtractor context, int x, int y, int mouseX, int mouseY) {
 		//Paint background here because it's one pixel more accurate; results are validated for scaled painting already.
 		if (backgroundColor != 0) ScreenDrawing.coloredRect(context, x, y, getWidth(), getHeight(), backgroundColor);
 
@@ -102,7 +101,7 @@ public class WScaledLabel extends WScalableWidget {
 	}
 
 	@Override
-	public void paintScaled(GuiGraphics context, int width, int height, int mouseX, int mouseY) {
+	public void paintScaled(GuiGraphicsExtractor context, int width, int height, int mouseX, int mouseY) {
 		Font textRenderer = Minecraft.getInstance().font;
 		int yOffset = switch (verticalAlignment) {
 			case CENTER -> height / 2 - textRenderer.lineHeight / 2;
@@ -115,7 +114,7 @@ public class WScaledLabel extends WScalableWidget {
 
 	}
 
-	public static void drawScrollableString(GuiGraphics context, FormattedCharSequence text, HorizontalAlignment alignment, int x, int y, int width, int color, boolean shadow, boolean scroll) {
+	public static void drawScrollableString(GuiGraphicsExtractor context, FormattedCharSequence text, HorizontalAlignment alignment, int x, int y, int width, int color, boolean shadow, boolean scroll) {
 		Font textRenderer = Minecraft.getInstance().font;
 		int textWidth = textRenderer.width(text);
 		int xofs = 0;

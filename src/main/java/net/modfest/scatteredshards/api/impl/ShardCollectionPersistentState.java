@@ -22,7 +22,7 @@ public class ShardCollectionPersistentState extends SavedData {
 		ShardCollectionPersistentState::writeNbt
 	);
 
-	private static final SavedDataType<ShardCollectionPersistentState> TYPE = new SavedDataType<>(ScatteredShards.ID + "_collections",
+	private static final SavedDataType<ShardCollectionPersistentState> TYPE = new SavedDataType<>(ScatteredShards.id("collections"),
 		ShardCollectionPersistentState::new,
 		ShardCollectionPersistentState.CODEC,
 		null);

@@ -4,14 +4,21 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.RenderType;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
@@ -27,51 +34,119 @@ import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity> {
+public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity, ShardBlockEntityRenderer.ShardEntityRenderState> {
 	public static final float BLOCK_SCALE = 0.75f;
-	
+
 	private static final Identifier DISTANCE_GLOW_TEX = ScatteredShards.id("textures/entity/shard_distance_glow.png");
 	private static final Identifier DISTANCE_HALO_TEX = ScatteredShards.id("textures/entity/shard_distance_halo.png");
 
-	public ShardBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+	private final ItemModelResolver itemModelResolver;
 
+	public ShardBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+		itemModelResolver = ctx.itemModelResolver();
 	}
 
+	private void renderGlowingBillboard(PoseStack.Pose pose, VertexConsumer v, float r, float g, float b, float a) {
+		int maxLight = LightCoordsUtil.FULL_BRIGHT;
+		int noOverlay = OverlayTexture.NO_OVERLAY;
+
+		v.addVertex(pose.pose(), -0.5f, 0, -0.5f)
+			.setColor(r, g, b, a)
+			.setUv(0, 0)
+			.setOverlay(noOverlay)
+			.setLight(maxLight)
+			.setNormal(0, 1, 0);
+
+		v.addVertex(pose.pose(), 0.5f, 0, -0.5f)
+			.setColor(r, g, b, a)
+			.setUv(1, 0)
+			.setOverlay(noOverlay)
+			.setLight(maxLight)
+			.setNormal(0, 1, 0);
+
+		v.addVertex(pose.pose(), 0.5f, 0, 0.5f)
+			.setColor(r, g, b, a)
+			.setUv(1, 1)
+			.setOverlay(noOverlay)
+			.setLight(maxLight)
+			.setNormal(0, 1, 0);
+
+		v.addVertex(pose.pose(), -0.5f, 0, 0.5f)
+			.setColor(r, g, b, a)
+			.setUv(0, 1)
+			.setOverlay(noOverlay)
+			.setLight(maxLight)
+			.setNormal(0, 1, 0);
+	}
+
+	public static class ShardEntityRenderState extends BlockEntityRenderState {
+		ShardBlockEntity.Animations animations;
+		Shard shard;
+		ItemStackRenderState itemState;
+		float partialTicks;
+		float glowSize;
+		float glowStrength;
+	}
 
 	@Override
-	public void render(ShardBlockEntity entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay, Vec3 cameraPos) {
-		boolean collected = entity.getAnimations().collected();
-		final int actualLight = collected ? light : LightTexture.FULL_BRIGHT;
+	public ShardEntityRenderState createRenderState() {
+		return new ShardEntityRenderState();
+	}
 
-		Shard shard = entity.getShard(ScatteredShardsAPI.getClientLibrary());
-		if (shard == null) {
+	@Override
+	public void extractRenderState(ShardBlockEntity blockEntity, ShardEntityRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+		BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
+
+		state.partialTicks = partialTicks;
+		state.animations = blockEntity.getAnimations();
+		state.shard = blockEntity.getShard(ScatteredShardsAPI.getClientLibrary());
+
+		if (state.shard == null) {
 			//Let's make one up!
-			shard = Shard.MISSING_SHARD;
+			state.shard = Shard.MISSING_SHARD;
 		}
+
+		state.shard.icon().ifLeft(stack -> {
+			state.itemState = new ItemStackRenderState();
+			this.itemModelResolver.updateForTopItem(state.itemState, stack, ItemDisplayContext.GUI, blockEntity.getLevel(), null, 0);
+		});
+
+		state.glowSize = blockEntity.getGlowSize();
+		state.glowStrength = blockEntity.getGlowStrength();
+	}
+
+	@Override
+	public void submit(ShardEntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+
+		boolean collected = state.animations.collected();
+		final int actualLight = collected ? state.lightCoords : LightCoordsUtil.FULL_BRIGHT;
+		var overlay = state.breakProgress == null ? OverlayTexture.NO_OVERLAY : state.breakProgress.progress();
+
+		var shard = state.shard;
 
 		shard.icon().ifRight(ModMetaUtil::touchIconTexture);
 		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
 
-		float angle = entity.getAnimations().getAngle(tickDelta);
+		float angle = state.animations.getAngle(state.partialTicks);
 		Quaternionf rot = new Quaternionf(new AxisAngle4f(angle, 0f, 1f, 0f));
 		Quaternionf tilt = new Quaternionf(new AxisAngle4f((float) (Math.PI / 8), 0f, 0f, 1f));
 
-		matrices.pushPose();
+		poseStack.pushPose();
 
-		matrices.translate(0.5, 0.5, 0.5);
-		matrices.mulPose(rot);
-		matrices.mulPose(tilt);
+		poseStack.translate(0.5, 0.5, 0.5);
+		poseStack.mulPose(rot);
+		poseStack.mulPose(tilt);
 
 		float alpha = collected ? 0.5f : 1f;
 
-		VertexConsumer buf = vertexConsumers.getBuffer(RenderType.itemEntityTranslucentCull(ShardType.getBackingTexture(shard.shardTypeId())));
 
 		/*
 		 * A note about scale here:
 		 * Cards are about 0.75m in their largest dimension.
-		 * 
+		 *
 		 * Pixel density is largestSize px / BLOCK_SCALE m
 		 * That defaults to 32/0.75 or 42.6 px/m, but can vary depending on the shard backing size.
 		 */
@@ -91,143 +166,167 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		Vector3f normal = new Vector3f(0, 0, -1);
 
-		//Draw card back
-		buf
-			.addVertex(matrices.last().pose(), dl.x, dl.y, dl.z)
-			.setColor(1, 1, 1, alpha)
-			.setUv(0, 1)
-			.setOverlay(overlay)
-			.setLight(actualLight)
-			.setNormal(normal.x(), normal.y(), normal.z());
 
-		buf
-			.addVertex(matrices.last().pose(), dr.x, dr.y, dr.z)
-			.setColor(1, 1, 1, alpha)
-			.setUv(1, 1)
-			.setOverlay(overlay)
-			.setLight(actualLight)
-			.setNormal(normal.x(), normal.y(), normal.z());
+		//VertexConsumer buf = submitNodeCollector.getBuffer(RenderType.itemEntityTranslucentCull(ShardType.getBackingTexture(shard.shardTypeId())));
+		submitNodeCollector.submitCustomGeometry(
+			poseStack,
+			RenderTypes.itemTranslucent(ShardType.getBackingTexture(shard.shardTypeId())),
+			(pose, buf) -> {
+				//Draw card back
+				buf
+					.addVertex(pose.pose(), dl.x, dl.y, dl.z)
+					.setColor(1, 1, 1, alpha)
+					.setUv(0, 1)
+					.setOverlay(overlay)
+					.setLight(actualLight)
+					.setNormal(normal.x(), normal.y(), normal.z());
 
-		buf
-			.addVertex(matrices.last().pose(), ur.x, ur.y, ur.z)
-			.setColor(1, 1, 1, alpha)
-			.setUv(1, 0)
-			.setOverlay(overlay)
-			.setLight(actualLight)
-			.setNormal(normal.x(), normal.y(), normal.z());
+				buf
+					.addVertex(pose.pose(), dr.x, dr.y, dr.z)
+					.setColor(1, 1, 1, alpha)
+					.setUv(1, 1)
+					.setOverlay(overlay)
+					.setLight(actualLight)
+					.setNormal(normal.x(), normal.y(), normal.z());
 
-		buf
-			.addVertex(matrices.last().pose(), ul.x, ul.y, ul.z)
-			.setColor(1, 1, 1, alpha)
-			.setUv(0, 0)
-			.setOverlay(overlay)
-			.setLight(actualLight)
-			.setNormal(normal.x(), normal.y(), normal.z());
+				buf
+					.addVertex(pose.pose(), ur.x, ur.y, ur.z)
+					.setColor(1, 1, 1, alpha)
+					.setUv(1, 0)
+					.setOverlay(overlay)
+					.setLight(actualLight)
+					.setNormal(normal.x(), normal.y(), normal.z());
+
+				buf
+					.addVertex(pose.pose(), ul.x, ul.y, ul.z)
+					.setColor(1, 1, 1, alpha)
+					.setUv(0, 0)
+					.setOverlay(overlay)
+					.setLight(actualLight)
+					.setNormal(normal.x(), normal.y(), normal.z());
+
+			}
+		);
 
 		//Draw card front
 		Vector3f revNormal = normal.mul(-1, -1, -1);
-		buf = vertexConsumers.getBuffer(RenderType.itemEntityTranslucentCull(ShardType.getFrontTexture(shard.shardTypeId())));
-		buf
-			.addVertex(matrices.last().pose(), dl.x, dl.y, dl.z)
-			.setColor(1, 1, 1, alpha)
-			.setUv(1, 1)
-			.setOverlay(overlay)
-			.setLight(actualLight)
-			.setNormal(matrices.last(), revNormal.x(), revNormal.y(), revNormal.z());
 
-		buf
-			.addVertex(matrices.last().pose(), ul.x, ul.y, ul.z)
-			.setColor(1, 1, 1, alpha)
-			.setUv(1, 0)
-			.setOverlay(overlay)
-			.setLight(actualLight)
-			.setNormal(matrices.last(), revNormal.x(), revNormal.y(), revNormal.z());
 
-		buf
-			.addVertex(matrices.last().pose(), ur.x, ur.y, ur.z)
-			.setColor(1, 1, 1, alpha)
-			.setUv(0, 0)
-			.setOverlay(overlay)
-			.setLight(actualLight)
-			.setNormal(matrices.last(), revNormal.x(), revNormal.y(), revNormal.z());
+		submitNodeCollector.submitCustomGeometry(
+			poseStack,
+			RenderTypes.itemTranslucent(ShardType.getBackingTexture(shard.shardTypeId())),
+			(pose, buf) -> {
+//				buf = submitNodeCollector.getBuffer(RenderType.itemEntityTranslucentCull(ShardType.getFrontTexture(shard.shardTypeId())));
+				buf
+					.addVertex(pose.pose(), dl.x, dl.y, dl.z)
+					.setColor(1, 1, 1, alpha)
+					.setUv(1, 1)
+					.setOverlay(overlay)
+					.setLight(actualLight)
+					.setNormal(pose, revNormal.x(), revNormal.y(), revNormal.z());
 
-		buf
-			.addVertex(matrices.last().pose(), dr.x, dr.y, dr.z)
-			.setColor(1, 1, 1, alpha)
-			.setUv(0, 1)
-			.setOverlay(overlay)
-			.setLight(actualLight)
-			.setNormal(matrices.last(), revNormal.x(), revNormal.y(), revNormal.z());
+				buf
+					.addVertex(pose.pose(), ul.x, ul.y, ul.z)
+					.setColor(1, 1, 1, alpha)
+					.setUv(1, 0)
+					.setOverlay(overlay)
+					.setLight(actualLight)
+					.setNormal(pose, revNormal.x(), revNormal.y(), revNormal.z());
+
+				buf
+					.addVertex(pose.pose(), ur.x, ur.y, ur.z)
+					.setColor(1, 1, 1, alpha)
+					.setUv(0, 0)
+					.setOverlay(overlay)
+					.setLight(actualLight)
+					.setNormal(pose, revNormal.x(), revNormal.y(), revNormal.z());
+
+				buf
+					.addVertex(pose.pose(), dr.x, dr.y, dr.z)
+					.setColor(1, 1, 1, alpha)
+					.setUv(0, 1)
+					.setOverlay(overlay)
+					.setLight(actualLight)
+					.setNormal(pose, revNormal.x(), revNormal.y(), revNormal.z());
+			}
+		);
+
 
 		ShardIconOffsets.Offset offset = shardType.getOffsets().getNormal();
 
 		shard.icon().ifLeft(stack -> {
-			matrices.translate((4 - offset.left()) * metersPerPixel, (8 - offset.up()) * metersPerPixel, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
-			matrices.scale(-0.38f, 0.38f, 0.001f /*0.6f*/);
+			poseStack.translate((4 - offset.left()) * metersPerPixel, (8 - offset.up()) * metersPerPixel, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			poseStack.scale(-0.38f, 0.38f, 0.001f /*0.6f*/);
 
-			Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.GUI, actualLight, OverlayTexture.NO_OVERLAY, matrices, vertexConsumers, entity.getLevel(), 0);
+			state.itemState.submit(poseStack, submitNodeCollector, actualLight, OverlayTexture.NO_OVERLAY, 0);
 		});
+
 
 		shard.icon().ifRight(texId -> {
-			VertexConsumer v = vertexConsumers.getBuffer(RenderType.entityCutout(texId));
-			
-			Matrix4f positionMatrix = matrices.last().pose();
-			
-			int left = offset.left();
-			int top = offset.up();
-			int right = left + 16;
-			int bottom = top + 16;
+			submitNodeCollector.submitCustomGeometry(
+				poseStack,
+				RenderTypes.entityCutout(texId),
+				(pose, buf) -> {
 
-			v.addVertex(positionMatrix, ur.x - (right * metersPerPixel), ur.y - (bottom * metersPerPixel), ur.z - 0.002f)
-				.setColor(0xFF_FFFFFF)
-				.setUv(1, 1)
-				.setOverlay(overlay)
-				.setLight(actualLight)
-				.setNormal(matrices.last(), revNormal.x(), revNormal.y(), revNormal.z());
 
-			v.addVertex(positionMatrix, ur.x - (right * metersPerPixel), ur.y - (top * metersPerPixel), ur.z - 0.002f)
-				.setColor(0xFF_FFFFFF)
-				.setUv(1, 0)
-				.setOverlay(overlay)
-				.setLight(actualLight)
-				.setNormal(matrices.last(), revNormal.x(), revNormal.y(), revNormal.z());
+					Matrix4f positionMatrix = pose.pose();
 
-			v.addVertex(positionMatrix, ur.x - (left * metersPerPixel), ur.y - (top * metersPerPixel), ur.z - 0.002f)
-				.setColor(0xFF_FFFFFF)
-				.setUv(0, 0)
-				.setOverlay(overlay)
-				.setLight(actualLight)
-				.setNormal(matrices.last(), revNormal.x(), revNormal.y(), revNormal.z());
+					int left = offset.left();
+					int top = offset.up();
+					int right = left + 16;
+					int bottom = top + 16;
 
-			v.addVertex(positionMatrix, ur.x - (left * metersPerPixel), ur.y - (bottom * metersPerPixel), ur.z - 0.002f)
-				.setColor(0xFF_FFFFFF)
-				.setUv(0, 1)
-				.setOverlay(overlay)
-				.setLight(actualLight)
-				.setNormal(matrices.last(), revNormal.x(), revNormal.y(), revNormal.z());
+					buf.addVertex(positionMatrix, ur.x - (right * metersPerPixel), ur.y - (bottom * metersPerPixel), ur.z - 0.002f)
+						.setColor(0xFF_FFFFFF)
+						.setUv(1, 1)
+						.setOverlay(overlay)
+						.setLight(actualLight)
+						.setNormal(pose, revNormal.x(), revNormal.y(), revNormal.z());
+
+					buf.addVertex(positionMatrix, ur.x - (right * metersPerPixel), ur.y - (top * metersPerPixel), ur.z - 0.002f)
+						.setColor(0xFF_FFFFFF)
+						.setUv(1, 0)
+						.setOverlay(overlay)
+						.setLight(actualLight)
+						.setNormal(pose, revNormal.x(), revNormal.y(), revNormal.z());
+
+					buf.addVertex(positionMatrix, ur.x - (left * metersPerPixel), ur.y - (top * metersPerPixel), ur.z - 0.002f)
+						.setColor(0xFF_FFFFFF)
+						.setUv(0, 0)
+						.setOverlay(overlay)
+						.setLight(actualLight)
+						.setNormal(pose, revNormal.x(), revNormal.y(), revNormal.z());
+
+					buf.addVertex(positionMatrix, ur.x - (left * metersPerPixel), ur.y - (bottom * metersPerPixel), ur.z - 0.002f)
+						.setColor(0xFF_FFFFFF)
+						.setUv(0, 1)
+						.setOverlay(overlay)
+						.setLight(actualLight)
+						.setNormal(pose, revNormal.x(), revNormal.y(), revNormal.z());
+
+				}
+			);
 		});
 
-		matrices.popPose();
+		poseStack.popPose();
 
-		float glowSize = entity.getGlowSize();
-		float glowStrength = entity.getGlowStrength();
+		float glowSize = state.glowSize;
+		float glowStrength = state.glowStrength;
 
 		if (!collected && glowSize > 0 && glowStrength > 0) {
-			matrices.pushPose();
+			poseStack.pushPose();
 
-			Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+			poseStack.translate(0.5, 0.5, 0.5);
 
-			matrices.translate(0.5, 0.5, 0.5);
+			poseStack.mulPose(Axis.YN.rotationDegrees(camera.yRot));
+			poseStack.mulPose(Axis.XP.rotationDegrees(camera.xRot + 90));
 
-			matrices.mulPose(Axis.YN.rotationDegrees(camera.getYRot()));
-			matrices.mulPose(Axis.XP.rotationDegrees(camera.getXRot() + 90));
-
-			BlockPos pos = entity.getBlockPos();
-			double distToShard = Math.sqrt(camera.getPosition()
+			BlockPos pos = state.blockPos;
+			double distToShard = Math.sqrt(camera.pos
 				.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
 
 			float scale = 2f + (float) Mth.clamp((distToShard - 2) * 0.12, 0, glowSize);
-			matrices.scale(scale, scale, scale);
+			poseStack.scale(scale, scale, scale);
 
 			float distFadeAlpha = (float) Mth.clamp((distToShard - 1) * 0.1 * glowStrength, 0, 1);
 
@@ -236,44 +335,25 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			float g = ((color >> 8) & 0xFF) / 255f;
 			float b = (color & 0xFF) / 255f;
 
-			renderGlowingBillboard(matrices, vertexConsumers.getBuffer(RenderType.entityTranslucent(DISTANCE_HALO_TEX)), r, g, b, distFadeAlpha);
-			matrices.translate(0, -0.01, 0);
-			renderGlowingBillboard(matrices, vertexConsumers.getBuffer(RenderType.entityTranslucent(DISTANCE_GLOW_TEX)), 1f, 1f, 1f, distFadeAlpha);
+			submitNodeCollector.submitCustomGeometry(
+				poseStack,
+				RenderTypes.entityTranslucent(DISTANCE_HALO_TEX),
+				(pose, buf) -> {
+					renderGlowingBillboard(pose, buf, r, g, b, distFadeAlpha);
+				});
 
-			matrices.popPose();
+			poseStack.translate(0, -0.01, 0);
+
+
+			submitNodeCollector.submitCustomGeometry(
+				poseStack,
+				RenderTypes.entityTranslucent(DISTANCE_GLOW_TEX),
+				(pose, buf) -> {
+					renderGlowingBillboard(pose, buf, 1, 1, 1, distFadeAlpha);
+					//renderGlowingBillboard(poseStack, submitNodeCollector.getBuffer(RenderTypes.entityTranslucent(DISTANCE_GLOW_TEX)), 1f, 1f, 1f, distFadeAlpha);
+				});
+
+			poseStack.popPose();
 		}
-	}
-
-	private void renderGlowingBillboard(PoseStack matrices, VertexConsumer v, float r, float g, float b, float a) {
-		int maxLight = LightTexture.FULL_BRIGHT;
-		int noOverlay = OverlayTexture.NO_OVERLAY;
-
-		v.addVertex(matrices.last().pose(), -0.5f, 0, -0.5f)
-			.setColor(r, g, b, a)
-			.setUv(0, 0)
-			.setOverlay(noOverlay)
-			.setLight(maxLight)
-			.setNormal(0, 1, 0);
-
-		v.addVertex(matrices.last().pose(), 0.5f, 0, -0.5f)
-			.setColor(r, g, b, a)
-			.setUv(1, 0)
-			.setOverlay(noOverlay)
-			.setLight(maxLight)
-			.setNormal(0, 1, 0);
-
-		v.addVertex(matrices.last().pose(), 0.5f, 0, 0.5f)
-			.setColor(r, g, b, a)
-			.setUv(1, 1)
-			.setOverlay(noOverlay)
-			.setLight(maxLight)
-			.setNormal(0, 1, 0);
-
-		v.addVertex(matrices.last().pose(), -0.5f, 0, 0.5f)
-			.setColor(r, g, b, a)
-			.setUv(0, 1)
-			.setOverlay(noOverlay)
-			.setLight(maxLight)
-			.setNormal(0, 1, 0);
 	}
 }

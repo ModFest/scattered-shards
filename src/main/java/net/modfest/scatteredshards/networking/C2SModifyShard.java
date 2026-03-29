@@ -26,7 +26,7 @@ public record C2SModifyShard(Identifier shardId, Shard shard) implements CustomP
 	}
 
 	public static boolean modify(ServerPlayer player, Identifier shardId, Shard shard) {
-		MinecraftServer server = player.getServer();
+		MinecraftServer server = player.level().getServer();
 		assert server != null;
 
 		boolean success = server.isSingleplayer() || Permissions.check(player, ScatteredShardsAPI.MODIFY_SHARD_PERMISSION, 1);

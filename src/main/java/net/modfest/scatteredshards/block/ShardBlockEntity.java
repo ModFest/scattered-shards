@@ -193,11 +193,12 @@ public class ShardBlockEntity extends BlockEntity {
 					double angle = random.nextDouble() * 2 * Math.PI;
 					double speed = 0.5 + random.nextDouble();
 
-					worldRenderer.addParticle(
-						particle, false,
-						pos.x, pos.y, pos.z,
-						Math.sin(angle) * speed, 0, Math.cos(angle) * speed
-					);
+					// TODO
+//					worldRenderer.addParticles(
+//						particle, false,
+//						pos.x, pos.y, pos.z,
+//						Math.sin(angle) * speed, 0, Math.cos(angle) * speed
+//					);
 				}
 			});
 		}

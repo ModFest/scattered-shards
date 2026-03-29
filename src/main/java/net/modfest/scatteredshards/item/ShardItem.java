@@ -47,7 +47,7 @@ public class ShardItem extends Item {
 
 	@Override
 	public void inventoryTick(ItemStack stack, ServerLevel world, Entity entity, @Nullable EquipmentSlot slot) {
-		if (world.isClientSide || !(entity instanceof ServerPlayer player) || player.hasInfiniteMaterials()) return;
+		if (world.isClientSide() || !(entity instanceof ServerPlayer player) || player.hasInfiniteMaterials()) return;
 
 		Identifier id = stack.get(ScatteredShardsContent.SHARD_ID_COMPONENT);
 		stack.setCount(0);

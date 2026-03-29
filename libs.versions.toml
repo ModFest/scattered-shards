@@ -9,6 +9,7 @@ fl = "0.18.4"
 fapi = "0.144.0+26.1"
 
 fpapi = "0.7.0"
+libgui = "16.0.1+26.1"
 
 [plugins]
 loom = { id = "net.fabricmc.fabric-loom", version.ref = "loom" }
@@ -22,3 +23,4 @@ fl = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fl" }
 fapi = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fapi" }
 
 fpapi = { group = "me.lucko", name = "fabric-permissions-api", version.ref = "fpapi" }
+libgui = { group = "io.github.cottonmc", name = "LibGui", version.ref = "libgui" }

@@ -2,8 +2,10 @@ package net.modfest.scatteredshards.client.screen.widget;
 
 import io.github.cottonmc.cotton.gui.widget.WTextField;
 import io.github.cottonmc.cotton.gui.widget.data.InputResult;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Consumer;
 
@@ -18,18 +20,18 @@ public class WProtectableField extends WTextField {
 	}
 
 	@Override
-	public InputResult onCharTyped(char ch) {
+	public @NonNull InputResult onCharTyped(@NonNull CharacterEvent ch) {
 		if (this.isEditable()) return super.onCharTyped(ch);
 		return InputResult.IGNORED;
 	}
 
 	@Override
-	protected void renderCursor(GuiGraphics context, int x, int y, String visibleText) {
+	protected void renderCursor(GuiGraphicsExtractor context, int x, int y, String visibleText) {
 		if (this.isEditable()) super.renderCursor(context, x, y, visibleText);
 	}
 
 	@Override
-	protected void renderSelection(GuiGraphics context, int x, int y, String visibleText) {
+	protected void renderSelection(GuiGraphicsExtractor context, int x, int y, String visibleText) {
 		if (this.isEditable()) super.renderSelection(context, x, y, visibleText);
 	}
 

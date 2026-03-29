@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.permissions.Permissions;
 import net.modfest.scatteredshards.api.MiniRegistry;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
@@ -140,7 +141,7 @@ public class ClientShardCommand {
 			//Usage: /shardc creator
 			//-> new <mod_id> <shard_type>
 			//-> edit <shard_id>
-			CommandNode<FabricClientCommandSource> creator = literal("creator").requires((source) -> source.getPlayer().hasPermissions(2)).build();
+			CommandNode<FabricClientCommandSource> creator = literal("creator").requires((source) -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)).build();
 			CommandNode<FabricClientCommandSource> creatorNew = literal("new").build();
 			CommandNode<FabricClientCommandSource> modId = stringArgument("mod_id")
 				.suggests(ShardCommandNodeHelper::suggestModIds)

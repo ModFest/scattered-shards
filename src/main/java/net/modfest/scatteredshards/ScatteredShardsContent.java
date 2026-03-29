@@ -43,8 +43,9 @@ public class ScatteredShardsContent {
 	private static Item registerItem(Function<Item.Properties, Item> factory, Item.Properties settings, String path) {
 		var location = ScatteredShards.id(path);
 		var key = ResourceKey.create(Registries.ITEM, location);
+		var item =factory.apply(settings.setId(key));
 
-		return Items.registerItem(key, factory, settings);
+		return Registry.register(BuiltInRegistries.ITEM, key, item);
 	}
 
 	private static <T extends Block> T registerBlock(Function<net.minecraft.world.level.block.state.BlockBehaviour.Properties, T> blockFactory, net.minecraft.world.level.block.state.BlockBehaviour.Properties settings, String path, boolean shouldRegisterItem) {
