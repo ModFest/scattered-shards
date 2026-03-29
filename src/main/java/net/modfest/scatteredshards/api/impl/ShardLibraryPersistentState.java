@@ -2,7 +2,6 @@ package net.modfest.scatteredshards.api.impl;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.saveddata.SavedData;

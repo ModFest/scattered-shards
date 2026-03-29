@@ -1,6 +1,5 @@
 package net.modfest.scatteredshards.client.screen.widget.scalable;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Either;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
