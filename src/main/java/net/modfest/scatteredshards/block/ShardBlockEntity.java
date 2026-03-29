@@ -175,7 +175,7 @@ public class ShardBlockEntity extends BlockEntity {
 		public void playCollectAnimation() {
 			this.spinSpeed = ON_COLLECT_SPIN_SPEED;
 
-			final LevelRenderer worldRenderer = Minecraft.getInstance().levelRenderer;
+			final var level = Minecraft.getInstance().level;
 			final RandomSource random = ShardBlockEntity.this.getLevel().getRandom();
 			final Vec3 pos = Vec3.atCenterOf(ShardBlockEntity.this.getBlockPos());
 
@@ -189,16 +189,15 @@ public class ShardBlockEntity extends BlockEntity {
 					return;
 				}
 
+				if (level == null) {
+					return;
+				}
+
 				for (int i = 0; i < 12; i++) {
 					double angle = random.nextDouble() * 2 * Math.PI;
 					double speed = 0.5 + random.nextDouble();
 
-					// TODO
-//					worldRenderer.addParticles(
-//						particle, false,
-//						pos.x, pos.y, pos.z,
-//						Math.sin(angle) * speed, 0, Math.cos(angle) * speed
-//					);
+					level.addParticle(particle, pos.x, pos.y, pos.z, Math.sin(angle) * speed, 0, Math.cos(angle) * speed);
 				}
 			});
 		}
