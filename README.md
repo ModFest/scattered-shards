@@ -31,7 +31,7 @@ it is not bound by default, so you may want to create a default setting for your
   - If you used an installed mod ID for the set, you can enable "use mod icon" to use the mod icon
 - To allow regular players to collect the shard, either:
   - Run `/shard block [shard]` and place the provided block - this collects the shard when walking over
-  - Place a command block with e.g. `/shard award @n [shard]` - this collects the shard for the nearest player
+  - Place a command block with e.g. `/shard award @p [shard]` - this collects the shard for the nearest player
 
 ![shard creator screen preview](https://cdn.modrinth.com/data/DB9GU3tx/images/a35729532f21b838fcfa91bcf3490cd5bbd6bbec.png)
 
