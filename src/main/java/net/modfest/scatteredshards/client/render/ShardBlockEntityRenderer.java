@@ -1,7 +1,11 @@
 package net.modfest.scatteredshards.client.render;
 
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
@@ -25,8 +29,8 @@ import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.*;
 import net.modfest.scatteredshards.block.ShardBlockEntity;
+import net.modfest.scatteredshards.client.Quaternionsf;
 import net.modfest.scatteredshards.util.ModMetaUtil;
-import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -35,6 +39,9 @@ import org.jspecify.annotations.Nullable;
 @Environment(EnvType.CLIENT)
 public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity, ShardBlockEntityRenderer.ShardEntityRenderState> {
 	public static final float BLOCK_SCALE = 0.75f;
+
+	private static final Quaternionf ITEM_ROTATION_3D = Axis.XP.rotationDegrees(-60);
+	private static final Quaternionf ITEM_LIGHT_ROTATION_FLAT = Axis.XP.rotationDegrees(-45);
 
 	private static final Identifier DISTANCE_GLOW_TEX = ScatteredShards.id("textures/entity/shard_distance_glow.png");
 	private static final Identifier DISTANCE_HALO_TEX = ScatteredShards.id("textures/entity/shard_distance_halo.png");
@@ -126,15 +133,14 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		shard.icon().ifRight(ModMetaUtil::touchIconTexture);
 		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shard.shardTypeId()).orElse(ShardType.MISSING);
 
-		float angle = state.animations.getAngle(state.partialTicks);
-		Quaternionf rot = new Quaternionf(new AxisAngle4f(angle, 0f, 1f, 0f));
-		Quaternionf tilt = new Quaternionf(new AxisAngle4f((float) (Math.PI / 8), 0f, 0f, 1f));
-
 		poseStack.pushPose();
 
 		poseStack.translate(0.5, 0.5, 0.5);
-		poseStack.mulPose(rot);
-		poseStack.mulPose(tilt);
+		poseStack.mulPose(Quaternionsf.rotateXYZ(
+			0,
+			/* rot */ state.animations.getAngle(state.partialTicks),
+			/* tilt */ Mth.PI / 8.F
+		));
 
 		float alpha = collected ? 0.5f : 1f;
 
@@ -251,10 +257,25 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		ShardIconOffsets.Offset offset = shardType.getOffsets().getNormal();
 
 		shard.icon().ifLeft(stack -> {
+			final Minecraft client = Minecraft.getInstance();
+			final GpuBufferSlice shaderLights = RenderSystem.getShaderLights();
+
 			poseStack.translate((4 - offset.left()) * metersPerPixel, (8 - offset.up()) * metersPerPixel, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
-			poseStack.scale(-0.38f, 0.38f, 0.001f /*0.6f*/);
+			poseStack.scale(0.38f, 0.38f, 0.001f /*0.6f*/);
+
+			// Tinkering borrowed from Glowcase's Item Acceptor
+			// Thank you Chai :3
+			if (state.itemState.usesBlockLight()) {
+				poseStack.mulPose(ITEM_ROTATION_3D);
+				client.gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_3D);
+			} else {
+				poseStack.last().normal().rotate(ITEM_LIGHT_ROTATION_FLAT);
+				client.gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_FLAT);
+			}
 
 			state.itemState.submit(poseStack, submitNodeCollector, actualLight, OverlayTexture.NO_OVERLAY, 0);
+
+			RenderSystem.setShaderLights(shaderLights);
 		});
 
 
@@ -313,9 +334,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			poseStack.pushPose();
 
 			poseStack.translate(0.5, 0.5, 0.5);
-
-			poseStack.mulPose(Axis.YN.rotationDegrees(camera.yRot));
-			poseStack.mulPose(Axis.XP.rotationDegrees(camera.xRot + 90));
+			poseStack.mulPose(Quaternionsf.rotateDegreesYXZ(-camera.yRot, camera.xRot + 90, 0));
 
 			BlockPos pos = state.blockPos;
 			double distToShard = Math.sqrt(camera.pos
@@ -333,21 +352,17 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 			submitNodeCollector.submitCustomGeometry(
 				poseStack,
-				RenderTypes.entityTranslucent(DISTANCE_HALO_TEX),
-				(pose, buf) -> {
-					renderGlowingBillboard(pose, buf, r, g, b, distFadeAlpha);
-				});
+				RenderTypes.entityTranslucentEmissive(DISTANCE_HALO_TEX),
+				(pose, buf) -> renderGlowingBillboard(pose, buf, r, g, b, distFadeAlpha)
+			);
 
 			poseStack.translate(0, -0.01, 0);
 
-
 			submitNodeCollector.submitCustomGeometry(
 				poseStack,
-				RenderTypes.entityTranslucent(DISTANCE_GLOW_TEX),
-				(pose, buf) -> {
-					renderGlowingBillboard(pose, buf, 1, 1, 1, distFadeAlpha);
-					//renderGlowingBillboard(poseStack, submitNodeCollector.getBuffer(RenderTypes.entityTranslucent(DISTANCE_GLOW_TEX)), 1f, 1f, 1f, distFadeAlpha);
-				});
+				RenderTypes.entityTranslucentEmissive(DISTANCE_GLOW_TEX),
+				(pose, buf) -> renderGlowingBillboard(pose, buf, 1, 1, 1, distFadeAlpha)
+			);
 
 			poseStack.popPose();
 		}
