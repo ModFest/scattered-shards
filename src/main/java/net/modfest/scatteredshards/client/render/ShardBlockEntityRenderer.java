@@ -216,7 +216,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 
 		submitNodeCollector.submitCustomGeometry(
 			poseStack,
-			RenderTypes.itemTranslucent(ShardType.getBackingTexture(shard.shardTypeId())),
+			RenderTypes.itemTranslucent(ShardType.getFrontTexture(shard.shardTypeId())),
 			(pose, buf) -> {
 //				buf = submitNodeCollector.getBuffer(RenderType.itemEntityTranslucentCull(ShardType.getFrontTexture(shard.shardTypeId())));
 				buf
