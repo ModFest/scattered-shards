@@ -14,7 +14,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.GlobalCollection;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.shard.Shard;
@@ -27,9 +26,6 @@ import net.modfest.scatteredshards.util.ModMetaUtil;
 import java.util.function.Consumer;
 
 public class WMiniShard extends WWidget {
-	private static final Identifier MINI_OUTLINE = ScatteredShards.id("textures/gui/shards/mini_outline.png");
-	private static final Identifier MINI_OUTLINE_SLIGHT = ScatteredShards.id("textures/gui/shards/mini_outline_slight.png");
-
 	protected Shard shard = null;
 	protected ShardType shardType = null;
 	protected boolean isCollected = false;
@@ -65,6 +61,7 @@ public class WMiniShard extends WWidget {
 	@Override
 	public void paint(GuiGraphicsExtractor context, int x, int y, int mouseX, int mouseY) {
 		Identifier tex = (isCollected) ? ShardType.getMiniFrontTexture(shard.shardTypeId()) : ShardType.getMiniBackingTexture(shard.shardTypeId());
+		Identifier outline = (isCollected) ? ShardType.getMiniFrontOutline(shard.shardTypeId()) : ShardType.getMiniBackingOutline(shard.shardTypeId());
 		int color = (isCollected) ? 0xFF_FFFFFF : 0xFF_668866;
 		float opacity = (isCollected) ? 1.0f : 0.6f;
 		ScreenDrawing.texturedRect(context, x, y, getWidth(), getHeight(), tex, color, opacity);
@@ -84,7 +81,7 @@ public class WMiniShard extends WWidget {
 
 		boolean hovered = (mouseX >= 0 && mouseY >= 0 && mouseX < getWidth() && mouseY < getHeight());
 		if (hovered) {
-			ScreenDrawing.texturedRect(context, x - 2, y - 2, getWidth()+4, getHeight()+4, MINI_OUTLINE, 0, 0, 1, 1, 0xFF_FFFFFF);
+			ScreenDrawing.texturedRect(context, x - 2, y - 2, getWidth()+4, getHeight()+4, outline, 0, 0, 1, 1, 0xFF_FFFFFF);
 
 			renderTooltip(context, x, y, mouseX, mouseY);
 		} else if ( // Awful bullshit write real code later
@@ -93,7 +90,7 @@ public class WMiniShard extends WWidget {
 				&& wlrp.rightPanel instanceof WShardPanel wsp
 				&& wsp.getShard() == shard
 		) {
-			ScreenDrawing.texturedRect(context, x - 2, y - 2, getWidth()+4, getHeight()+4, MINI_OUTLINE_SLIGHT, 0, 0, 1, 1, 0xFF_FFFFFF);
+			ScreenDrawing.texturedRect(context, x - 2, y - 2, getWidth()+4, getHeight()+4, outline, 0, 0, 1, 1, 0x80_FFFFFF);
 		}
 	}
 

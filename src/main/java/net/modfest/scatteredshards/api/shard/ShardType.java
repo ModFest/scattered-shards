@@ -72,6 +72,22 @@ public record ShardType(int textColor, int glowColor, Optional<ShardDisplaySetti
 		return getTexture(id, "mini_backing");
 	}
 
+	public static Identifier getMiniFrontOutline(Identifier id) {
+		if (ScatteredShards.CONFIG.use_unique_mini_outlines.value()) {
+			return getTexture(id, "mini_front_outline");
+		} else {
+			return ScatteredShards.id("textures/gui/shards/mini_outline.png");
+		}
+	}
+
+	public static Identifier getMiniBackingOutline(Identifier id) {
+		if (ScatteredShards.CONFIG.use_unique_mini_outlines.value()) {
+			return getTexture(id, "mini_backing_outline");
+		} else {
+			return ScatteredShards.id("textures/gui/shards/mini_outline.png");
+		}
+	}
+
 	public static Component getDescription(Identifier id) {
 		return Component.translatable(id.toLanguageKey("shard_type", "description"));
 	}
