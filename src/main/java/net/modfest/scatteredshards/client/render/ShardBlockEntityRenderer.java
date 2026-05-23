@@ -40,7 +40,7 @@ import org.jspecify.annotations.Nullable;
 public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockEntity, ShardBlockEntityRenderer.ShardEntityRenderState> {
 	public static final float BLOCK_SCALE = 0.75f;
 
-	private static final Quaternionf ITEM_ROTATION_3D = Axis.XP.rotationDegrees(-60);
+	private static final Quaternionf ITEM_LIGHT_ROTATION_3D = Quaternionsf.rotateDegreesXYZ(-15, 15, 0);
 	private static final Quaternionf ITEM_LIGHT_ROTATION_FLAT = Axis.XP.rotationDegrees(-45);
 
 	private static final Identifier DISTANCE_GLOW_TEX = ScatteredShards.id("textures/entity/shard_distance_glow.png");
@@ -260,13 +260,22 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			final Minecraft client = Minecraft.getInstance();
 			final GpuBufferSlice shaderLights = RenderSystem.getShaderLights();
 
-			poseStack.translate((4 - offset.left()) * metersPerPixel, (8 - offset.up()) * metersPerPixel, -0.005f); //extra -0.002 here to prevent full-cubes from zfighting the card
+			int left = offset.left();
+			int top = offset.up();
+			// Constant halved as 16 overshot it.
+			int right = left + 8;
+			int bottom = top + 8;
+
+			//extra -0.002 here to prevent full-cubes from zfighting the card
+			poseStack.translate(ur.x-(right * metersPerPixel), ur.y-(bottom * metersPerPixel), -0.005f);
+
 			poseStack.scale(0.38f, 0.38f, 0.001f /*0.6f*/);
+			poseStack.mulPose(Axis.YP.rotationDegrees(180));
 
 			// Tinkering borrowed from Glowcase's Item Acceptor
 			// Thank you Chai :3
 			if (state.itemState.usesBlockLight()) {
-				poseStack.mulPose(ITEM_ROTATION_3D);
+				poseStack.last().normal().rotate(ITEM_LIGHT_ROTATION_3D);
 				client.gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_3D);
 			} else {
 				poseStack.last().normal().rotate(ITEM_LIGHT_ROTATION_FLAT);
