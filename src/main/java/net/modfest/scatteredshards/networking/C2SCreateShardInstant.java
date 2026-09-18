@@ -2,6 +2,7 @@ package net.modfest.scatteredshards.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -30,7 +31,7 @@ public record C2SCreateShardInstant(Identifier shardId, Shard shard) implements 
 		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
 
 		ItemStack itemStack = ShardBlock.createShardBlock(library, payload.shardId(), false, 0.5f, 0.5f);
-		context.player().getInventory().placeItemBackInInventory(itemStack);
+		context.player().getInventory().placeItemBackInInventory(itemStack, Prediction.PREDICTED);
 	}
 
 	@Override

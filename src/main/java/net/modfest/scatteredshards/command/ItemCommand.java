@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,7 +28,7 @@ public class ItemCommand {
 
 		ItemStack stack = ShardItem.createShardItem(shardId, name);
 
-		player.getInventory().placeItemBackInInventory(stack);
+		player.getInventory().placeItemBackInInventory(stack, Prediction.PREDICTED);
 
 		ctx.getSource().sendSuccess(() -> Component.translatableEscape("commands.scattered_shards.shard.item", shardId), false);
 		return Command.SINGLE_SUCCESS;

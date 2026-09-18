@@ -65,7 +65,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 			.ifPresent((sound) -> Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound, 1.0F, 0.8F)));
 
 		Toast toast = new ShardCollectedToast(shard);
-		Minecraft.getInstance().getToastManager().addToast(toast);
+		Minecraft.getInstance().gui.toastManager().addToast(toast);
 	}
 
 	public static void triggerShardModificationToast(Identifier shardId, boolean success) {
@@ -74,7 +74,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 			Component.translatable("toast.scattered_shards.shard_mod.title"),
 			Component.translatableEscape(success ? "toast.scattered_shards.shard_mod.success" : "toast.scattered_shards.shard_mod.success.fail", shardId)
 		);
-		Minecraft.getInstance().getToastManager().addToast(toast);
+		Minecraft.getInstance().gui.toastManager().addToast(toast);
 	}
 
 	public static void openShardTablet() {
@@ -82,12 +82,12 @@ public class ScatteredShardsClient implements ClientModInitializer {
 			final ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 			final ShardCollection collection = ScatteredShardsAPI.getClientCollection();
 
-			Minecraft.getInstance().setScreen(new ShardTabletGuiDescription.Screen(collection, library));
+			Minecraft.getInstance().gui.setScreen(new ShardTabletGuiDescription.Screen(collection, library));
 			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0f, 1.0f));
 		});
 	}
 
 	public static boolean hasShiftDown() {
-		return InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), 340) || InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), 344);
+		return InputConstants.isKeyDown(InputConstants.KEY_LSHIFT) || InputConstants.isKeyDown(InputConstants.KEY_RSHIFT);
 	}
 }

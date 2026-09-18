@@ -85,7 +85,7 @@ public class WMiniShard extends WWidget {
 
 			renderTooltip(context, x, y, mouseX, mouseY);
 		} else if ( // Awful bullshit write real code later
-			Minecraft.getInstance().screen instanceof ShardTabletGuiDescription.Screen stgds
+			Minecraft.getInstance().gui.screen() instanceof ShardTabletGuiDescription.Screen stgds
 				&& stgds.getDescription().getRootPanel() instanceof WLeftRightPanel wlrp
 				&& wlrp.rightPanel instanceof WShardPanel wsp
 				&& wsp.getShard() == shard
