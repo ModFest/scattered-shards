@@ -65,7 +65,7 @@ public class ClientShardCommand {
 		}
 		realLibrary.shardTypes().forEach((fakeShardTypes::put));
 		fakeLibrary.shardDisplaySettings().copyFrom(realLibrary.shardDisplaySettings());
-		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreen(new ShardTabletGuiDescription.Screen(shardCollection, fakeLibrary)));
+		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreenAndShow(new ShardTabletGuiDescription.Screen(shardCollection, fakeLibrary)));
 		return Command.SINGLE_SUCCESS;
 	}
 
@@ -75,7 +75,7 @@ public class ClientShardCommand {
 		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardTypeId)
 			.orElseThrow(() -> ShardCommand.INVALID_SHARD_TYPE.create(shardTypeId));
 
-		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreen(ShardCreatorGuiDescription.Screen.newShard(modId, shardType)));
+		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreenAndShow(ShardCreatorGuiDescription.Screen.newShard(modId, shardType)));
 		return Command.SINGLE_SUCCESS;
 	}
 
@@ -84,14 +84,14 @@ public class ClientShardCommand {
 		Shard shard = ScatteredShardsAPI.getClientLibrary().shards().get(shardId)
 			.orElseThrow(() -> INVALID_SHARD_ID.create(shardId));
 
-		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreen(ShardCreatorGuiDescription.Screen.editShard(shard)));
+		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreenAndShow(ShardCreatorGuiDescription.Screen.editShard(shard)));
 		return Command.SINGLE_SUCCESS;
 	}
 
 	public static int shards(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 		ShardCollection collection = ScatteredShardsAPI.getClientCollection();
-		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreen(new ShardTabletGuiDescription.Screen(collection, library)));
+		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreenAndShow(new ShardTabletGuiDescription.Screen(collection, library)));
 		return Command.SINGLE_SUCCESS;
 	}
 

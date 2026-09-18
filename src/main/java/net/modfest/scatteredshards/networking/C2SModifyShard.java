@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
@@ -26,9 +27,8 @@ public record C2SModifyShard(Identifier shardId, Shard shard) implements CustomP
 
 	public static boolean modify(ServerPlayer player, Identifier shardId, Shard shard) {
 		MinecraftServer server = player.level().getServer();
-		assert server != null;
 
-		boolean success = server.isSingleplayer() || Permissions.check(player, ScatteredShardsAPI.MODIFY_SHARD_PERMISSION, 1);
+		boolean success = server.isSingleplayer() || Permissions.check(player, ScatteredShardsAPI.MODIFY_SHARD_PERMISSION, PermissionLevel.GAMEMASTERS);
 
 		server.execute(() -> {
 			//Let the sender know of success or failure before a shard update comes through

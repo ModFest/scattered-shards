@@ -1,8 +1,8 @@
 package net.modfest.scatteredshards.client.render;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -136,7 +136,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 		poseStack.pushPose();
 
 		poseStack.translate(0.5, 0.5, 0.5);
-		poseStack.mulPose(Quaternionsf.rotateXYZ(
+		poseStack.rotate(Quaternionsf.rotateXYZ(
 			0,
 			/* rot */ state.animations.getAngle(state.partialTicks),
 			/* tilt */ Mth.PI / 8.F
@@ -270,16 +270,16 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			poseStack.translate(ur.x-(right * metersPerPixel), ur.y-(bottom * metersPerPixel), -0.005f);
 
 			poseStack.scale(0.38f, 0.38f, 0.001f /*0.6f*/);
-			poseStack.mulPose(Axis.YP.rotationDegrees(180));
+			poseStack.rotate(Axis.YP.rotationDegrees(180));
 
 			// Tinkering borrowed from Glowcase's Item Acceptor
 			// Thank you Chai :3
 			if (state.itemState.usesBlockLight()) {
 				poseStack.last().normal().rotate(ITEM_LIGHT_ROTATION_3D);
-				client.gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_3D);
+				client.gameRenderer.lighting().setupFor(Lighting.Entry.ITEMS_3D);
 			} else {
 				poseStack.last().normal().rotate(ITEM_LIGHT_ROTATION_FLAT);
-				client.gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_FLAT);
+				client.gameRenderer.lighting().setupFor(Lighting.Entry.ITEMS_FLAT);
 			}
 
 			state.itemState.submit(poseStack, submitNodeCollector, actualLight, OverlayTexture.NO_OVERLAY, 0);
@@ -343,7 +343,7 @@ public class ShardBlockEntityRenderer implements BlockEntityRenderer<ShardBlockE
 			poseStack.pushPose();
 
 			poseStack.translate(0.5, 0.5, 0.5);
-			poseStack.mulPose(Quaternionsf.rotateDegreesYXZ(-camera.yRot, camera.xRot + 90, 0));
+			poseStack.rotate(Quaternionsf.rotateDegreesYXZ(-camera.yRot, camera.xRot + 90, 0));
 
 			BlockPos pos = state.blockPos;
 			double distToShard = Math.sqrt(camera.pos

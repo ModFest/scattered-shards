@@ -5,6 +5,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,7 +29,7 @@ public class ItemCommand {
 
 		ItemStack stack = ShardItem.createShardItem(shardId, name);
 
-		player.getInventory().placeItemBackInInventory(stack);
+		player.getInventory().placeItemBackInInventory(stack, Prediction.SERVER_ONLY);
 
 		ctx.getSource().sendSuccess(() -> Component.translatableEscape("commands.scattered_shards.shard.item", shardId), false);
 		return Command.SINGLE_SUCCESS;
@@ -36,7 +38,7 @@ public class ItemCommand {
 	public static void register(CommandNode<CommandSourceStack> parent) {
 		//Usage: /shard item <shard_id>
 		CommandNode<CommandSourceStack> blockCommand = ShardCommandNodeHelper.literal("item")
-			.requires(Permissions.require(ScatteredShards.permission("command.item"), 2))
+			.requires(Permissions.require(ScatteredShards.permission("command.item"), PermissionLevel.GAMEMASTERS))
 			.build();
 		CommandNode<CommandSourceStack> shardIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(ItemCommand::item)

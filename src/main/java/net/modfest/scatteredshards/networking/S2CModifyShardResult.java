@@ -7,7 +7,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
 import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.client.ScatteredShardsClient;
@@ -23,7 +22,7 @@ public record S2CModifyShardResult(Identifier shardId, boolean success) implemen
 	public static void receive(S2CModifyShardResult payload, ClientPlayNetworking.Context context) {
 		context.client().execute(() -> {
 			ScatteredShardsClient.triggerShardModificationToast(payload.shardId(), payload.success());
-			context.client().setScreen(null);
+			context.client().gui.setScreen(null);
 		});
 	}
 

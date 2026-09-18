@@ -13,9 +13,18 @@ base {
 }
 
 repositories {
+	flatDir { dir "libs" }
+
 	maven { url "https://staging.alexiil.uk/maven/" }
 	maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-	maven { url "https://repo.sleeping.town/" }
+	exclusiveContent {
+		forRepository {
+			maven { url "https://repo.sleeping.town/" }
+		}
+		filter {
+			includeModule "folk.sisby", "kaleido-config"
+		}
+	}
 }
 
 dependencies {
