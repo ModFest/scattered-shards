@@ -4,14 +4,12 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardCollection;
 import net.modfest.scatteredshards.api.impl.ShardCollectionPersistentState;
@@ -63,7 +61,7 @@ public class UncollectCommand {
 
 	public static void register(CommandNode<CommandSourceStack> parent) {
 		CommandNode<CommandSourceStack> uncollectCommand = ShardCommandNodeHelper.literal("uncollect")
-			.requires(Permissions.require(ScatteredShards.permission("command.uncollect"), 2))
+			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.UNCOLLECT, 2))
 			.build();
 
 		//syntax: uncollect <shard_id>
@@ -75,7 +73,7 @@ public class UncollectCommand {
 		CommandNode<CommandSourceStack> uncollectAllCommand = ShardCommandNodeHelper.literal("all")
 			.executes(UncollectCommand::uncollectAll)
 			.requires(
-				Permissions.require(ScatteredShards.permission("command.uncollect.all"), 2)
+				ShardCommand.Permissions.require(ShardCommand.Permissions.UNCOLLECT_ALL, 2)
 			)
 			.build();
 

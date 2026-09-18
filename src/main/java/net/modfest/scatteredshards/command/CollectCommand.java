@@ -4,11 +4,9 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 
 public class CollectCommand {
@@ -30,7 +28,7 @@ public class CollectCommand {
 
 	public static void register(CommandNode<CommandSourceStack> parent) {
 		CommandNode<CommandSourceStack> collectCommand = ShardCommandNodeHelper.literal("collect")
-			.requires(Permissions.require(ScatteredShards.permission("command.collect"), 2))
+			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.COLLECT, 2))
 			.build();
 		CommandNode<CommandSourceStack> collectIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(CollectCommand::collect)
