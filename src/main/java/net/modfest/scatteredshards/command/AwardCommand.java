@@ -3,13 +3,11 @@ package net.modfest.scatteredshards.command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
 
@@ -41,7 +39,7 @@ public class AwardCommand {
 
 	public static void register(CommandNode<CommandSourceStack> parent) {
 		CommandNode<CommandSourceStack> awardCommand = ShardCommandNodeHelper.literal("award")
-			.requires(Permissions.require(ScatteredShards.permission("command.award"), 2))
+			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.AWARD, 2))
 			.build();
 		CommandNode<CommandSourceStack> awardPlayerArgument = ShardCommandNodeHelper.players("players").build();
 		CommandNode<CommandSourceStack> awardIdArgument = ShardCommandNodeHelper.shardId("shard_id")

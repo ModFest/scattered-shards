@@ -37,10 +37,8 @@ dependencies {
 	implementation libs.fapi
 
 	implementation libs.libgui
-	implementation libs.fpapi
 
 	include libs.libgui
-	include libs.fpapi
 }
 
 loom {
@@ -63,7 +61,6 @@ processResources {
 		fl            : libs.versions.fl.get(),
 		fapi          : libs.versions.fapi.get(),
 		libgui        : libs.versions.libgui.get(),
-		fpapi         : libs.versions.fpapi.get()
 	]
 	inputs.properties meta
 	filesMatching("*.mod.json") { expand(meta) }

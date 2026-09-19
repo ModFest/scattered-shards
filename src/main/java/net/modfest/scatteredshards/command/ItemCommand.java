@@ -4,7 +4,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStack;
@@ -12,7 +11,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.shard.Shard;
@@ -37,14 +35,14 @@ public class ItemCommand {
 
 	public static void register(CommandNode<CommandSourceStack> parent) {
 		//Usage: /shard item <shard_id>
-		CommandNode<CommandSourceStack> blockCommand = ShardCommandNodeHelper.literal("item")
-			.requires(Permissions.require(ScatteredShards.permission("command.item"), PermissionLevel.GAMEMASTERS))
+		CommandNode<CommandSourceStack> itemCommand = ShardCommandNodeHelper.literal("item")
+			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.ITEM, 2))
 			.build();
 		CommandNode<CommandSourceStack> shardIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(ItemCommand::item)
 			.build();
 
-		parent.addChild(blockCommand);
-		blockCommand.addChild(shardIdArgument);
+		parent.addChild(itemCommand);
+		itemCommand.addChild(shardIdArgument);
 	}
 }
