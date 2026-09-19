@@ -27,7 +27,7 @@ public record C2SModifyShard(Identifier shardId, Shard shard) implements CustomP
 	public static boolean modify(ServerPlayer player, Identifier shardId, Shard shard) {
 		MinecraftServer server = player.level().getServer();
 
-		boolean success = server.isSingleplayer() || player.checkPermission(ScatteredShardsAPI.MODIFY_SHARD_PERMISSION.key(), PermissionLevel.MODERATORS);
+		boolean success = server.isSingleplayer() || player.checkPermission(ScatteredShardsAPI.MODIFY_SHARD_PERMISSION.key(), PermissionLevel.GAMEMASTERS);
 
 		server.execute(() -> {
 			//Let the sender know of success or failure before a shard update comes through
