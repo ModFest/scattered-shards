@@ -2,6 +2,7 @@ package net.modfest.scatteredshards;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.permission.v1.PermissionNode;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
@@ -24,8 +25,8 @@ public class ScatteredShards implements ModInitializer {
 		return Identifier.fromNamespaceAndPath(ID, path);
 	}
 
-	public static String permission(String path) {
-		return ID + "." + path;
+	public static PermissionNode<Boolean> permission(String path) {
+		return PermissionNode.of(id(path));
 	}
 
 	@Override

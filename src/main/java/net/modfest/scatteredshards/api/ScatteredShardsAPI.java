@@ -3,6 +3,7 @@ package net.modfest.scatteredshards.api;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.permission.v1.PermissionNode;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +21,7 @@ import java.util.UUID;
 
 public class ScatteredShardsAPI {
 
-	public static final String MODIFY_SHARD_PERMISSION = ScatteredShards.permission("modify_shard");
+	public static final PermissionNode<Boolean> MODIFY_SHARD_PERMISSION = ScatteredShards.permission("modify_shard");
 
 	private static ShardCollectionPersistentState collectionPersistentState;
 	private static final ShardLibrary serverShardLibrary = new ShardLibraryImpl();

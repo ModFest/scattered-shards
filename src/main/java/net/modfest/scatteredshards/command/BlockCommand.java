@@ -6,14 +6,12 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.block.ShardBlock;
@@ -49,7 +47,7 @@ public class BlockCommand {
 	public static void register(CommandNode<CommandSourceStack> parent) {
 		//Usage: /shard block <shard_id>
 		CommandNode<CommandSourceStack> blockCommand = ShardCommandNodeHelper.literal("block")
-			.requires(Permissions.require(ScatteredShards.permission("command.block"), 2))
+			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.BLOCK, 2))
 			.build();
 		CommandNode<CommandSourceStack> blockIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(BlockCommand::block)

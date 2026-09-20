@@ -5,14 +5,12 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.modfest.scatteredshards.ScatteredShards;
 import net.modfest.scatteredshards.api.ScatteredShardsAPI;
 import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
@@ -78,19 +76,19 @@ public class LibraryCommand {
 
 	public static void register(CommandNode<CommandSourceStack> parent) {
 		CommandNode<CommandSourceStack> library = ShardCommandNodeHelper.literal("library")
-			.requires(Permissions.require(ScatteredShards.permission("command.library"), 3))
+			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.LIBRARY, 3))
 			.build();
 
 		//Usage: /shard library delete <shard_id>
 		CommandNode<CommandSourceStack> deleteCommand = ShardCommandNodeHelper.literal("delete")
-			.requires(Permissions.require(ScatteredShards.permission("command.library.delete"), 3))
+			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.LIBRARY_DELETE, 3))
 			.build();
 		CommandNode<CommandSourceStack> deleteIdArgument = ShardCommandNodeHelper.shardId("shard_id")
 			.executes(LibraryCommand::delete)
 			.build();
 
 		CommandNode<CommandSourceStack> migrateCommand = ShardCommandNodeHelper.literal("migrate")
-			.requires(Permissions.require(ScatteredShards.permission("command.library.migrate"), 3)).build();
+			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.LIBRARY_MIGRATE, 3)).build();
 
 		CommandNode<CommandSourceStack> migrateShardArg = ShardCommandNodeHelper.shardId("shard_id").build();
 		CommandNode<CommandSourceStack> migrateModArg = ShardCommandNodeHelper.stringArgument("mod_id").suggests(ShardCommandNodeHelper::suggestModIds).build();
