@@ -1,5 +1,6 @@
 package net.modfest.scatteredshards.client.screen.widget;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.TooltipBuilder;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
@@ -111,7 +112,7 @@ public class WMiniShard extends WWidget {
 
 	@Override
 	public InputResult onClick(MouseButtonEvent click, boolean doubled) {
-		if (click.button() == 0) {
+		if (click.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 0.25f));
 			shardConsumer.accept(shard);
 			return InputResult.PROCESSED;
