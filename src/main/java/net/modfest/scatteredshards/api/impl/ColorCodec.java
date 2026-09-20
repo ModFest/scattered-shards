@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 
 public class ColorCodec {
 
-	public static Codec<Integer> CODEC = Codec.STRING.xmap(ColorCodec::parseColor, ColorCodec::valueOf);
+	public static final Codec<Integer> CODEC = Codec.STRING.xmap(ColorCodec::parseColor, ColorCodec::valueOf);
 
 	public static int parseColor(String str) {
 		if (str.startsWith("#")) str = str.substring(1);

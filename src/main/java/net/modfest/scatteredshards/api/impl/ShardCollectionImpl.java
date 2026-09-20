@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class ShardCollectionImpl implements ShardCollection {
 	private final Set<Identifier> data;
 
@@ -22,41 +23,41 @@ public class ShardCollectionImpl implements ShardCollection {
 
 	@Override
 	public boolean contains(Identifier shardId) {
-		return data.contains(shardId);
+		return this.data.contains(shardId);
 	}
 
 	@Override
 	public boolean add(Identifier shardId) {
-		return data.add(shardId);
+		return this.data.add(shardId);
 	}
 
 	@Override
 	public void addAll(Collection<Identifier> shardIds) {
-		data.addAll(shardIds);
+		this.data.addAll(shardIds);
 	}
 
 	@Override
 	public boolean remove(Identifier shardId) {
-		return data.remove(shardId);
+		return this.data.remove(shardId);
 	}
 
 	@Override
 	public int size() {
-		return data.size();
+		return this.data.size();
 	}
 
 	@Override
 	public void clear() {
-		data.clear();
+		this.data.clear();
 	}
 
 	@Override
 	public @NotNull Iterator<Identifier> iterator() {
-		return data.iterator();
+		return this.data.iterator();
 	}
 
 	@Override
 	public Set<Identifier> toImmutableSet() {
-		return Set.copyOf(data);
+		return Set.copyOf(this.data);
 	}
 }

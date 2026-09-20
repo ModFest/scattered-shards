@@ -13,6 +13,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -32,6 +34,7 @@ import net.modfest.scatteredshards.command.ShardCommandNodeHelper;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 @SuppressWarnings("SameParameterValue")
 public class ClientShardCommand {
@@ -47,25 +50,30 @@ public class ClientShardCommand {
 		Identifier id = context.getArgument("set_id", Identifier.class);
 		ShardLibrary realLibrary = ScatteredShardsAPI.getClientLibrary();
 		Set<Identifier> shardPackSet = realLibrary.shardSets().get(id);
+
 		if (shardPackSet.isEmpty()) {
 			throw INVALID_SET_ID.create(id);
 		}
+
 		ShardCollection shardCollection = ScatteredShardsAPI.getClientCollection();
 		ShardLibrary fakeLibrary = new ShardLibraryImpl();
 		MiniRegistry<Shard> realShardRegistry = realLibrary.shards();
 		MiniRegistry<Shard> fakeShardRegistry = fakeLibrary.shards();
 		SetMultimap<Identifier, Identifier> fakeShardSets = fakeLibrary.shardSets();
 		MiniRegistry<ShardType> fakeShardTypes = fakeLibrary.shardTypes();
+
 		for (Identifier shardId : shardPackSet) {
 			Optional<Shard> optionalShard = realShardRegistry.get(shardId);
 			if (optionalShard.isEmpty()) continue;
+
 			Shard shard = optionalShard.get();
 			fakeShardRegistry.put(shardId, shard);
 			fakeShardSets.put(shard.sourceId(), shardId);
 		}
+
 		realLibrary.shardTypes().forEach((fakeShardTypes::put));
 		fakeLibrary.shardDisplaySettings().copyFrom(realLibrary.shardDisplaySettings());
-		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreenAndShow(new ShardTabletGuiDescription.Screen(shardCollection, fakeLibrary)));
+		setScreen(context, () -> new ShardTabletGuiDescription.Screen(shardCollection, fakeLibrary));
 		return Command.SINGLE_SUCCESS;
 	}
 
@@ -75,7 +83,7 @@ public class ClientShardCommand {
 		ShardType shardType = ScatteredShardsAPI.getClientLibrary().shardTypes().get(shardTypeId)
 			.orElseThrow(() -> ShardCommand.INVALID_SHARD_TYPE.create(shardTypeId));
 
-		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreenAndShow(ShardCreatorGuiDescription.Screen.newShard(modId, shardType)));
+		setScreen(context, () -> ShardCreatorGuiDescription.Screen.newShard(modId, shardType));
 		return Command.SINGLE_SUCCESS;
 	}
 
@@ -84,15 +92,20 @@ public class ClientShardCommand {
 		Shard shard = ScatteredShardsAPI.getClientLibrary().shards().get(shardId)
 			.orElseThrow(() -> INVALID_SHARD_ID.create(shardId));
 
-		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreenAndShow(ShardCreatorGuiDescription.Screen.editShard(shard)));
+		setScreen(context, () -> ShardCreatorGuiDescription.Screen.editShard(shard));
 		return Command.SINGLE_SUCCESS;
 	}
 
 	public static int shards(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
 		ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
 		ShardCollection collection = ScatteredShardsAPI.getClientCollection();
-		context.getSource().getClient().schedule(() -> context.getSource().getClient().setScreenAndShow(new ShardTabletGuiDescription.Screen(collection, library)));
+		setScreen(context, () -> new ShardTabletGuiDescription.Screen(collection, library));
 		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static void setScreen(CommandContext<FabricClientCommandSource> context, Supplier<Screen> screenCreator) {
+		Minecraft client = context.getSource().getClient();
+		client.schedule(() -> client.setScreenAndShow(screenCreator.get()));
 	}
 
 	private static CompletableFuture<Suggestions> suggestShardSets(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {

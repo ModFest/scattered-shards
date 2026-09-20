@@ -16,7 +16,6 @@ import net.modfest.scatteredshards.api.ShardLibrary;
 import net.modfest.scatteredshards.api.impl.ShardLibraryPersistentState;
 import net.modfest.scatteredshards.api.shard.Shard;
 import net.modfest.scatteredshards.api.shard.ShardType;
-import net.modfest.scatteredshards.networking.S2CSyncLibrary;
 import net.modfest.scatteredshards.networking.S2CSyncShard;
 import net.modfest.scatteredshards.networking.S2CUpdateShard;
 
@@ -43,23 +42,6 @@ public class LibraryCommand {
 		ctx.getSource().sendSuccess(() -> Component.translatableEscape("commands.scattered_shards.shard.library.delete", shardId), true);
 
 		return Command.SINGLE_SUCCESS;
-	}
-
-	public static int deleteAll(CommandContext<CommandSourceStack> ctx) {
-		ShardLibrary library = ScatteredShardsAPI.getServerLibrary();
-		int toDelete = library.shards().size();
-		library.shards().clear();
-		library.shardSets().clear();
-		MinecraftServer server = ctx.getSource().getServer();
-		ShardLibraryPersistentState.get(server).setDirty();
-		S2CSyncLibrary syncLibrary = new S2CSyncLibrary(library);
-		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			ServerPlayNetworking.send(player, syncLibrary);
-		}
-
-		ctx.getSource().sendSuccess(() -> Component.translatableEscape("commands.scattered_shards.shard.library.delete.all", toDelete), true);
-
-		return toDelete;
 	}
 
 	public static int migrate(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
@@ -105,12 +87,6 @@ public class LibraryCommand {
 			.executes(LibraryCommand::delete)
 			.build();
 
-		//Usage: /shard library delete all
-		CommandNode<CommandSourceStack> deleteAllCommand = ShardCommandNodeHelper.literal("all")
-			.executes(LibraryCommand::deleteAll)
-			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.LIBRARY_DELETE_ALL, 4))
-			.build();
-
 		CommandNode<CommandSourceStack> migrateCommand = ShardCommandNodeHelper.literal("migrate")
 			.requires(ShardCommand.Permissions.require(ShardCommand.Permissions.LIBRARY_MIGRATE, 3)).build();
 
@@ -123,7 +99,6 @@ public class LibraryCommand {
 		library.addChild(deleteCommand);
 		library.addChild(migrateCommand);
 		deleteCommand.addChild(deleteIdArgument);
-		deleteCommand.addChild(deleteAllCommand);
 		migrateCommand.addChild(migrateShardArg);
 		migrateShardArg.addChild(migrateModArg);
 		migrateModArg.addChild(migrateShardTypeArg);

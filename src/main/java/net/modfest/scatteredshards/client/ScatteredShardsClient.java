@@ -44,8 +44,8 @@ public class ScatteredShardsClient implements ClientModInitializer {
 	}
 
 	public static void onShardCollected(Identifier shardId) {
-		var library = ScatteredShardsAPI.getClientLibrary();
-		var collection = ScatteredShardsAPI.getClientCollection();
+		ShardLibrary library = ScatteredShardsAPI.getClientLibrary();
+		ShardCollection collection = ScatteredShardsAPI.getClientCollection();
 
 		Shard shard = library.shards().get(shardId).orElse(Shard.MISSING_SHARD);
 		if (shard == Shard.MISSING_SHARD) {
@@ -69,7 +69,7 @@ public class ScatteredShardsClient implements ClientModInitializer {
 	}
 
 	public static void triggerShardModificationToast(Identifier shardId, boolean success) {
-		var toast = new SystemToast(
+		Toast toast = new SystemToast(
 			SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
 			Component.translatable("toast.scattered_shards.shard_mod.title"),
 			Component.translatableEscape(success ? "toast.scattered_shards.shard_mod.success" : "toast.scattered_shards.shard_mod.success.fail", shardId)
@@ -88,6 +88,6 @@ public class ScatteredShardsClient implements ClientModInitializer {
 	}
 
 	public static boolean hasShiftDown() {
-		return InputConstants.isKeyDown(340) || InputConstants.isKeyDown(344);
+		return InputConstants.isKeyDown(InputConstants.KEY_LSHIFT) || InputConstants.isKeyDown(InputConstants.KEY_RSHIFT);
 	}
 }

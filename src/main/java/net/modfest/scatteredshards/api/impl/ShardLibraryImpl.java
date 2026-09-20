@@ -12,6 +12,7 @@ import net.modfest.scatteredshards.api.shard.ShardType;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class ShardLibraryImpl implements ShardLibrary {
 	private final MiniRegistry<Shard> shards;
 	private final MiniRegistry<ShardType> shardTypes;
@@ -20,9 +21,9 @@ public class ShardLibraryImpl implements ShardLibrary {
 
 	@Override
 	public void clearAll() {
-		shards.clear();
-		shardSets.clear();
-		shardTypes.clear();
+		this.shards.clear();
+		this.shardSets.clear();
+		this.shardTypes.clear();
 	}
 
 	public ShardLibraryImpl() {
@@ -43,28 +44,28 @@ public class ShardLibraryImpl implements ShardLibrary {
 
 	@Override
 	public MiniRegistry<Shard> shards() {
-		return shards;
+		return this.shards;
 	}
 
 	@Override
 	public MiniRegistry<ShardType> shardTypes() {
-		return shardTypes;
+		return this.shardTypes;
 	}
 
 	@Override
 	public SetMultimap<Identifier, Identifier> shardSets() {
-		return shardSets;
+		return this.shardSets;
 	}
 
 	@Override
 	public ShardDisplaySettings shardDisplaySettings() {
-		return shardDisplaySettings;
+		return this.shardDisplaySettings;
 	}
 
 	@Override
 	public Stream<Shard> resolveShardSet(Identifier id) {
-		return shardSets.get(id).stream()
-			.map(shards::get)
+		return this.shardSets.get(id).stream()
+			.map(this.shards::get)
 			.flatMap(Optional::stream);
 	}
 }
