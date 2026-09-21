@@ -1,5 +1,6 @@
 package net.modfest.scatteredshards.client.screen.widget;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.impl.client.NinePatchTextureRendererImpl;
 import io.github.cottonmc.cotton.gui.widget.WWidget;
@@ -186,7 +187,7 @@ public class WAlternativeToggle extends WWidget {
 
 	@Override
 	public InputResult onClick(MouseButtonEvent click, boolean doubled) {
-		if (hitActive(click.x(), click.y()) && click.button() == 0) {
+		if (hitActive(click.x(), click.y()) && click.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			isRight = !isRight;
 
 			map(onLeft, onRight).run();
