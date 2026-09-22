@@ -25,7 +25,7 @@ public class ShardLibraryPersistentState extends SavedData {
 	public static final String SHARDS_KEY = "Shards";
 
 	public static ShardLibraryPersistentState get(MinecraftServer server) {
-		return server.overworld().getDataStorage().computeIfAbsent(TYPE);
+		return server.getDataStorage().computeIfAbsent(TYPE);
 	}
 
 	public ShardLibraryPersistentState() {

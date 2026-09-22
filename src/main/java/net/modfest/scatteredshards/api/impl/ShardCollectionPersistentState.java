@@ -28,7 +28,7 @@ public class ShardCollectionPersistentState extends SavedData {
 		null);
 
 	public static ShardCollectionPersistentState get(MinecraftServer server) {
-		ShardCollectionPersistentState result = server.overworld().getDataStorage().computeIfAbsent(TYPE);
+		ShardCollectionPersistentState result = server.getDataStorage().computeIfAbsent(TYPE);
 		ScatteredShardsAPI.register(result);
 		return result;
 	}
